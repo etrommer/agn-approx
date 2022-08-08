@@ -1,6 +1,7 @@
 # agnapprox
 
-Approximate Multiplier Matching for Neural Networks using Additive Gaussian Noise
+Code and experiments for the paper "Combining Gradients and Probabilities for Heterogeneours Approximation of Neural Networks"
+This is currently a placeholder. Code will be made available around late August 2022.
 
 ## Installation
 
