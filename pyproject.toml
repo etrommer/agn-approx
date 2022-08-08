@@ -1,0 +1,30 @@
+[tool.poetry]
+name = "agnapprox"
+version = "0.1.0"
+description = "Approximate Multiplier Matching for Neural Networks using Additive Gaussian Noise"
+authors = ["Elias Trommer"]
+license = "GNU General Public License v3.0"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+mlflow = "^1.27.0"
+torch = "*"
+poethepoet = "*"
+torchapprox = {path = "../torch_approx", develop = true}
+pytorch-lightning = "^1.7.0"
+evoapproxlib = {path = "../evoapproxlib", develop = true}
+scikit-learn = "^1.1.1"
+
+[tool.poetry.dev-dependencies]
+pytest = "^7.1.2"
+pytest-benchmark = "^3.4.1"
+
+[tool.poe.tasks]
+install-ltt = "python3 -m pip install light-the-torch"
+run-ltt = "python3 -m light_the_torch install --upgrade torch torchaudio torchvision"
+autoinstall-torch-cuda = ["install-ltt", "run-ltt"]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
