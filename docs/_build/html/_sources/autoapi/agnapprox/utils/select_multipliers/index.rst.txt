@@ -1,0 +1,67 @@
+:py:mod:`agnapprox.utils.select_multipliers`
+============================================
+
+.. py:module:: agnapprox.utils.select_multipliers
+
+.. autoapi-nested-parse::
+
+   Utility functions to select approximate multipliers based on reference data
+
+
+
+Module Contents
+---------------
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   agnapprox.utils.select_multipliers.select_layer_multiplier
+   agnapprox.utils.select_multipliers.select_multipliers
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   agnapprox.utils.select_multipliers.logger
+
+
+.. py:data:: logger
+   
+
+   
+
+.. py:function:: select_layer_multiplier(layer_ref_data: Dict[str, Any], multipliers: Dict[str, Any], max_noise: float, num_samples: int = 512) -> Dict[str, Any]
+
+   Select a matching approximate multiplier for a single layer
+
+   :param layer_ref_data: Dictionary of Reference input/output data generated from
+                          a model run with accurate multiplication
+   :param multipliers: Approximate Multiplier Error Maps, Performance Metrics and name
+   :param max_noise: Learned allowable noise parameter (sigma_l)
+   :param num_samples: _description_. Defaults to 512.
+
+   :returns: Dictionary with name and performance metric of selected multiplier
+
+
+.. py:function:: select_multipliers(model: agnapprox.nets.ApproxNet, datamodule: pytorch_lightning.LightningDataModule, library, trainer: pytorch_lightning.Trainer, signed: bool = True, deploy: bool = False)
+
+   Select matching Approximate Multipliers for all layers in a model
+
+   :param model: Approximate Model with learned layer robustness parameters
+   :param datamodule: Data Module to use for sampling runs
+   :param library: Approximate Multiplier Library provider
+   :param trainer: PyTorch Lightning Trainer instance to use for sampling run
+   :param signed: Whether to select signed or unsigned instances from Multiplier library provide.
+                  Defaults to True.
+   :param deploy: Whether to write selected approximate multiplier to layer configuration.
+                  Defaults to False.
+
+   :returns: Dictionary of Assignment results
+
+

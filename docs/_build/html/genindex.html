@@ -1,0 +1,1072 @@
+<!doctype html>
+<html class="no-js" lang="en">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="#" /><link rel="search" title="Search" href="search.html" />
+
+    <meta name="generator" content="sphinx-5.1.1, furo 2022.06.21"/><title>Index - agnapprox documentation</title>
+<link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=40978830699223671f4072448e654b5958f38b89" />
+    <link rel="stylesheet" type="text/css" href="_static/mystnb.css" />
+    <link rel="stylesheet" type="text/css" href="_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx_paramlinks.css" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="index.html"><div class="brand">agnapprox  documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
+  
+  
+  <span class="sidebar-brand-text">agnapprox  documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="search.html" role="search">
+  <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul>
+<li class="toctree-l1"><a class="reference internal" href="example.html">Example usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="conduct.html">Code of Conduct</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="autoapi/index.html">API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="autoapi/agnapprox/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">agnapprox</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="autoapi/agnapprox/datamodules/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">agnapprox.datamodules</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="autoapi/agnapprox/datamodules/approx_datamodule/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">agnapprox.datamodules.approx_datamodule</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autoapi/agnapprox/datamodules/cifar10/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">agnapprox.datamodules.cifar10</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autoapi/agnapprox/datamodules/format_tinyimagenet/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">agnapprox.datamodules.format_tinyimagenet</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autoapi/agnapprox/datamodules/mnist/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">agnapprox.datamodules.mnist</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autoapi/agnapprox/datamodules/tinyimagenet200/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">agnapprox.datamodules.tinyimagenet200</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="autoapi/agnapprox/nets/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">agnapprox.nets</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4 has-children"><a class="reference internal" href="autoapi/agnapprox/nets/base/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">agnapprox.nets.base</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="autoapi/agnapprox/nets/base/lenet5/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">agnapprox.nets.base.lenet5</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="autoapi/agnapprox/nets/base/resnet/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">agnapprox.nets.base.resnet</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="autoapi/agnapprox/nets/alexnet/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">agnapprox.nets.alexnet</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autoapi/agnapprox/nets/approxnet/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">agnapprox.nets.approxnet</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autoapi/agnapprox/nets/lenet5/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">agnapprox.nets.lenet5</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autoapi/agnapprox/nets/mobilenetv2/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">agnapprox.nets.mobilenetv2</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autoapi/agnapprox/nets/resnet/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">agnapprox.nets.resnet</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autoapi/agnapprox/nets/vgg/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">agnapprox.nets.vgg</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="autoapi/agnapprox/utils/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">agnapprox.utils</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="autoapi/agnapprox/utils/error_stats/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">agnapprox.utils.error_stats</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autoapi/agnapprox/utils/model/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">agnapprox.utils.model</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autoapi/agnapprox/utils/select_multipliers/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">agnapprox.utils.select_multipliers</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="autoapi/agnapprox/agnapprox/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">agnapprox.agnapprox</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main">
+          
+<section class="genindex-section">
+  <h1 id="index">Index</h1>
+  <div class="genindex-jumpbox"><a href="#_"><strong>_</strong></a> | <a href="#A"><strong>A</strong></a> | <a href="#C"><strong>C</strong></a> | <a href="#D"><strong>D</strong></a> | <a href="#E"><strong>E</strong></a> | <a href="#F"><strong>F</strong></a> | <a href="#G"><strong>G</strong></a> | <a href="#L"><strong>L</strong></a> | <a href="#M"><strong>M</strong></a> | <a href="#N"><strong>N</strong></a> | <a href="#O"><strong>O</strong></a> | <a href="#P"><strong>P</strong></a> | <a href="#R"><strong>R</strong></a> | <a href="#S"><strong>S</strong></a> | <a href="#T"><strong>T</strong></a> | <a href="#V"><strong>V</strong></a></div>
+</section>
+<section id="_" class="genindex-section">
+  <h2>_</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="autoapi/agnapprox/index.html#agnapprox.__version__">__version__ (in module agnapprox)</a>
+</li>
+        <li><a href="autoapi/agnapprox/nets/index.html#agnapprox.nets.AlexNet._approx_optimizers">_approx_optimizers() (agnapprox.nets.AlexNet method)</a>
+
+        <ul>
+          <li><a href="autoapi/agnapprox/nets/alexnet/index.html#agnapprox.nets.alexnet.AlexNet._approx_optimizers">(agnapprox.nets.alexnet.AlexNet method)</a>
+</li>
+          <li><a href="autoapi/agnapprox/nets/index.html#agnapprox.nets.ApproxNet._approx_optimizers">(agnapprox.nets.ApproxNet method)</a>
+</li>
+          <li><a href="autoapi/agnapprox/nets/approxnet/index.html#agnapprox.nets.approxnet.ApproxNet._approx_optimizers">(agnapprox.nets.approxnet.ApproxNet method)</a>
+</li>
+          <li><a href="autoapi/agnapprox/nets/index.html#agnapprox.nets.LeNet5._approx_optimizers">(agnapprox.nets.LeNet5 method)</a>
+</li>
+          <li><a href="autoapi/agnapprox/nets/lenet5/index.html#agnapprox.nets.lenet5.LeNet5._approx_optimizers">(agnapprox.nets.lenet5.LeNet5 method)</a>
+</li>
+          <li><a href="autoapi/agnapprox/nets/index.html#agnapprox.nets.MobileNetV2._approx_optimizers">(agnapprox.nets.MobileNetV2 method)</a>
+</li>
+          <li><a href="autoapi/agnapprox/nets/mobilenetv2/index.html#agnapprox.nets.mobilenetv2.MobileNetV2._approx_optimizers">(agnapprox.nets.mobilenetv2.MobileNetV2 method)</a>
+</li>
+          <li><a href="autoapi/agnapprox/nets/index.html#agnapprox.nets.ResNet._approx_optimizers">(agnapprox.nets.ResNet method)</a>
+</li>
+          <li><a href="autoapi/agnapprox/nets/resnet/index.html#agnapprox.nets.resnet.ResNet._approx_optimizers">(agnapprox.nets.resnet.ResNet method)</a>
+</li>
+          <li><a href="autoapi/agnapprox/nets/index.html#agnapprox.nets.VGG._approx_optimizers">(agnapprox.nets.VGG method)</a>
+</li>
+          <li><a href="autoapi/agnapprox/nets/vgg/index.html#agnapprox.nets.vgg.VGG._approx_optimizers">(agnapprox.nets.vgg.VGG method)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/agnapprox/nets/index.html#agnapprox.nets.AlexNet._baseline_optimizers">_baseline_optimizers() (agnapprox.nets.AlexNet method)</a>
+
+        <ul>
+          <li><a href="autoapi/agnapprox/nets/alexnet/index.html#agnapprox.nets.alexnet.AlexNet._baseline_optimizers">(agnapprox.nets.alexnet.AlexNet method)</a>
+</li>
+          <li><a href="autoapi/agnapprox/nets/index.html#agnapprox.nets.ApproxNet._baseline_optimizers">(agnapprox.nets.ApproxNet method)</a>
+</li>
+          <li><a href="autoapi/agnapprox/nets/approxnet/index.html#agnapprox.nets.approxnet.ApproxNet._baseline_optimizers">(agnapprox.nets.approxnet.ApproxNet method)</a>
+</li>
+          <li><a href="autoapi/agnapprox/nets/index.html#agnapprox.nets.LeNet5._baseline_optimizers">(agnapprox.nets.LeNet5 method)</a>
+</li>
+          <li><a href="autoapi/agnapprox/nets/lenet5/index.html#agnapprox.nets.lenet5.LeNet5._baseline_optimizers">(agnapprox.nets.lenet5.LeNet5 method)</a>
+</li>
+          <li><a href="autoapi/agnapprox/nets/index.html#agnapprox.nets.MobileNetV2._baseline_optimizers">(agnapprox.nets.MobileNetV2 method)</a>
+</li>
+          <li><a href="autoapi/agnapprox/nets/mobilenetv2/index.html#agnapprox.nets.mobilenetv2.MobileNetV2._baseline_optimizers">(agnapprox.nets.mobilenetv2.MobileNetV2 method)</a>
+</li>
+          <li><a href="autoapi/agnapprox/nets/index.html#agnapprox.nets.ResNet._baseline_optimizers">(agnapprox.nets.ResNet method)</a>
+</li>
+          <li><a href="autoapi/agnapprox/nets/resnet/index.html#agnapprox.nets.resnet.ResNet._baseline_optimizers">(agnapprox.nets.resnet.ResNet method)</a>
+</li>
+          <li><a href="autoapi/agnapprox/nets/index.html#agnapprox.nets.VGG._baseline_optimizers">(agnapprox.nets.VGG method)</a>
+</li>
+          <li><a href="autoapi/agnapprox/nets/vgg/index.html#agnapprox.nets.vgg.VGG._baseline_optimizers">(agnapprox.nets.vgg.VGG method)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/agnapprox/datamodules/approx_datamodule/index.html#agnapprox.datamodules.approx_datamodule.ApproxDataModule._create_data_loader">_create_data_loader() (agnapprox.datamodules.approx_datamodule.ApproxDataModule method)</a>
+
+        <ul>
+          <li><a href="autoapi/agnapprox/datamodules/index.html#agnapprox.datamodules.ApproxDataModule._create_data_loader">(agnapprox.datamodules.ApproxDataModule method)</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="autoapi/agnapprox/nets/index.html#agnapprox.nets.AlexNet._gs_optimizers">_gs_optimizers() (agnapprox.nets.AlexNet method)</a>
+
+        <ul>
+          <li><a href="autoapi/agnapprox/nets/alexnet/index.html#agnapprox.nets.alexnet.AlexNet._gs_optimizers">(agnapprox.nets.alexnet.AlexNet method)</a>
+</li>
+          <li><a href="autoapi/agnapprox/nets/index.html#agnapprox.nets.ApproxNet._gs_optimizers">(agnapprox.nets.ApproxNet method)</a>
+</li>
+          <li><a href="autoapi/agnapprox/nets/approxnet/index.html#agnapprox.nets.approxnet.ApproxNet._gs_optimizers">(agnapprox.nets.approxnet.ApproxNet method)</a>
+</li>
+          <li><a href="autoapi/agnapprox/nets/index.html#agnapprox.nets.LeNet5._gs_optimizers">(agnapprox.nets.LeNet5 method)</a>
+</li>
+          <li><a href="autoapi/agnapprox/nets/lenet5/index.html#agnapprox.nets.lenet5.LeNet5._gs_optimizers">(agnapprox.nets.lenet5.LeNet5 method)</a>
+</li>
+          <li><a href="autoapi/agnapprox/nets/index.html#agnapprox.nets.MobileNetV2._gs_optimizers">(agnapprox.nets.MobileNetV2 method)</a>
+</li>
+          <li><a href="autoapi/agnapprox/nets/mobilenetv2/index.html#agnapprox.nets.mobilenetv2.MobileNetV2._gs_optimizers">(agnapprox.nets.mobilenetv2.MobileNetV2 method)</a>
+</li>
+          <li><a href="autoapi/agnapprox/nets/index.html#agnapprox.nets.ResNet._gs_optimizers">(agnapprox.nets.ResNet method)</a>
+</li>
+          <li><a href="autoapi/agnapprox/nets/resnet/index.html#agnapprox.nets.resnet.ResNet._gs_optimizers">(agnapprox.nets.resnet.ResNet method)</a>
+</li>
+          <li><a href="autoapi/agnapprox/nets/index.html#agnapprox.nets.VGG._gs_optimizers">(agnapprox.nets.VGG method)</a>
+</li>
+          <li><a href="autoapi/agnapprox/nets/vgg/index.html#agnapprox.nets.vgg.VGG._gs_optimizers">(agnapprox.nets.vgg.VGG method)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/agnapprox/nets/base/resnet/index.html#agnapprox.nets.base.resnet.ResNet._make_layer">_make_layer() (agnapprox.nets.base.resnet.ResNet method)</a>
+</li>
+        <li><a href="autoapi/agnapprox/nets/index.html#agnapprox.nets.AlexNet._qat_optimizers">_qat_optimizers() (agnapprox.nets.AlexNet method)</a>
+
+        <ul>
+          <li><a href="autoapi/agnapprox/nets/alexnet/index.html#agnapprox.nets.alexnet.AlexNet._qat_optimizers">(agnapprox.nets.alexnet.AlexNet method)</a>
+</li>
+          <li><a href="autoapi/agnapprox/nets/index.html#agnapprox.nets.ApproxNet._qat_optimizers">(agnapprox.nets.ApproxNet method)</a>
+</li>
+          <li><a href="autoapi/agnapprox/nets/approxnet/index.html#agnapprox.nets.approxnet.ApproxNet._qat_optimizers">(agnapprox.nets.approxnet.ApproxNet method)</a>
+</li>
+          <li><a href="autoapi/agnapprox/nets/index.html#agnapprox.nets.LeNet5._qat_optimizers">(agnapprox.nets.LeNet5 method)</a>
+</li>
+          <li><a href="autoapi/agnapprox/nets/lenet5/index.html#agnapprox.nets.lenet5.LeNet5._qat_optimizers">(agnapprox.nets.lenet5.LeNet5 method)</a>
+</li>
+          <li><a href="autoapi/agnapprox/nets/index.html#agnapprox.nets.MobileNetV2._qat_optimizers">(agnapprox.nets.MobileNetV2 method)</a>
+</li>
+          <li><a href="autoapi/agnapprox/nets/mobilenetv2/index.html#agnapprox.nets.mobilenetv2.MobileNetV2._qat_optimizers">(agnapprox.nets.mobilenetv2.MobileNetV2 method)</a>
+</li>
+          <li><a href="autoapi/agnapprox/nets/index.html#agnapprox.nets.ResNet._qat_optimizers">(agnapprox.nets.ResNet method)</a>
+</li>
+          <li><a href="autoapi/agnapprox/nets/resnet/index.html#agnapprox.nets.resnet.ResNet._qat_optimizers">(agnapprox.nets.resnet.ResNet method)</a>
+</li>
+          <li><a href="autoapi/agnapprox/nets/index.html#agnapprox.nets.VGG._qat_optimizers">(agnapprox.nets.VGG method)</a>
+</li>
+          <li><a href="autoapi/agnapprox/nets/vgg/index.html#agnapprox.nets.vgg.VGG._qat_optimizers">(agnapprox.nets.vgg.VGG method)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/agnapprox/nets/index.html#agnapprox.nets.ApproxNet._train">_train() (agnapprox.nets.ApproxNet method)</a>
+
+        <ul>
+          <li><a href="autoapi/agnapprox/nets/approxnet/index.html#agnapprox.nets.approxnet.ApproxNet._train">(agnapprox.nets.approxnet.ApproxNet method)</a>
+</li>
+        </ul></li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="A" class="genindex-section">
+  <h2>A</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li>
+    agnapprox
+
+        <ul>
+          <li><a href="autoapi/agnapprox/index.html#module-agnapprox">module</a>
+</li>
+        </ul></li>
+        <li>
+    agnapprox.agnapprox
+
+        <ul>
+          <li><a href="autoapi/agnapprox/agnapprox/index.html#module-agnapprox.agnapprox">module</a>
+</li>
+        </ul></li>
+        <li>
+    agnapprox.datamodules
+
+        <ul>
+          <li><a href="autoapi/agnapprox/datamodules/index.html#module-agnapprox.datamodules">module</a>
+</li>
+        </ul></li>
+        <li>
+    agnapprox.datamodules.approx_datamodule
+
+        <ul>
+          <li><a href="autoapi/agnapprox/datamodules/approx_datamodule/index.html#module-agnapprox.datamodules.approx_datamodule">module</a>
+</li>
+        </ul></li>
+        <li>
+    agnapprox.datamodules.cifar10
+
+        <ul>
+          <li><a href="autoapi/agnapprox/datamodules/cifar10/index.html#module-agnapprox.datamodules.cifar10">module</a>
+</li>
+        </ul></li>
+        <li>
+    agnapprox.datamodules.format_tinyimagenet
+
+        <ul>
+          <li><a href="autoapi/agnapprox/datamodules/format_tinyimagenet/index.html#module-agnapprox.datamodules.format_tinyimagenet">module</a>
+</li>
+        </ul></li>
+        <li>
+    agnapprox.datamodules.mnist
+
+        <ul>
+          <li><a href="autoapi/agnapprox/datamodules/mnist/index.html#module-agnapprox.datamodules.mnist">module</a>
+</li>
+        </ul></li>
+        <li>
+    agnapprox.datamodules.tinyimagenet200
+
+        <ul>
+          <li><a href="autoapi/agnapprox/datamodules/tinyimagenet200/index.html#module-agnapprox.datamodules.tinyimagenet200">module</a>
+</li>
+        </ul></li>
+        <li>
+    agnapprox.nets
+
+        <ul>
+          <li><a href="autoapi/agnapprox/nets/index.html#module-agnapprox.nets">module</a>
+</li>
+        </ul></li>
+        <li>
+    agnapprox.nets.alexnet
+
+        <ul>
+          <li><a href="autoapi/agnapprox/nets/alexnet/index.html#module-agnapprox.nets.alexnet">module</a>
+</li>
+        </ul></li>
+        <li>
+    agnapprox.nets.approxnet
+
+        <ul>
+          <li><a href="autoapi/agnapprox/nets/approxnet/index.html#module-agnapprox.nets.approxnet">module</a>
+</li>
+        </ul></li>
+        <li>
+    agnapprox.nets.base
+
+        <ul>
+          <li><a href="autoapi/agnapprox/nets/base/index.html#module-agnapprox.nets.base">module</a>
+</li>
+        </ul></li>
+        <li>
+    agnapprox.nets.base.lenet5
+
+        <ul>
+          <li><a href="autoapi/agnapprox/nets/base/lenet5/index.html#module-agnapprox.nets.base.lenet5">module</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li>
+    agnapprox.nets.base.resnet
+
+        <ul>
+          <li><a href="autoapi/agnapprox/nets/base/resnet/index.html#module-agnapprox.nets.base.resnet">module</a>
+</li>
+        </ul></li>
+        <li>
+    agnapprox.nets.lenet5
+
+        <ul>
+          <li><a href="autoapi/agnapprox/nets/lenet5/index.html#module-agnapprox.nets.lenet5">module</a>
+</li>
+        </ul></li>
+        <li>
+    agnapprox.nets.mobilenetv2
+
+        <ul>
+          <li><a href="autoapi/agnapprox/nets/mobilenetv2/index.html#module-agnapprox.nets.mobilenetv2">module</a>
+</li>
+        </ul></li>
+        <li>
+    agnapprox.nets.resnet
+
+        <ul>
+          <li><a href="autoapi/agnapprox/nets/resnet/index.html#module-agnapprox.nets.resnet">module</a>
+</li>
+        </ul></li>
+        <li>
+    agnapprox.nets.vgg
+
+        <ul>
+          <li><a href="autoapi/agnapprox/nets/vgg/index.html#module-agnapprox.nets.vgg">module</a>
+</li>
+        </ul></li>
+        <li>
+    agnapprox.utils
+
+        <ul>
+          <li><a href="autoapi/agnapprox/utils/index.html#module-agnapprox.utils">module</a>
+</li>
+        </ul></li>
+        <li>
+    agnapprox.utils.error_stats
+
+        <ul>
+          <li><a href="autoapi/agnapprox/utils/error_stats/index.html#module-agnapprox.utils.error_stats">module</a>
+</li>
+        </ul></li>
+        <li>
+    agnapprox.utils.model
+
+        <ul>
+          <li><a href="autoapi/agnapprox/utils/model/index.html#module-agnapprox.utils.model">module</a>
+</li>
+        </ul></li>
+        <li>
+    agnapprox.utils.select_multipliers
+
+        <ul>
+          <li><a href="autoapi/agnapprox/utils/select_multipliers/index.html#module-agnapprox.utils.select_multipliers">module</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/agnapprox/nets/index.html#agnapprox.nets.AlexNet">AlexNet (class in agnapprox.nets)</a>
+
+        <ul>
+          <li><a href="autoapi/agnapprox/nets/alexnet/index.html#agnapprox.nets.alexnet.AlexNet">(class in agnapprox.nets.alexnet)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/agnapprox/datamodules/index.html#agnapprox.datamodules.ApproxDataModule">ApproxDataModule (class in agnapprox.datamodules)</a>
+
+        <ul>
+          <li><a href="autoapi/agnapprox/datamodules/approx_datamodule/index.html#agnapprox.datamodules.approx_datamodule.ApproxDataModule">(class in agnapprox.datamodules.approx_datamodule)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/agnapprox/nets/index.html#agnapprox.nets.ApproxNet">ApproxNet (class in agnapprox.nets)</a>
+
+        <ul>
+          <li><a href="autoapi/agnapprox/nets/approxnet/index.html#agnapprox.nets.approxnet.ApproxNet">(class in agnapprox.nets.approxnet)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/agnapprox/datamodules/cifar10/index.html#agnapprox.datamodules.cifar10.CIFAR10.augment">augment (agnapprox.datamodules.cifar10.CIFAR10 property)</a>
+
+        <ul>
+          <li><a href="autoapi/agnapprox/datamodules/index.html#agnapprox.datamodules.TinyImageNet.augment">(agnapprox.datamodules.TinyImageNet property)</a>
+</li>
+          <li><a href="autoapi/agnapprox/datamodules/tinyimagenet200/index.html#agnapprox.datamodules.tinyimagenet200.TinyImageNet.augment">(agnapprox.datamodules.tinyimagenet200.TinyImageNet property)</a>
+</li>
+        </ul></li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="C" class="genindex-section">
+  <h2>C</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="autoapi/agnapprox/datamodules/cifar10/index.html#agnapprox.datamodules.cifar10.CIFAR10">CIFAR10 (class in agnapprox.datamodules.cifar10)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="autoapi/agnapprox/nets/index.html#agnapprox.nets.ApproxNet.configure_optimizers">configure_optimizers() (agnapprox.nets.ApproxNet method)</a>
+
+        <ul>
+          <li><a href="autoapi/agnapprox/nets/approxnet/index.html#agnapprox.nets.approxnet.ApproxNet.configure_optimizers">(agnapprox.nets.approxnet.ApproxNet method)</a>
+</li>
+        </ul></li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="D" class="genindex-section">
+  <h2>D</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="autoapi/agnapprox/datamodules/format_tinyimagenet/index.html#agnapprox.datamodules.format_tinyimagenet.dir_path">dir_path() (in module agnapprox.datamodules.format_tinyimagenet)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="E" class="genindex-section">
+  <h2>E</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="autoapi/agnapprox/utils/index.html#agnapprox.utils.error_calculation">error_calculation() (in module agnapprox.utils)</a>
+
+        <ul>
+          <li><a href="autoapi/agnapprox/utils/error_stats/index.html#agnapprox.utils.error_stats.error_calculation">(in module agnapprox.utils.error_stats)</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="autoapi/agnapprox/utils/index.html#agnapprox.utils.error_prediction">error_prediction() (in module agnapprox.utils)</a>
+
+        <ul>
+          <li><a href="autoapi/agnapprox/utils/error_stats/index.html#agnapprox.utils.error_stats.error_prediction">(in module agnapprox.utils.error_stats)</a>
+</li>
+        </ul></li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="F" class="genindex-section">
+  <h2>F</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="autoapi/agnapprox/datamodules/format_tinyimagenet/index.html#agnapprox.datamodules.format_tinyimagenet.format_imagenet_val_set">format_imagenet_val_set() (in module agnapprox.datamodules.format_tinyimagenet)</a>
+</li>
+        <li><a href="autoapi/agnapprox/nets/index.html#agnapprox.nets.ApproxNet.forward">forward() (agnapprox.nets.ApproxNet method)</a>
+
+        <ul>
+          <li><a href="autoapi/agnapprox/nets/approxnet/index.html#agnapprox.nets.approxnet.ApproxNet.forward">(agnapprox.nets.approxnet.ApproxNet method)</a>
+</li>
+          <li><a href="autoapi/agnapprox/nets/base/lenet5/index.html#agnapprox.nets.base.lenet5.LeNet5.forward">(agnapprox.nets.base.lenet5.LeNet5 method)</a>
+</li>
+          <li><a href="autoapi/agnapprox/nets/base/resnet/index.html#agnapprox.nets.base.resnet.ResNet.forward">(agnapprox.nets.base.resnet.ResNet method)</a>
+</li>
+        </ul></li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="G" class="genindex-section">
+  <h2>G</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="autoapi/agnapprox/nets/index.html#agnapprox.nets.ApproxNet.gather_noisy_modules">gather_noisy_modules() (agnapprox.nets.ApproxNet method)</a>
+
+        <ul>
+          <li><a href="autoapi/agnapprox/nets/approxnet/index.html#agnapprox.nets.approxnet.ApproxNet.gather_noisy_modules">(agnapprox.nets.approxnet.ApproxNet method)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/agnapprox/utils/index.html#agnapprox.utils.get_feature_maps">get_feature_maps() (in module agnapprox.utils)</a>, <a href="autoapi/agnapprox/utils/index.html#id0">[1]</a>
+
+        <ul>
+          <li><a href="autoapi/agnapprox/utils/model/index.html#agnapprox.utils.model.get_feature_maps">(in module agnapprox.utils.model)</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="autoapi/agnapprox/utils/index.html#agnapprox.utils.get_sample_population">get_sample_population() (in module agnapprox.utils)</a>
+
+        <ul>
+          <li><a href="autoapi/agnapprox/utils/error_stats/index.html#agnapprox.utils.error_stats.get_sample_population">(in module agnapprox.utils.error_stats)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/agnapprox/nets/approxnet/index.html#agnapprox.nets.approxnet.GSVerboseCb">GSVerboseCb (class in agnapprox.nets.approxnet)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="L" class="genindex-section">
+  <h2>L</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="autoapi/agnapprox/nets/index.html#agnapprox.nets.LeNet5">LeNet5 (class in agnapprox.nets)</a>
+
+        <ul>
+          <li><a href="autoapi/agnapprox/nets/base/lenet5/index.html#agnapprox.nets.base.lenet5.LeNet5">(class in agnapprox.nets.base.lenet5)</a>
+</li>
+          <li><a href="autoapi/agnapprox/nets/lenet5/index.html#agnapprox.nets.lenet5.LeNet5">(class in agnapprox.nets.lenet5)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/agnapprox/nets/alexnet/index.html#agnapprox.nets.alexnet.logger">logger (in module agnapprox.nets.alexnet)</a>
+
+        <ul>
+          <li><a href="autoapi/agnapprox/nets/approxnet/index.html#agnapprox.nets.approxnet.logger">(in module agnapprox.nets.approxnet)</a>
+</li>
+          <li><a href="autoapi/agnapprox/nets/lenet5/index.html#agnapprox.nets.lenet5.logger">(in module agnapprox.nets.lenet5)</a>
+</li>
+          <li><a href="autoapi/agnapprox/nets/mobilenetv2/index.html#agnapprox.nets.mobilenetv2.logger">(in module agnapprox.nets.mobilenetv2)</a>
+</li>
+          <li><a href="autoapi/agnapprox/nets/resnet/index.html#agnapprox.nets.resnet.logger">(in module agnapprox.nets.resnet)</a>
+</li>
+          <li><a href="autoapi/agnapprox/nets/vgg/index.html#agnapprox.nets.vgg.logger">(in module agnapprox.nets.vgg)</a>
+</li>
+          <li><a href="autoapi/agnapprox/utils/index.html#agnapprox.utils.logger">(in module agnapprox.utils)</a>
+</li>
+          <li><a href="autoapi/agnapprox/utils/select_multipliers/index.html#agnapprox.utils.select_multipliers.logger">(in module agnapprox.utils.select_multipliers)</a>
+</li>
+        </ul></li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="M" class="genindex-section">
+  <h2>M</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="autoapi/agnapprox/datamodules/index.html#agnapprox.datamodules.MNIST">MNIST (class in agnapprox.datamodules)</a>
+
+        <ul>
+          <li><a href="autoapi/agnapprox/datamodules/mnist/index.html#agnapprox.datamodules.mnist.MNIST">(class in agnapprox.datamodules.mnist)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/agnapprox/nets/index.html#agnapprox.nets.MobileNetV2">MobileNetV2 (class in agnapprox.nets)</a>
+
+        <ul>
+          <li><a href="autoapi/agnapprox/nets/mobilenetv2/index.html#agnapprox.nets.mobilenetv2.MobileNetV2">(class in agnapprox.nets.mobilenetv2)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/agnapprox/nets/index.html#agnapprox.nets.ApproxNet.mode">mode (agnapprox.nets.ApproxNet property)</a>
+
+        <ul>
+          <li><a href="autoapi/agnapprox/nets/approxnet/index.html#agnapprox.nets.approxnet.ApproxNet.mode">(agnapprox.nets.approxnet.ApproxNet property)</a>
+</li>
+        </ul></li>
+        <li>
+    module
+
+        <ul>
+          <li><a href="autoapi/agnapprox/index.html#module-agnapprox">agnapprox</a>
+</li>
+          <li><a href="autoapi/agnapprox/agnapprox/index.html#module-agnapprox.agnapprox">agnapprox.agnapprox</a>
+</li>
+          <li><a href="autoapi/agnapprox/datamodules/index.html#module-agnapprox.datamodules">agnapprox.datamodules</a>
+</li>
+          <li><a href="autoapi/agnapprox/datamodules/approx_datamodule/index.html#module-agnapprox.datamodules.approx_datamodule">agnapprox.datamodules.approx_datamodule</a>
+</li>
+          <li><a href="autoapi/agnapprox/datamodules/cifar10/index.html#module-agnapprox.datamodules.cifar10">agnapprox.datamodules.cifar10</a>
+</li>
+          <li><a href="autoapi/agnapprox/datamodules/format_tinyimagenet/index.html#module-agnapprox.datamodules.format_tinyimagenet">agnapprox.datamodules.format_tinyimagenet</a>
+</li>
+          <li><a href="autoapi/agnapprox/datamodules/mnist/index.html#module-agnapprox.datamodules.mnist">agnapprox.datamodules.mnist</a>
+</li>
+          <li><a href="autoapi/agnapprox/datamodules/tinyimagenet200/index.html#module-agnapprox.datamodules.tinyimagenet200">agnapprox.datamodules.tinyimagenet200</a>
+</li>
+          <li><a href="autoapi/agnapprox/nets/index.html#module-agnapprox.nets">agnapprox.nets</a>
+</li>
+          <li><a href="autoapi/agnapprox/nets/alexnet/index.html#module-agnapprox.nets.alexnet">agnapprox.nets.alexnet</a>
+</li>
+          <li><a href="autoapi/agnapprox/nets/approxnet/index.html#module-agnapprox.nets.approxnet">agnapprox.nets.approxnet</a>
+</li>
+          <li><a href="autoapi/agnapprox/nets/base/index.html#module-agnapprox.nets.base">agnapprox.nets.base</a>
+</li>
+          <li><a href="autoapi/agnapprox/nets/base/lenet5/index.html#module-agnapprox.nets.base.lenet5">agnapprox.nets.base.lenet5</a>
+</li>
+          <li><a href="autoapi/agnapprox/nets/base/resnet/index.html#module-agnapprox.nets.base.resnet">agnapprox.nets.base.resnet</a>
+</li>
+          <li><a href="autoapi/agnapprox/nets/lenet5/index.html#module-agnapprox.nets.lenet5">agnapprox.nets.lenet5</a>
+</li>
+          <li><a href="autoapi/agnapprox/nets/mobilenetv2/index.html#module-agnapprox.nets.mobilenetv2">agnapprox.nets.mobilenetv2</a>
+</li>
+          <li><a href="autoapi/agnapprox/nets/resnet/index.html#module-agnapprox.nets.resnet">agnapprox.nets.resnet</a>
+</li>
+          <li><a href="autoapi/agnapprox/nets/vgg/index.html#module-agnapprox.nets.vgg">agnapprox.nets.vgg</a>
+</li>
+          <li><a href="autoapi/agnapprox/utils/index.html#module-agnapprox.utils">agnapprox.utils</a>
+</li>
+          <li><a href="autoapi/agnapprox/utils/error_stats/index.html#module-agnapprox.utils.error_stats">agnapprox.utils.error_stats</a>
+</li>
+          <li><a href="autoapi/agnapprox/utils/model/index.html#module-agnapprox.utils.model">agnapprox.utils.model</a>
+</li>
+          <li><a href="autoapi/agnapprox/utils/select_multipliers/index.html#module-agnapprox.utils.select_multipliers">agnapprox.utils.select_multipliers</a>
+</li>
+        </ul></li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="N" class="genindex-section">
+  <h2>N</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="autoapi/agnapprox/datamodules/cifar10/index.html#agnapprox.datamodules.cifar10.CIFAR10.normalize">normalize (agnapprox.datamodules.cifar10.CIFAR10 property)</a>
+
+        <ul>
+          <li><a href="autoapi/agnapprox/datamodules/index.html#agnapprox.datamodules.MNIST.normalize">(agnapprox.datamodules.MNIST property)</a>
+</li>
+          <li><a href="autoapi/agnapprox/datamodules/mnist/index.html#agnapprox.datamodules.mnist.MNIST.normalize">(agnapprox.datamodules.mnist.MNIST property)</a>
+</li>
+          <li><a href="autoapi/agnapprox/datamodules/index.html#agnapprox.datamodules.TinyImageNet.normalize">(agnapprox.datamodules.TinyImageNet property)</a>
+</li>
+          <li><a href="autoapi/agnapprox/datamodules/tinyimagenet200/index.html#agnapprox.datamodules.tinyimagenet200.TinyImageNet.normalize">(agnapprox.datamodules.tinyimagenet200.TinyImageNet property)</a>
+</li>
+        </ul></li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="O" class="genindex-section">
+  <h2>O</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="autoapi/agnapprox/nets/index.html#agnapprox.nets.ApproxNet.on_fit_start">on_fit_start() (agnapprox.nets.ApproxNet method)</a>
+
+        <ul>
+          <li><a href="autoapi/agnapprox/nets/approxnet/index.html#agnapprox.nets.approxnet.ApproxNet.on_fit_start">(agnapprox.nets.approxnet.ApproxNet method)</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="autoapi/agnapprox/nets/approxnet/index.html#agnapprox.nets.approxnet.GSVerboseCb.on_train_epoch_end">on_train_epoch_end() (agnapprox.nets.approxnet.GSVerboseCb method)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="P" class="genindex-section">
+  <h2>P</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="autoapi/agnapprox/utils/index.html#agnapprox.utils.population_prediction">population_prediction() (in module agnapprox.utils)</a>
+
+        <ul>
+          <li><a href="autoapi/agnapprox/utils/error_stats/index.html#agnapprox.utils.error_stats.population_prediction">(in module agnapprox.utils.error_stats)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/agnapprox/datamodules/cifar10/index.html#agnapprox.datamodules.cifar10.CIFAR10.prepare_data">prepare_data() (agnapprox.datamodules.cifar10.CIFAR10 method)</a>
+
+        <ul>
+          <li><a href="autoapi/agnapprox/datamodules/index.html#agnapprox.datamodules.MNIST.prepare_data">(agnapprox.datamodules.MNIST method)</a>
+</li>
+          <li><a href="autoapi/agnapprox/datamodules/mnist/index.html#agnapprox.datamodules.mnist.MNIST.prepare_data">(agnapprox.datamodules.mnist.MNIST method)</a>
+</li>
+          <li><a href="autoapi/agnapprox/datamodules/index.html#agnapprox.datamodules.TinyImageNet.prepare_data">(agnapprox.datamodules.TinyImageNet method)</a>
+</li>
+          <li><a href="autoapi/agnapprox/datamodules/tinyimagenet200/index.html#agnapprox.datamodules.tinyimagenet200.TinyImageNet.prepare_data">(agnapprox.datamodules.tinyimagenet200.TinyImageNet method)</a>
+</li>
+        </ul></li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="R" class="genindex-section">
+  <h2>R</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="autoapi/agnapprox/nets/index.html#agnapprox.nets.ResNet">ResNet (class in agnapprox.nets)</a>
+
+        <ul>
+          <li><a href="autoapi/agnapprox/nets/base/resnet/index.html#agnapprox.nets.base.resnet.ResNet">(class in agnapprox.nets.base.resnet)</a>
+</li>
+          <li><a href="autoapi/agnapprox/nets/resnet/index.html#agnapprox.nets.resnet.ResNet">(class in agnapprox.nets.resnet)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/agnapprox/nets/base/resnet/index.html#agnapprox.nets.base.resnet.resnet110">resnet110() (in module agnapprox.nets.base.resnet)</a>
+</li>
+        <li><a href="autoapi/agnapprox/nets/base/resnet/index.html#agnapprox.nets.base.resnet.resnet1202">resnet1202() (in module agnapprox.nets.base.resnet)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="autoapi/agnapprox/nets/base/resnet/index.html#agnapprox.nets.base.resnet.resnet14">resnet14() (in module agnapprox.nets.base.resnet)</a>
+</li>
+        <li><a href="autoapi/agnapprox/nets/base/resnet/index.html#agnapprox.nets.base.resnet.resnet20">resnet20() (in module agnapprox.nets.base.resnet)</a>
+</li>
+        <li><a href="autoapi/agnapprox/nets/base/resnet/index.html#agnapprox.nets.base.resnet.resnet32">resnet32() (in module agnapprox.nets.base.resnet)</a>
+</li>
+        <li><a href="autoapi/agnapprox/nets/base/resnet/index.html#agnapprox.nets.base.resnet.resnet44">resnet44() (in module agnapprox.nets.base.resnet)</a>
+</li>
+        <li><a href="autoapi/agnapprox/nets/base/resnet/index.html#agnapprox.nets.base.resnet.resnet56">resnet56() (in module agnapprox.nets.base.resnet)</a>
+</li>
+        <li><a href="autoapi/agnapprox/nets/base/resnet/index.html#agnapprox.nets.base.resnet.resnet8">resnet8() (in module agnapprox.nets.base.resnet)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="S" class="genindex-section">
+  <h2>S</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="autoapi/agnapprox/datamodules/approx_datamodule/index.html#agnapprox.datamodules.approx_datamodule.ApproxDataModule.sample_dataloader">sample_dataloader() (agnapprox.datamodules.approx_datamodule.ApproxDataModule method)</a>
+
+        <ul>
+          <li><a href="autoapi/agnapprox/datamodules/index.html#agnapprox.datamodules.ApproxDataModule.sample_dataloader">(agnapprox.datamodules.ApproxDataModule method)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/agnapprox/utils/index.html#agnapprox.utils.select_layer_multiplier">select_layer_multiplier() (in module agnapprox.utils)</a>
+
+        <ul>
+          <li><a href="autoapi/agnapprox/utils/select_multipliers/index.html#agnapprox.utils.select_multipliers.select_layer_multiplier">(in module agnapprox.utils.select_multipliers)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/agnapprox/utils/index.html#agnapprox.utils.select_multipliers">select_multipliers() (in module agnapprox.utils)</a>
+
+        <ul>
+          <li><a href="autoapi/agnapprox/utils/select_multipliers/index.html#agnapprox.utils.select_multipliers.select_multipliers">(in module agnapprox.utils.select_multipliers)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/agnapprox/utils/index.html#agnapprox.utils.set_all">set_all() (in module agnapprox.utils)</a>
+
+        <ul>
+          <li><a href="autoapi/agnapprox/utils/model/index.html#agnapprox.utils.model.set_all">(in module agnapprox.utils.model)</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="autoapi/agnapprox/datamodules/cifar10/index.html#agnapprox.datamodules.cifar10.CIFAR10.setup">setup() (agnapprox.datamodules.cifar10.CIFAR10 method)</a>
+
+        <ul>
+          <li><a href="autoapi/agnapprox/datamodules/index.html#agnapprox.datamodules.MNIST.setup">(agnapprox.datamodules.MNIST method)</a>
+</li>
+          <li><a href="autoapi/agnapprox/datamodules/mnist/index.html#agnapprox.datamodules.mnist.MNIST.setup">(agnapprox.datamodules.mnist.MNIST method)</a>
+</li>
+          <li><a href="autoapi/agnapprox/datamodules/index.html#agnapprox.datamodules.TinyImageNet.setup">(agnapprox.datamodules.TinyImageNet method)</a>
+</li>
+          <li><a href="autoapi/agnapprox/datamodules/tinyimagenet200/index.html#agnapprox.datamodules.tinyimagenet200.TinyImageNet.setup">(agnapprox.datamodules.tinyimagenet200.TinyImageNet method)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/agnapprox/utils/index.html#agnapprox.utils.single_dist_mc">single_dist_mc() (in module agnapprox.utils)</a>
+
+        <ul>
+          <li><a href="autoapi/agnapprox/utils/error_stats/index.html#agnapprox.utils.error_stats.single_dist_mc">(in module agnapprox.utils.error_stats)</a>
+</li>
+        </ul></li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="T" class="genindex-section">
+  <h2>T</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="autoapi/agnapprox/datamodules/approx_datamodule/index.html#agnapprox.datamodules.approx_datamodule.ApproxDataModule.test_dataloader">test_dataloader() (agnapprox.datamodules.approx_datamodule.ApproxDataModule method)</a>
+
+        <ul>
+          <li><a href="autoapi/agnapprox/datamodules/index.html#agnapprox.datamodules.ApproxDataModule.test_dataloader">(agnapprox.datamodules.ApproxDataModule method)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/agnapprox/nets/index.html#agnapprox.nets.ApproxNet.test_step">test_step() (agnapprox.nets.ApproxNet method)</a>
+
+        <ul>
+          <li><a href="autoapi/agnapprox/nets/approxnet/index.html#agnapprox.nets.approxnet.ApproxNet.test_step">(agnapprox.nets.approxnet.ApproxNet method)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/agnapprox/datamodules/index.html#agnapprox.datamodules.TinyImageNet">TinyImageNet (class in agnapprox.datamodules)</a>
+
+        <ul>
+          <li><a href="autoapi/agnapprox/datamodules/tinyimagenet200/index.html#agnapprox.datamodules.tinyimagenet200.TinyImageNet">(class in agnapprox.datamodules.tinyimagenet200)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/agnapprox/utils/index.html#agnapprox.utils.to_distribution">to_distribution() (in module agnapprox.utils)</a>
+
+        <ul>
+          <li><a href="autoapi/agnapprox/utils/error_stats/index.html#agnapprox.utils.error_stats.to_distribution">(in module agnapprox.utils.error_stats)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/agnapprox/utils/index.html#agnapprox.utils.topk_accuracy">topk_accuracy() (in module agnapprox.utils)</a>
+
+        <ul>
+          <li><a href="autoapi/agnapprox/utils/model/index.html#agnapprox.utils.model.topk_accuracy">(in module agnapprox.utils.model)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/agnapprox/nets/index.html#agnapprox.nets.ApproxNet.total_ops">total_ops (agnapprox.nets.ApproxNet property)</a>
+
+        <ul>
+          <li><a href="autoapi/agnapprox/nets/approxnet/index.html#agnapprox.nets.approxnet.ApproxNet.total_ops">(agnapprox.nets.approxnet.ApproxNet property)</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="autoapi/agnapprox/nets/index.html#agnapprox.nets.ApproxNet.train_approx">train_approx() (agnapprox.nets.ApproxNet method)</a>
+
+        <ul>
+          <li><a href="autoapi/agnapprox/nets/approxnet/index.html#agnapprox.nets.approxnet.ApproxNet.train_approx">(agnapprox.nets.approxnet.ApproxNet method)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/agnapprox/nets/index.html#agnapprox.nets.ApproxNet.train_baseline">train_baseline() (agnapprox.nets.ApproxNet method)</a>
+
+        <ul>
+          <li><a href="autoapi/agnapprox/nets/approxnet/index.html#agnapprox.nets.approxnet.ApproxNet.train_baseline">(agnapprox.nets.approxnet.ApproxNet method)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/agnapprox/datamodules/approx_datamodule/index.html#agnapprox.datamodules.approx_datamodule.ApproxDataModule.train_dataloader">train_dataloader() (agnapprox.datamodules.approx_datamodule.ApproxDataModule method)</a>
+
+        <ul>
+          <li><a href="autoapi/agnapprox/datamodules/index.html#agnapprox.datamodules.ApproxDataModule.train_dataloader">(agnapprox.datamodules.ApproxDataModule method)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/agnapprox/nets/index.html#agnapprox.nets.ApproxNet.train_gradient">train_gradient() (agnapprox.nets.ApproxNet method)</a>
+
+        <ul>
+          <li><a href="autoapi/agnapprox/nets/approxnet/index.html#agnapprox.nets.approxnet.ApproxNet.train_gradient">(agnapprox.nets.approxnet.ApproxNet method)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/agnapprox/nets/index.html#agnapprox.nets.ApproxNet.train_quant">train_quant() (agnapprox.nets.ApproxNet method)</a>
+
+        <ul>
+          <li><a href="autoapi/agnapprox/nets/approxnet/index.html#agnapprox.nets.approxnet.ApproxNet.train_quant">(agnapprox.nets.approxnet.ApproxNet method)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/agnapprox/nets/index.html#agnapprox.nets.ApproxNet.training_step">training_step() (agnapprox.nets.ApproxNet method)</a>
+
+        <ul>
+          <li><a href="autoapi/agnapprox/nets/approxnet/index.html#agnapprox.nets.approxnet.ApproxNet.training_step">(agnapprox.nets.approxnet.ApproxNet method)</a>
+</li>
+        </ul></li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="V" class="genindex-section">
+  <h2>V</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="autoapi/agnapprox/datamodules/approx_datamodule/index.html#agnapprox.datamodules.approx_datamodule.ApproxDataModule.val_dataloader">val_dataloader() (agnapprox.datamodules.approx_datamodule.ApproxDataModule method)</a>
+
+        <ul>
+          <li><a href="autoapi/agnapprox/datamodules/index.html#agnapprox.datamodules.ApproxDataModule.val_dataloader">(agnapprox.datamodules.ApproxDataModule method)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/agnapprox/nets/index.html#agnapprox.nets.ApproxNet.validation_step">validation_step() (agnapprox.nets.ApproxNet method)</a>
+
+        <ul>
+          <li><a href="autoapi/agnapprox/nets/approxnet/index.html#agnapprox.nets.approxnet.ApproxNet.validation_step">(agnapprox.nets.approxnet.ApproxNet method)</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="autoapi/agnapprox/nets/index.html#agnapprox.nets.VGG">VGG (class in agnapprox.nets)</a>
+
+        <ul>
+          <li><a href="autoapi/agnapprox/nets/vgg/index.html#agnapprox.nets.vgg.VGG">(class in agnapprox.nets.vgg)</a>
+</li>
+        </ul></li>
+    </ul></td>
+  </tr></table>
+</section>
+
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          
+          
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2022, Elias Trommer
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            <div class="icons">
+              
+            </div>
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer no-toc">
+      
+      
+      
+    </aside>
+  </div>
+</div><script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/scripts/furo.js"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="_static/togglebutton.js"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    </body>
+</html>

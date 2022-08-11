@@ -1,0 +1,65 @@
+:py:mod:`agnapprox.nets.alexnet`
+================================
+
+.. py:module:: agnapprox.nets.alexnet
+
+.. autoapi-nested-parse::
+
+   Class definition for AlexNet Approximate NN
+
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   agnapprox.nets.alexnet.AlexNet
+
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   agnapprox.nets.alexnet.logger
+
+
+.. py:data:: logger
+   
+
+   
+
+.. py:class:: AlexNet(num_classes: int = 200, pretrained: bool = True)
+
+   Bases: :py:obj:`agnapprox.nets.approxnet.ApproxNet`
+
+   Definition of training hyperparameters for
+   approximate AlexNet
+
+   .. py:method:: _baseline_optimizers()
+
+      Baseline Optimizer and Scheduler definition
+
+
+   .. py:method:: _qat_optimizers()
+
+      Quantization-Aware Training Optimizer and Scheduler definition
+
+
+   .. py:method:: _approx_optimizers()
+
+      Approximate Retraining Training Optimizer and Scheduler definition
+
+
+   .. py:method:: _gs_optimizers()
+
+      Gradient Search Optimizer and Scheduler definition
+
+
+

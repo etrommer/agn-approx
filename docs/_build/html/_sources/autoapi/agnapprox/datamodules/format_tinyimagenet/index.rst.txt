@@ -1,0 +1,26 @@
+:py:mod:`agnapprox.datamodules.format_tinyimagenet`
+===================================================
+
+.. py:module:: agnapprox.datamodules.format_tinyimagenet
+
+
+Module Contents
+---------------
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   agnapprox.datamodules.format_tinyimagenet.format_imagenet_val_set
+   agnapprox.datamodules.format_tinyimagenet.dir_path
+
+
+
+.. py:function:: format_imagenet_val_set(home_folder)
+
+
+.. py:function:: dir_path(path)
+
+

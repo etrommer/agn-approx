@@ -1,0 +1,34 @@
+:py:mod:`agnapprox`
+===================
+
+.. py:module:: agnapprox
+
+
+Subpackages
+-----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 3
+
+   datamodules/index.rst
+   nets/index.rst
+   utils/index.rst
+
+
+Submodules
+----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+
+   agnapprox/index.rst
+
+
+Package Contents
+----------------
+
+.. py:data:: __version__
+   
+
+   
+

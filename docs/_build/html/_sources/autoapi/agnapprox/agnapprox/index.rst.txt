@@ -1,0 +1,6 @@
+:py:mod:`agnapprox.agnapprox`
+=============================
+
+.. py:module:: agnapprox.agnapprox
+
+

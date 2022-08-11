@@ -1,0 +1,131 @@
+:py:mod:`agnapprox.nets.base.resnet`
+====================================
+
+.. py:module:: agnapprox.nets.base.resnet
+
+.. autoapi-nested-parse::
+
+   Properly implemented ResNet-s for CIFAR10 as described in paper [1].
+
+   The implementation and structure of this file is hugely influenced by [2]
+   which is implemented for ImageNet and doesn't have option A for identity.
+   Moreover, most of the implementations on the web is copy-paste from
+   torchvision's resnet and has wrong number of params.
+
+   Proper ResNet-s for CIFAR10 (for fair comparision and etc.) has following
+   number of layers and parameters:
+
+   name      | layers | params
+   ResNet20  |    20  | 0.27M
+   ResNet32  |    32  | 0.46M
+   ResNet44  |    44  | 0.66M
+   ResNet56  |    56  | 0.85M
+   ResNet110 |   110  |  1.7M
+   ResNet1202|  1202  | 19.4m
+
+   which this implementation indeed has.
+
+   Reference:
+   [1] Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun
+       Deep Residual Learning for Image Recognition. arXiv:1512.03385
+   [2] https://github.com/pytorch/vision/blob/master/torchvision/models/resnet.py
+
+   If you use this implementation in you work, please don't forget to mention the
+   author, Yerlan Idelbayev.
+
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   agnapprox.nets.base.resnet.ResNet
+
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   agnapprox.nets.base.resnet.resnet8
+   agnapprox.nets.base.resnet.resnet14
+   agnapprox.nets.base.resnet.resnet20
+   agnapprox.nets.base.resnet.resnet32
+   agnapprox.nets.base.resnet.resnet44
+   agnapprox.nets.base.resnet.resnet56
+   agnapprox.nets.base.resnet.resnet110
+   agnapprox.nets.base.resnet.resnet1202
+
+
+
+.. py:class:: ResNet(block, num_blocks, num_classes=10)
+
+   Bases: :py:obj:`torch.nn.Module`
+
+   Base class for all neural network modules.
+
+   Your models should also subclass this class.
+
+   Modules can also contain other Modules, allowing to nest them in
+   a tree structure. You can assign the submodules as regular attributes::
+
+       import torch.nn as nn
+       import torch.nn.functional as F
+
+       class Model(nn.Module):
+           def __init__(self):
+               super().__init__()
+               self.conv1 = nn.Conv2d(1, 20, 5)
+               self.conv2 = nn.Conv2d(20, 20, 5)
+
+           def forward(self, x):
+               x = F.relu(self.conv1(x))
+               return F.relu(self.conv2(x))
+
+   Submodules assigned in this way will be registered, and will have their
+   parameters converted too when you call :meth:`to`, etc.
+
+   .. note::
+       As per the example above, an ``__init__()`` call to the parent class
+       must be made before assignment on the child.
+
+   :ivar training: Boolean represents whether this module is in training or
+                   evaluation mode.
+   :vartype training: bool
+
+   .. py:method:: _make_layer(block, planes, num_blocks, stride)
+
+
+   .. py:method:: forward(features)
+
+
+
+.. py:function:: resnet8()
+
+
+.. py:function:: resnet14()
+
+
+.. py:function:: resnet20()
+
+
+.. py:function:: resnet32()
+
+
+.. py:function:: resnet44()
+
+
+.. py:function:: resnet56()
+
+
+.. py:function:: resnet110()
+
+
+.. py:function:: resnet1202()
+
+
