@@ -17,15 +17,16 @@ pytorch-lightning = "^1.7.0"
 evoapproxlib = {path = "../evoapproxlib", develop = true}
 scikit-learn = "^1.1.1"
 
-[tool.poetry.dev-dependencies]
-pytest = "^7.1.2"
-pytest-benchmark = "^3.4.1"
-
 [tool.poetry.group.extras.dependencies]
 sphinx-autoapi = "^1.9.0"
 myst-nb = "^0.16.0"
 sphinx-paramlinks = "^0.5.4"
 furo = "^2022.6.21"
+
+
+[tool.poetry.group.dev.dependencies]
+mypy = "^0.971"
+pytest = "^7.1.2"
 
 [tool.poe.tasks]
 install-ltt = "python3 -m pip install light-the-torch"

@@ -1,3 +1,4 @@
+.vscode/
 lightning_logs/
 mlruns/
 data/
