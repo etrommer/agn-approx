@@ -1,0 +1,34 @@
+:py:mod:`agnapprox.nets.base.lenet5`
+====================================
+
+.. py:module:: agnapprox.nets.base.lenet5
+
+.. autoapi-nested-parse::
+
+   Class definition for vanilla LeNet5 implementation
+
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   agnapprox.nets.base.lenet5.LeNet5
+
+
+
+
+.. py:class:: LeNet5(num_classes)
+
+   Bases: :py:obj:`torch.nn.Module`
+
+   Defintion of vanilla LeNet5 architecture torch.nn.Module
+
+   .. py:method:: forward(features)
+
+
+

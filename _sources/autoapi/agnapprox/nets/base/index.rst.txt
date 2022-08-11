@@ -1,0 +1,16 @@
+:py:mod:`agnapprox.nets.base`
+=============================
+
+.. py:module:: agnapprox.nets.base
+
+
+Submodules
+----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+
+   lenet5/index.rst
+   resnet/index.rst
+
+

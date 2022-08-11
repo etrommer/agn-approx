@@ -1,0 +1,65 @@
+:py:mod:`agnapprox.nets.vgg`
+============================
+
+.. py:module:: agnapprox.nets.vgg
+
+.. autoapi-nested-parse::
+
+   Class definition for VGG Approximate NN
+
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   agnapprox.nets.vgg.VGG
+
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   agnapprox.nets.vgg.logger
+
+
+.. py:data:: logger
+   
+
+   
+
+.. py:class:: VGG(vgg_size: Optional[str] = 'VGG11', num_classes: int = 200, pretrained: bool = True)
+
+   Bases: :py:obj:`agnapprox.nets.approxnet.ApproxNet`
+
+   Definition of training hyperparameters for
+   approximate VGG
+
+   .. py:method:: _baseline_optimizers()
+
+      Baseline Optimizer and Scheduler definition
+
+
+   .. py:method:: _qat_optimizers()
+
+      Quantization-Aware Training Optimizer and Scheduler definition
+
+
+   .. py:method:: _approx_optimizers()
+
+      Approximate Retraining Training Optimizer and Scheduler definition
+
+
+   .. py:method:: _gs_optimizers()
+
+      Gradient Search Optimizer and Scheduler definition
+
+
+

@@ -1,0 +1,65 @@
+:py:mod:`agnapprox.nets.lenet5`
+===============================
+
+.. py:module:: agnapprox.nets.lenet5
+
+.. autoapi-nested-parse::
+
+   Class definition for LeNet5 Approximate NN
+
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   agnapprox.nets.lenet5.LeNet5
+
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   agnapprox.nets.lenet5.logger
+
+
+.. py:data:: logger
+   
+
+   
+
+.. py:class:: LeNet5
+
+   Bases: :py:obj:`agnapprox.nets.approxnet.ApproxNet`
+
+   Definition of training hyperparameters for
+   approximate LeNet5
+
+   .. py:method:: _baseline_optimizers()
+
+      Baseline Optimizer and Scheduler definition
+
+
+   .. py:method:: _qat_optimizers()
+
+      Quantization-Aware Training Optimizer and Scheduler definition
+
+
+   .. py:method:: _approx_optimizers()
+
+      Approximate Retraining Training Optimizer and Scheduler definition
+
+
+   .. py:method:: _gs_optimizers()
+
+      Gradient Search Optimizer and Scheduler definition
+
+
+

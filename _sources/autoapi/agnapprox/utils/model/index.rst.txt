@@ -1,0 +1,73 @@
+:py:mod:`agnapprox.utils.model`
+===============================
+
+.. py:module:: agnapprox.utils.model
+
+.. autoapi-nested-parse::
+
+   Model-level utility functions
+
+
+
+Module Contents
+---------------
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   agnapprox.utils.model.set_all
+   agnapprox.utils.model.get_feature_maps
+   agnapprox.utils.model.topk_accuracy
+
+
+
+.. py:function:: set_all(model: Union[pytorch_lightning.LightningDataModule, torch.nn.Module], attr: str, value: Any)
+
+   Utility function to set an attribute for all modules in a model
+
+   :param model: The model to set the value on
+   :param attr: Attribute name
+   :param value: Attribute value to set
+
+
+.. py:function:: get_feature_maps(model: pytorch_lightning.LightningModule, target_modules: List[Tuple[str, torch.nn.Module]], trainer: pytorch_lightning.Trainer, datamodule: pytorch_lightning.LightningDataModule) -> Dict[str, Dict[str, Union[numpy.array, float]]]
+
+   Capture intermediate feature maps of a model's layer
+   by attaching hooks and running sample data
+
+   :param model: The neural network model to gather IFMs from
+   :param target_modules: List of modules in the network for which IFMs should be gathered
+   :param trainer: A PyTorch Lightning Trainer instance that is used to run the inference
+   :param datamodule: PyTorch Lightning DataModule instance that is used to generate input sample data
+
+   :returns: Dictionary with Input IFM, Output IFM, Weights Tensor and Fan-In for each target layer
+
+
+.. py:function:: topk_accuracy(output: torch.Tensor, target: torch.Tensor, topk=(1, )) -> List[float]
+
+   Computes the accuracy over the k top predictions for the specified values of k
+   In top-5 accuracy you give yourself credit for having the right answer
+   if the right answer appears in your top five guesses.
+
+   ref:
+   - https://pytorch.org/docs/stable/generated/torch.topk.html
+   - https://discuss.pytorch.org/t/imagenet-example-accuracy-calculation/7840
+   - https://gist.github.com/weiaicunzai/2a5ae6eac6712c70bde0630f3e76b77b
+   - https://discuss.pytorch.org/t/top-k-error-calculation/48815/2
+   - https://stackoverflow.com/questions/59474987/how-to-get-top-k-accuracy-in-semantic-segmentation-using-pytorch
+
+   :param output: output is the prediction of the model e.g. scores, logits, raw y_pred
+                  before normalization or getting classes
+   :param target: target is the truth
+   :param topk: tuple of topk's to compute e.g. (1, 2, 5) computes top 1, top 2 and top 5.
+                e.g. in top 2 it means you get a +1 if your models's top 2 predictions
+                are in the right label.
+                So if your model predicts cat, dog (0, 1) and the true label was bird (3) you get zero
+                but if it were either cat or dog you'd accumulate +1 for that example.
+
+   :returns: list of topk accuracy [top1st, top2nd, ...] depending on your topk input
+
+

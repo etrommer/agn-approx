@@ -1,0 +1,65 @@
+:py:mod:`agnapprox.nets.resnet`
+===============================
+
+.. py:module:: agnapprox.nets.resnet
+
+.. autoapi-nested-parse::
+
+   Class definition for ResNet Approximate NN
+
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   agnapprox.nets.resnet.ResNet
+
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   agnapprox.nets.resnet.logger
+
+
+.. py:data:: logger
+   
+
+   
+
+.. py:class:: ResNet(resnet_size: Optional[str] = 'ResNet8', **kwargs)
+
+   Bases: :py:obj:`agnapprox.nets.approxnet.ApproxNet`
+
+   Definition of training hyperparameters for
+   approximate ResNet
+
+   .. py:method:: _baseline_optimizers()
+
+      Baseline Optimizer and Scheduler definition
+
+
+   .. py:method:: _qat_optimizers()
+
+      Quantization-Aware Training Optimizer and Scheduler definition
+
+
+   .. py:method:: _approx_optimizers()
+
+      Approximate Retraining Training Optimizer and Scheduler definition
+
+
+   .. py:method:: _gs_optimizers()
+
+      Gradient Search Optimizer and Scheduler definition
+
+
+

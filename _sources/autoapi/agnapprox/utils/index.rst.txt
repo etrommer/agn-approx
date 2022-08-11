@@ -1,0 +1,223 @@
+:py:mod:`agnapprox.utils`
+=========================
+
+.. py:module:: agnapprox.utils
+
+.. autoapi-nested-parse::
+
+   Approximate model helper functions
+
+
+
+Submodules
+----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+
+   error_stats/index.rst
+   model/index.rst
+   select_multipliers/index.rst
+
+
+Package Contents
+----------------
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   agnapprox.utils.single_dist_mc
+   agnapprox.utils.error_prediction
+   agnapprox.utils.get_sample_population
+   agnapprox.utils.population_prediction
+   agnapprox.utils.to_distribution
+   agnapprox.utils.error_calculation
+   agnapprox.utils.set_all
+   agnapprox.utils.get_feature_maps
+   agnapprox.utils.topk_accuracy
+   agnapprox.utils.get_feature_maps
+   agnapprox.utils.select_layer_multiplier
+   agnapprox.utils.select_multipliers
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   agnapprox.utils.logger
+
+
+.. py:function:: single_dist_mc(emap: numpy.ndarray, x_dist: numpy.ndarray, w_dist: numpy.ndarray, fan_in: float, num_samples: int = int(100000.0)) -> Tuple[float, float]
+
+   Generate error mean and standard deviation using Monte Carlo
+   approach as described in: https://arxiv.org/abs/1912.00700
+
+   :param emap: _description_
+   :param x_dist: Operand distribution of activations
+   :param w_dist: Operand distribution of weights
+   :param fan_in: Incoming connections for layer
+   :param num_samples: Number of Monte Carlo simulation runs. Defaults to int(1e5).
+
+   :returns: Mean and standard deviation for a single operation
+
+
+.. py:function:: error_prediction(emap: numpy.ndarray, x_dist: numpy.ndarray, w_dist: numpy.ndarray, fan_in: float) -> Tuple[float, float]
+
+   Generate error mean and standard deviation using the
+   global distribution of activations and weights
+
+   :param emap: _description_
+   :param x_dist: Operand distribution of activations
+   :param w_dist: Operand distribution of weights
+   :param fan_in: Incoming connections for layer
+
+   :returns: Mean and standard deviation for a single operation
+
+
+.. py:function:: get_sample_population(tensor: torch.Tensor, num_samples: int = 512) -> torch.Tensor
+
+   Randomly select samples from a tensor that cover the receptive field of one neuron
+
+   :param tensor: Tensor to draw samples from
+   :param num_samples: Number of samples to draw. Defaults to 512.
+
+   :returns: Sampled 2D Tensor of shape [num_samples, tensor.shape[-1]]
+
+
+.. py:function:: population_prediction(emap: numpy.ndarray, x_multidist: numpy.ndarray, w_dist: numpy.ndarray, fan_in: float) -> Tuple[float, float]
+
+   Generate prediction of mean and standard deviation using several
+   sampled local distributions
+
+   :param emap: _description_
+   :param x_multidist: Array of several operand distributions for activations
+   :param w_dist: Operand distribution of weights
+   :param fan_in: Incoming connections for layer
+
+   :returns: Mean and standard deviation for a single operation
+
+
+.. py:function:: to_distribution(tensor: numpy.ndarray, min_val: int, max_val: int) -> Tuple[numpy.ndarray, numpy.ndarray]
+
+   Turn tensor of weights/activations into a frequency distribution (i.e. build a histogram)
+
+   :param tensor: Tensor to build histogram from
+   :param min_val: Lowest possible operand value in tensor
+   :param max_val: Highest possible operand value in tensor
+
+   :returns: Tuple of Arrays where first array contains the full numerical range between
+             min_val and max_val inclusively and second array contains the relative frequency
+             of each operand
+
+
+.. py:function:: error_calculation(accurate: numpy.ndarray, approximate: numpy.ndarray, fan_in: float) -> Tuple[float, float]
+
+   Calculate mean and standard deviation of the observed error between
+   accurate computation and approximate computation
+
+   :param accurate: Accurate computation results
+   :param approximate: Approximate computation results
+   :param fan_in: Number of incoming neuron connections
+
+   :returns: Mean and standard deviation for a single operation
+
+
+.. py:function:: set_all(model: Union[pytorch_lightning.LightningDataModule, torch.nn.Module], attr: str, value: Any)
+
+   Utility function to set an attribute for all modules in a model
+
+   :param model: The model to set the value on
+   :param attr: Attribute name
+   :param value: Attribute value to set
+
+
+.. py:function:: get_feature_maps(model: pytorch_lightning.LightningModule, target_modules: List[Tuple[str, torch.nn.Module]], trainer: pytorch_lightning.Trainer, datamodule: pytorch_lightning.LightningDataModule) -> Dict[str, Dict[str, Union[numpy.array, float]]]
+
+   Capture intermediate feature maps of a model's layer
+   by attaching hooks and running sample data
+
+   :param model: The neural network model to gather IFMs from
+   :param target_modules: List of modules in the network for which IFMs should be gathered
+   :param trainer: A PyTorch Lightning Trainer instance that is used to run the inference
+   :param datamodule: PyTorch Lightning DataModule instance that is used to generate input sample data
+
+   :returns: Dictionary with Input IFM, Output IFM, Weights Tensor and Fan-In for each target layer
+
+
+.. py:function:: topk_accuracy(output: torch.Tensor, target: torch.Tensor, topk=(1, )) -> List[float]
+
+   Computes the accuracy over the k top predictions for the specified values of k
+   In top-5 accuracy you give yourself credit for having the right answer
+   if the right answer appears in your top five guesses.
+
+   ref:
+   - https://pytorch.org/docs/stable/generated/torch.topk.html
+   - https://discuss.pytorch.org/t/imagenet-example-accuracy-calculation/7840
+   - https://gist.github.com/weiaicunzai/2a5ae6eac6712c70bde0630f3e76b77b
+   - https://discuss.pytorch.org/t/top-k-error-calculation/48815/2
+   - https://stackoverflow.com/questions/59474987/how-to-get-top-k-accuracy-in-semantic-segmentation-using-pytorch
+
+   :param output: output is the prediction of the model e.g. scores, logits, raw y_pred
+                  before normalization or getting classes
+   :param target: target is the truth
+   :param topk: tuple of topk's to compute e.g. (1, 2, 5) computes top 1, top 2 and top 5.
+                e.g. in top 2 it means you get a +1 if your models's top 2 predictions
+                are in the right label.
+                So if your model predicts cat, dog (0, 1) and the true label was bird (3) you get zero
+                but if it were either cat or dog you'd accumulate +1 for that example.
+
+   :returns: list of topk accuracy [top1st, top2nd, ...] depending on your topk input
+
+
+.. py:function:: get_feature_maps(model: pytorch_lightning.LightningModule, target_modules: List[Tuple[str, torch.nn.Module]], trainer: pytorch_lightning.Trainer, datamodule: pytorch_lightning.LightningDataModule) -> Dict[str, Dict[str, Union[numpy.array, float]]]
+
+   Capture intermediate feature maps of a model's layer
+   by attaching hooks and running sample data
+
+   :param model: The neural network model to gather IFMs from
+   :param target_modules: List of modules in the network for which IFMs should be gathered
+   :param trainer: A PyTorch Lightning Trainer instance that is used to run the inference
+   :param datamodule: PyTorch Lightning DataModule instance that is used to generate input sample data
+
+   :returns: Dictionary with Input IFM, Output IFM, Weights Tensor and Fan-In for each target layer
+
+
+.. py:data:: logger
+   
+
+   
+
+.. py:function:: select_layer_multiplier(layer_ref_data: Dict[str, Any], multipliers: Dict[str, Any], max_noise: float, num_samples: int = 512) -> Dict[str, Any]
+
+   Select a matching approximate multiplier for a single layer
+
+   :param layer_ref_data: Dictionary of Reference input/output data generated from
+                          a model run with accurate multiplication
+   :param multipliers: Approximate Multiplier Error Maps, Performance Metrics and name
+   :param max_noise: Learned allowable noise parameter (sigma_l)
+   :param num_samples: _description_. Defaults to 512.
+
+   :returns: Dictionary with name and performance metric of selected multiplier
+
+
+.. py:function:: select_multipliers(model: agnapprox.nets.ApproxNet, datamodule: pytorch_lightning.LightningDataModule, library, trainer: pytorch_lightning.Trainer, signed: bool = True, deploy: bool = False)
+
+   Select matching Approximate Multipliers for all layers in a model
+
+   :param model: Approximate Model with learned layer robustness parameters
+   :param datamodule: Data Module to use for sampling runs
+   :param library: Approximate Multiplier Library provider
+   :param trainer: PyTorch Lightning Trainer instance to use for sampling run
+   :param signed: Whether to select signed or unsigned instances from Multiplier library provide.
+                  Defaults to True.
+   :param deploy: Whether to write selected approximate multiplier to layer configuration.
+                  Defaults to False.
+
+   :returns: Dictionary of Assignment results
+
+
