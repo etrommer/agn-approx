@@ -1,12 +1,52 @@
 """
 Model-level utility functions
 """
+import dataclasses
+import json
+import os
+import tempfile
 from operator import attrgetter
-from typing import Any, Dict, List, Tuple, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union
 
+import mlflow
 import numpy as np
 import pytorch_lightning as pl
 import torch
+
+if TYPE_CHECKING:
+    from agnapprox.utils.select_multipliers import MatchingInfo
+
+
+class EnhancedJSONEncoder(json.JSONEncoder):
+    # pylint: disable=line-too-long
+    """
+    Workaround to make dataclasses JSON-serializable
+    https://stackoverflow.com/questions/51286748/make-the-python-json-encoder-support-pythons-new-dataclasses/51286749#51286749
+    """
+
+    def default(self, o):
+        if dataclasses.is_dataclass(o):
+            return dataclasses.asdict(o)
+        return super().default(o)
+
+
+def dump_results(result: "MatchingInfo", lmbd: float):
+    """
+    Write multiplier matching results to MLFlow tracking instance
+
+    Args:
+        result: Multiplier Matching Results
+        lmbd: Lambda value
+    """
+    with tempfile.TemporaryDirectory() as temp_dir:
+        res_path = os.path.join(temp_dir, "gs_results.json")
+        with open(res_path, "w") as handle:
+            json.dump(result, handle, indent=4, cls=EnhancedJSONEncoder)
+        mlflow.log_artifact(res_path)
+        mlflow.log_metric(
+            "Relative Energy Consumption", result.relative_energy_consumption
+        )
+        mlflow.log_param("lambda", lmbd)
 
 
 def set_all(
@@ -24,13 +64,32 @@ def set_all(
             setattr(module, attr, value)
 
 
+@dataclasses.dataclass
+class IntermediateLayerResults:
+    """
+    Container that holds the results of running an inference pass
+    on sample data with accurate multiplication as well as layer metadata
+    For each target layer, we track:
+    - `fan_in`: Number of incoming connections
+    - `features`: Input activations into the layer for the sample run, squashed
+        to a single tensor
+    - `outputs`:  Accurate results of the layer for the sample run, squashed
+        to a single tensor
+    - `weights`: The layer's weights tensor
+    """
+    fan_in: int
+    features: Union[List[np.ndarray], np.ndarray]
+    outputs: Union[List[np.ndarray], np.ndarray]
+    weights: Optional[np.ndarray] = None
+
+
 # Get approximate op layer inputs, outputs weights and metadata
 def get_feature_maps(
     model: pl.LightningModule,
     target_modules: List[Tuple[str, torch.nn.Module]],
     trainer: pl.Trainer,
     datamodule: pl.LightningDataModule,
-) -> Dict[str, Dict[str, Union[np.array, float]]]:
+) -> Dict[str, IntermediateLayerResults]:
     """
     Capture intermediate feature maps of a model's layer
     by attaching hooks and running sample data
@@ -49,22 +108,19 @@ def get_feature_maps(
     # Create hook function for each layer
     def get_hook(name):
         module_getter = attrgetter(name)
-        results[name] = {
-            "input": [],
-            "output": [],
-            "weights": None,
-            "fan_in": module_getter(model).fan_in,
-        }
+        results[name] = IntermediateLayerResults(
+            fan_in=module_getter(model).fan_in, features=[], outputs=[]
+        )
 
         def hook(_module, module_in, module_out):
-            if results[name]["weights"] is None:
-                results[name]["weights"] = (
+            if results[name].weights is None:
+                results[name].weights = (
                     module_in[1].cpu().detach().numpy().astype(np.float32)
                 )
-            results[name]["input"].append(
+            results[name].features.append(
                 module_in[0].cpu().detach().numpy().astype(np.float32)
             )
-            results[name]["output"].append(
+            results[name].outputs.append(
                 module_out.cpu().detach().numpy().astype(np.float32)
             )
 
@@ -82,10 +138,10 @@ def get_feature_maps(
     # Run validation to populate
     trainer.validate(model, datamodule.sample_dataloader(), verbose=False)
 
-    # Squash batches to a single array
+    # Squash list of batches to a single array
     for layer, result in results.items():
-        results[layer]["input"] = np.concatenate(result["input"])
-        results[layer]["output"] = np.concatenate(result["output"])
+        results[layer].features = np.concatenate(result.features)
+        results[layer].outputs = np.concatenate(result.outputs)
 
     # Clean up
     _ = [h.remove() for h in handles]

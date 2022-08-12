@@ -2,10 +2,9 @@
 Implementations for several probabilistic error models
 """
 
-from typing import Tuple
+from typing import Optional, Tuple
 
 import numpy as np
-import torch
 
 
 def single_dist_mc(
@@ -20,7 +19,7 @@ def single_dist_mc(
     approach as described in: https://arxiv.org/abs/1912.00700
 
     Args:
-        emap: _description_
+        emap: The multiplier's error map
         x_dist: Operand distribution of activations
         w_dist: Operand distribution of weights
         fan_in: Incoming connections for layer
@@ -52,7 +51,7 @@ def error_prediction(
     global distribution of activations and weights
 
     Args:
-        emap: _description_
+        emap: The multiplier's error map
         x_dist: Operand distribution of activations
         w_dist: Operand distribution of weights
         fan_in: Incoming connections for layer
@@ -69,7 +68,7 @@ def error_prediction(
     return mean, std
 
 
-def get_sample_population(tensor: torch.Tensor, num_samples: int = 512) -> torch.Tensor:
+def get_sample_population(tensor: np.ndarray, num_samples: int = 512) -> np.ndarray:
     """
     Randomly select samples from a tensor that cover the receptive field of one neuron
 
@@ -89,11 +88,11 @@ def population_prediction(
     emap: np.ndarray, x_multidist: np.ndarray, w_dist: np.ndarray, fan_in: float
 ) -> Tuple[float, float]:
     """
-    Generate prediction of mean and standard deviation using several 
+    Generate prediction of mean and standard deviation using several
     sampled local distributions
 
     Args:
-        emap: _description_
+        emap: The multiplier's error map
         x_multidist: Array of several operand distributions for activations
         w_dist: Operand distribution of weights
         fan_in: Incoming connections for layer
@@ -120,7 +119,7 @@ def population_prediction(
 
 
 def to_distribution(
-    tensor: np.ndarray, min_val: int, max_val: int
+    tensor: Optional[np.ndarray], min_val: int, max_val: int
 ) -> Tuple[np.ndarray, np.ndarray]:
     """Turn tensor of weights/activations into a frequency distribution (i.e. build a histogram)
 
@@ -133,7 +132,14 @@ def to_distribution(
         Tuple of Arrays where first array contains the full numerical range between
         min_val and max_val inclusively and second array contains the relative frequency
         of each operand
+
+    Raises:
+        ValueError: If run before features maps have been populated 
+        by call to `utils.model.get_feature_maps`
+
     """
+    if tensor is None:
+        raise ValueError("Populate input tensor with intermediate features maps")
     num_range = np.arange(min_val, max_val + 1)
     counts = np.zeros_like(num_range)
     nums, freqs = np.unique(tensor.flatten().astype(np.int32), return_counts=True)
