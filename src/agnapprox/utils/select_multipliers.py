@@ -9,11 +9,11 @@ import agnapprox.utils.error_stats as stats
 import numpy as np
 import pytorch_lightning as pl
 from agnapprox.utils.model import get_feature_maps
-from evoapproxlib import ApproximateMultiplier
 
 if TYPE_CHECKING:
     from agnapprox.nets import ApproxNet
     from agnapprox.utils.model import IntermediateLayerResults
+    from evoapproxlib import ApproximateMultiplier
 
 
 logger = logging.getLogger(__name__)
@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 def select_layer_multiplier(
     intermediate_results: "IntermediateLayerResults",
-    multipliers: List[ApproximateMultiplier],
+    multipliers: List["ApproximateMultiplier"],
     max_noise: float,
     num_samples: int = 512,
 ) -> Tuple[str, float]:
@@ -174,14 +174,28 @@ class MatchingInfo:
         )
 
 
+def deploy_multipliers(model: "ApproxNet", matching_result: MatchingInfo, library):
+    """
+    Deploy selected approximate multipliers to network
+
+    Args:
+        model: Model to deploy multipliers to
+        matching_result: Results of multiplier matching
+        library: Library to load Lookup tables from
+    """
+    for layer_info, (name, module) in zip(matching_result.layers, model.noisy_modules):
+        assert (
+            layer_info.name == name
+        ), "Inconsistent layer order between model and optimization results"
+        module.approx_op.lut = library.load_lut(layer_info.multiplier_name)
+
+
 def select_multipliers(
     model: "ApproxNet",
     datamodule: pl.LightningDataModule,
-    library,
+    multipliers: List["ApproximateMultiplier"],
     trainer: pl.Trainer,
-    signed: bool = True,
-    deploy: bool = False,
-):
+) -> MatchingInfo:
     """
     Select matching Approximate Multipliers for all layers in a model
 
@@ -192,13 +206,10 @@ def select_multipliers(
         trainer: PyTorch Lightning Trainer instance to use for sampling run
         signed: Whether to select signed or unsigned instances from Multiplier library provide.
             Defaults to True.
-        deploy: Whether to write selected approximate multiplier to layer configuration.
-            Defaults to False.
 
     Returns:
         Dictionary of Assignment results
     """
-    multipliers = library.prepare(signed=signed)
     ref_data = get_feature_maps(model, model.noisy_modules, trainer, datamodule)
 
     metric_max = max([m.performance_metric for m in multipliers])
@@ -218,6 +229,4 @@ def select_multipliers(
             mul_metric / metric_max,
         )
 
-        if deploy:
-            module.approx_op.lut = library.load_lut(layer_result.multiplier_name)
     return result

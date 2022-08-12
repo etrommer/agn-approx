@@ -229,11 +229,14 @@ class ApproxNet(pl.LightningModule):
                 trainer.test(self, datamodule)
 
             # Calculate layer assignment results for logging instance
-            if self.mode == "gradient_search" and log_mlflow:
+            if self.mode == "gradient_search":
+                target_multipliers = EvoApproxLib().prepare(signed=False)
                 res = agnapprox.utils.select_multipliers(
-                    self, datamodule, EvoApproxLib(), trainer, deploy=True, signed=False
+                    self, datamodule, target_multipliers, trainer
                 )
+                agnapprox.utils.deploy_multipliers(self, res, EvoApproxLib())
                 agnapprox.utils.dump_results(res, self.lmbd)
+
 
     def train_baseline(self, datamodule: pl.LightningDataModule, **kwargs):
         """

@@ -77,6 +77,7 @@ class IntermediateLayerResults:
         to a single tensor
     - `weights`: The layer's weights tensor
     """
+
     fan_in: int
     features: Union[List[np.ndarray], np.ndarray]
     outputs: Union[List[np.ndarray], np.ndarray]
