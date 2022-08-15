@@ -23,10 +23,16 @@ myst-nb = "^0.16.0"
 sphinx-paramlinks = "^0.5.4"
 furo = "^2022.6.21"
 
-
 [tool.poetry.group.dev.dependencies]
 mypy = "^0.971"
 pytest = "^7.1.2"
+isort = "^5.10.1"
+black = "^22.6.0"
+
+
+[tool.poetry.group.notebooks.dependencies]
+ipywidgets = "^7.7.1"
+matplotlib = "^3.5.3"
 
 [tool.poe.tasks]
 install-ltt = "python3 -m pip install light-the-torch"
