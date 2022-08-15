@@ -1,0 +1,853 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Tutorial 1: Approximate MNIST\n",
+    "This notebook will walk you through the steps required to train a simple CNN on the MNIST dataset while determining the robustness to additive Gaussian noise.\n",
+    "\n",
+    "`agnapprox` already comes with predefined implementations for an MNIST dataset loader as well as [LeNet5](https://en.wikipedia.org/wiki/LeNet) which we will use in this tutorial. The next tutorial will show you how to define your own architecture."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "The autoreload extension is already loaded. To reload it, use:\n",
+      "  %reload_ext autoreload\n"
+     ]
+    }
+   ],
+   "source": [
+    "%load_ext autoreload\n",
+    "%autoreload 2"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from agnapprox.nets import LeNet5\n",
+    "from agnapprox.datamodules import MNIST"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "We first set up the datamodule. Downloaded datasets are written to the path pointed to by the environment variable `AGNAPPROX_DATA_DIR` by default. If the variable is not set, the subdirectory `data` is created locally."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "dm = MNIST(batch_size=128, num_workers=4)\n",
+    "dm.prepare_data()\n",
+    "dm.setup()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Next, we define the model. We can simply instantiate the appropriate `agnapprox` wrapper without anything else."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "model = LeNet5()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Model Training\n",
+    "\n",
+    "Every `agnapprox` network has four modes in which the network can be trained:\n",
+    "1. **Baseline**: Train an FP32 baseline model without quantization, approximation, AGN, etc.\n",
+    "2. **Quantization-aware Training**: Apply quantization during the forward pass. Also known as _quantization-aware training_\n",
+    "3. **Gradient Search**: Add Gaussian noise to the output of each target operation. The amount of noise injected in each layer is passed to the optimizer and optimized together with the other network parameters.\n",
+    "4. **Approximate Retraining**: Use Lookup tables of approximate multipliers to retrain the network in order to minimize the loss of accuracy when deploying approximate multipliers\n",
+    "\n",
+    "Normally, you would train a model in every mode in the order given above (but feel free to experiment with other setups!). `agnapprox` network instances provide training functions for each mode with some added functionality. The training functions are wrappers around `pytorch-lightning`'s `Trainer()` API and extra arguments can be passed to the `fit()` method if desired.\n",
+    "\n",
+    "We will start with a simple FP32 baseline model. The default number of epochs for each stage is defined in the network wrapper file, but it can be overridden by passing `epochs=` to the training function. Here, we will train for 8 epochs."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 10,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "GPU available: False, used: False\n",
+      "TPU available: False, using: 0 TPU cores\n",
+      "IPU available: False, using: 0 IPUs\n",
+      "HPU available: False, using: 0 HPUs\n",
+      "\n",
+      "  | Name  | Type   | Params\n",
+      "---------------------------------\n",
+      "0 | model | LeNet5 | 61.9 K\n",
+      "---------------------------------\n",
+      "61.9 K    Trainable params\n",
+      "0         Non-trainable params\n",
+      "61.9 K    Total params\n",
+      "0.248     Total estimated model params size (MB)\n"
+     ]
+    },
+    {
+     "data": {
+      "application/vnd.jupyter.widget-view+json": {
+       "model_id": "9a259fc9206c48cdabd25c28aee21343",
+       "version_major": 2,
+       "version_minor": 0
+      },
+      "text/plain": [
+       "Sanity Checking: 0it [00:00, ?it/s]"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "application/vnd.jupyter.widget-view+json": {
+       "model_id": "9fd0087c587e43bd8119a280d0bf8c74",
+       "version_major": 2,
+       "version_minor": 0
+      },
+      "text/plain": [
+       "Training: 0it [00:00, ?it/s]"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "application/vnd.jupyter.widget-view+json": {
+       "model_id": "acc76c48833e4fde8b6534301875ffd0",
+       "version_major": 2,
+       "version_minor": 0
+      },
+      "text/plain": [
+       "Validation: 0it [00:00, ?it/s]"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "application/vnd.jupyter.widget-view+json": {
+       "model_id": "937975590b1b43288b8a1b44d8042da5",
+       "version_major": 2,
+       "version_minor": 0
+      },
+      "text/plain": [
+       "Validation: 0it [00:00, ?it/s]"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "application/vnd.jupyter.widget-view+json": {
+       "model_id": "7edf046dd8c94df9815846d239ff8622",
+       "version_major": 2,
+       "version_minor": 0
+      },
+      "text/plain": [
+       "Validation: 0it [00:00, ?it/s]"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "application/vnd.jupyter.widget-view+json": {
+       "model_id": "5dd7ec7cc15a43d982a37ea4aa605fbb",
+       "version_major": 2,
+       "version_minor": 0
+      },
+      "text/plain": [
+       "Validation: 0it [00:00, ?it/s]"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "application/vnd.jupyter.widget-view+json": {
+       "model_id": "a789ca6663194f8da9b008dd42c4102d",
+       "version_major": 2,
+       "version_minor": 0
+      },
+      "text/plain": [
+       "Validation: 0it [00:00, ?it/s]"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "`Trainer.fit` stopped: `max_epochs=5` reached.\n"
+     ]
+    },
+    {
+     "data": {
+      "application/vnd.jupyter.widget-view+json": {
+       "model_id": "154dbcb97a504c80942eb3f3c5c467f5",
+       "version_major": 2,
+       "version_minor": 0
+      },
+      "text/plain": [
+       "Testing: 0it [00:00, ?it/s]"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────\n",
+      "       Test metric             DataLoader 0\n",
+      "────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────\n",
+      "      test_acc_top1         0.9894999861717224\n",
+      "        test_loss           0.03623034432530403\n",
+      "────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────\n"
+     ]
+    }
+   ],
+   "source": [
+    "model.train_baseline(dm, epochs=8, test=True)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Next, we optimze the model for 8-Bit quantization using the `train_quant` functions. If you are wondering where the training hyperparameters like optimizer, learning rate, learning rate schedule etc. are coming from: They are also pre-defined in the network's definition."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 11,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "GPU available: False, used: False\n",
+      "TPU available: False, using: 0 TPU cores\n",
+      "IPU available: False, using: 0 IPUs\n",
+      "HPU available: False, using: 0 HPUs\n",
+      "\n",
+      "  | Name  | Type   | Params\n",
+      "---------------------------------\n",
+      "0 | model | LeNet5 | 61.9 K\n",
+      "---------------------------------\n",
+      "61.9 K    Trainable params\n",
+      "0         Non-trainable params\n",
+      "61.9 K    Total params\n",
+      "0.248     Total estimated model params size (MB)\n"
+     ]
+    },
+    {
+     "data": {
+      "application/vnd.jupyter.widget-view+json": {
+       "model_id": "cbdf6ad6afa64702b8b4051933c62afb",
+       "version_major": 2,
+       "version_minor": 0
+      },
+      "text/plain": [
+       "Sanity Checking: 0it [00:00, ?it/s]"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "application/vnd.jupyter.widget-view+json": {
+       "model_id": "8f74e654f57e403b9af5f385863f19dd",
+       "version_major": 2,
+       "version_minor": 0
+      },
+      "text/plain": [
+       "Training: 0it [00:00, ?it/s]"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "application/vnd.jupyter.widget-view+json": {
+       "model_id": "de20614fe2444954816f4346d782c500",
+       "version_major": 2,
+       "version_minor": 0
+      },
+      "text/plain": [
+       "Validation: 0it [00:00, ?it/s]"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "`Trainer.fit` stopped: `max_epochs=1` reached.\n"
+     ]
+    }
+   ],
+   "source": [
+    "model.train_quant(dm)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Robustness Optimization\n",
+    "\n",
+    "Now comes the exciting part: We train while optimizing the amoung of AGN per layer. By passing `verbose=True` we get a debug output with the intermediate results after every epoch."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 12,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "GPU available: False, used: False\n",
+      "TPU available: False, using: 0 TPU cores\n",
+      "IPU available: False, using: 0 IPUs\n",
+      "HPU available: False, using: 0 HPUs\n",
+      "\n",
+      "  | Name  | Type   | Params\n",
+      "---------------------------------\n",
+      "0 | model | LeNet5 | 61.9 K\n",
+      "---------------------------------\n",
+      "61.9 K    Trainable params\n",
+      "0         Non-trainable params\n",
+      "61.9 K    Total params\n",
+      "0.248     Total estimated model params size (MB)\n"
+     ]
+    },
+    {
+     "data": {
+      "application/vnd.jupyter.widget-view+json": {
+       "model_id": "6d4a77f23c5c42f19ab7e458117137d9",
+       "version_major": 2,
+       "version_minor": 0
+      },
+      "text/plain": [
+       "Sanity Checking: 0it [00:00, ?it/s]"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "application/vnd.jupyter.widget-view+json": {
+       "model_id": "e9303f2fc2bb496fa569c8aabc9225a3",
+       "version_major": 2,
+       "version_minor": 0
+      },
+      "text/plain": [
+       "Training: 0it [00:00, ?it/s]"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "application/vnd.jupyter.widget-view+json": {
+       "model_id": "f5834429021d4f1c80d97def42220dcd",
+       "version_major": 2,
+       "version_minor": 0
+      },
+      "text/plain": [
+       "Validation: 0it [00:00, ?it/s]"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "INFO:agnapprox.nets.approxnet:Epoch: 0\n",
+      "INFO:agnapprox.nets.approxnet:Layer: model.conv1.0 | sigma_l: +0.064\n",
+      "INFO:agnapprox.nets.approxnet:Layer: model.conv2.0 | sigma_l: +0.380\n",
+      "INFO:agnapprox.nets.approxnet:Layer: model.linear1 | sigma_l: +0.098\n",
+      "INFO:agnapprox.nets.approxnet:Layer: model.linear2 | sigma_l: +0.045\n",
+      "INFO:agnapprox.nets.approxnet:Layer: model.linear3 | sigma_l: +0.011\n"
+     ]
+    },
+    {
+     "data": {
+      "application/vnd.jupyter.widget-view+json": {
+       "model_id": "f8760ab806674e3f88e2a25915ee756a",
+       "version_major": 2,
+       "version_minor": 0
+      },
+      "text/plain": [
+       "Validation: 0it [00:00, ?it/s]"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "INFO:agnapprox.nets.approxnet:Epoch: 1\n",
+      "INFO:agnapprox.nets.approxnet:Layer: model.conv1.0 | sigma_l: +0.065\n",
+      "INFO:agnapprox.nets.approxnet:Layer: model.conv2.0 | sigma_l: +0.491\n",
+      "INFO:agnapprox.nets.approxnet:Layer: model.linear1 | sigma_l: +0.103\n",
+      "INFO:agnapprox.nets.approxnet:Layer: model.linear2 | sigma_l: +0.049\n",
+      "INFO:agnapprox.nets.approxnet:Layer: model.linear3 | sigma_l: +0.014\n"
+     ]
+    },
+    {
+     "data": {
+      "application/vnd.jupyter.widget-view+json": {
+       "model_id": "cec2b7fadeda4ef0aac65e76cfce2ff5",
+       "version_major": 2,
+       "version_minor": 0
+      },
+      "text/plain": [
+       "Validation: 0it [00:00, ?it/s]"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "INFO:agnapprox.nets.approxnet:Epoch: 2\n",
+      "INFO:agnapprox.nets.approxnet:Layer: model.conv1.0 | sigma_l: +0.069\n",
+      "INFO:agnapprox.nets.approxnet:Layer: model.conv2.0 | sigma_l: +0.499\n",
+      "INFO:agnapprox.nets.approxnet:Layer: model.linear1 | sigma_l: +0.107\n",
+      "INFO:agnapprox.nets.approxnet:Layer: model.linear2 | sigma_l: +0.062\n",
+      "INFO:agnapprox.nets.approxnet:Layer: model.linear3 | sigma_l: -0.006\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "`Trainer.fit` stopped: `max_epochs=3` reached.\n"
+     ]
+    }
+   ],
+   "source": [
+    "# Set appropriate log level and send to stdout so that logging output shows up in Jupyter\n",
+    "import logging\n",
+    "logging.basicConfig(level=logging.INFO, stream=sys.stdout)\n",
+    "\n",
+    "model.train_gradient(dm, lmbd=0.2, initial_noise=0.025)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Multiplier Assignment\n",
+    "Finally, we can use this information to assign matching multipliers to each layer.\n",
+    "This is done through a helper function that gets passed a list of approximate multipliers, from which the best-matching one is picked for each layer.\n",
+    "\n",
+    "Each multiplier in the list should be a dataclass instance that looks like this:\n",
+    "```python\n",
+    "@dataclass\n",
+    "class ApproximateMultiplier\n",
+    "    name: str\n",
+    "    performance_metric: float\n",
+    "    error_map: np.ndarray\n",
+    "```\n",
+    "For the parameter `performance_metric`, you can choose any property that you want to **minimize** across the your neural network. Normally, this would likely be things like power consumption, area usage, etc.\n",
+    "\n",
+    "### Error Map Construction\n",
+    "The `error_map` is a numpy array of shape 256x256, where each entry corresponds to the difference between the accurate and the approximate result for `int8` operands:\n",
+    "```python\n",
+    "error_map = np.empty([256,256])\n",
+    "\n",
+    "for x in range(-128, 128):\n",
+    "    for y in range(-128, 128):\n",
+    "        error_map[x+128][y+128] = x * y - approx_mult(x, y)\n",
+    "```\n",
+    "Where `approx_mult` is some approximate multiplication implementation."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 13,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "GPU available: False, used: False\n",
+      "TPU available: False, using: 0 TPU cores\n",
+      "IPU available: False, using: 0 IPUs\n",
+      "HPU available: False, using: 0 HPUs\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "mul8s_1KR3, mul8s_1KR6, mul8s_1KR8, mul8s_1KRC, mul8s_1KTY, mul8s_1KV8, mul8s_1KVA, mul8s_1KVB, mul8s_1KVL, mul8s_1KX2, mul8s_1L1G, mul8s_1L2D, mul8s_1L2H\n"
+     ]
+    }
+   ],
+   "source": [
+    "# Import a few helpers and a provider of approximate multipliers\n",
+    "from agnapprox.utils import select_multipliers, deploy_multipliers\n",
+    "from evoapproxlib import EvoApproxLib\n",
+    "import pytorch_lightning as pl\n",
+    "\n",
+    "trainer = pl.Trainer()\n",
+    "evo = EvoApproxLib()\n",
+    "target_multipliers = evo.prepare(signed=True)\n",
+    "\n",
+    "print(\", \".join([tm.name for tm in target_multipliers]))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 14,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "application/vnd.jupyter.widget-view+json": {
+       "model_id": "db648b10202c4bad85ed5e01adea1ca3",
+       "version_major": 2,
+       "version_minor": 0
+      },
+      "text/plain": [
+       "Validation: 0it [00:00, ?it/s]"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "INFO:agnapprox.utils.select_multipliers:Layer: model.conv1.0, Best Match: mul8s_1L2H, Performance: 0.301000, Relative Performance: 0.708235\n",
+      "INFO:agnapprox.utils.select_multipliers:Layer: model.conv2.0, Best Match: mul8s_1L1G, Performance: 0.126000, Relative Performance: 0.296471\n",
+      "INFO:agnapprox.utils.select_multipliers:Layer: model.linear1, Best Match: mul8s_1L2D, Performance: 0.200000, Relative Performance: 0.470588\n",
+      "INFO:agnapprox.utils.select_multipliers:Layer: model.linear2, Best Match: mul8s_1L2D, Performance: 0.200000, Relative Performance: 0.470588\n",
+      "INFO:agnapprox.utils.select_multipliers:Layer: model.linear3, Best Match: mul8s_1KX2, Performance: 0.391000, Relative Performance: 0.920000\n"
+     ]
+    }
+   ],
+   "source": [
+    "# Match multipliers to layers\n",
+    "res = select_multipliers(\n",
+    "    model, dm, target_multipliers, trainer\n",
+    ")\n",
+    "# Deploy selected multipliers to each layer\n",
+    "deploy_multipliers(model, res, evo)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "If we look at some data, we see that the layer with the most multiplications gets assigned the hardware instance with the lowest energy consumption, while the first and last layers remain relatively accurate."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 15,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "image/png": "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",
+      "text/plain": [
+       "<Figure size 288x432 with 2 Axes>"
+      ]
+     },
+     "metadata": {
+      "needs_background": "light"
+     },
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "import matplotlib.pyplot as plt\n",
+    "import numpy as np\n",
+    "\n",
+    "\n",
+    "x = np.arange(len(res.layers))\n",
+    "multiplier_performance = np.array([l.relative_energy_consumption(res.metric_max) for l in res.layers])\n",
+    "opcounts = np.array([l.relative_opcount(res.opcount) for l in res.layers])\n",
+    "labels = [l.name for l in res.layers]\n",
+    "\n",
+    "plt.figure(figsize=(4,6))\n",
+    "plt.subplot(211)\n",
+    "plt.bar(x, multiplier_performance)\n",
+    "plt.xticks(x, labels, rotation=45)\n",
+    "plt.ylabel('Relative Energy Consumption')\n",
+    "plt.axhline(res.relative_energy_consumption, color='black')\n",
+    "\n",
+    "plt.subplot(212)\n",
+    "plt.bar(x, opcounts, color='orange')\n",
+    "plt.xticks(x, labels, rotation=45)\n",
+    "plt.ylabel('Relative Opcount')\n",
+    "plt.tight_layout()\n",
+    "plt.show()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Approximate Retraining\n",
+    "\n",
+    "We have selected an approximate multiplier for each layer and deployed them. The last step is to retrain the network while simulating the selected approximate multipliers so that the network learns to compensate for the error."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 16,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "GPU available: False, used: False\n",
+      "TPU available: False, using: 0 TPU cores\n",
+      "IPU available: False, using: 0 IPUs\n",
+      "HPU available: False, using: 0 HPUs\n",
+      "\n",
+      "  | Name  | Type   | Params\n",
+      "---------------------------------\n",
+      "0 | model | LeNet5 | 61.9 K\n",
+      "---------------------------------\n",
+      "61.9 K    Trainable params\n",
+      "0         Non-trainable params\n",
+      "61.9 K    Total params\n",
+      "0.248     Total estimated model params size (MB)\n"
+     ]
+    },
+    {
+     "data": {
+      "application/vnd.jupyter.widget-view+json": {
+       "model_id": "7ee83253ccd145aabe7719eda971cd96",
+       "version_major": 2,
+       "version_minor": 0
+      },
+      "text/plain": [
+       "Sanity Checking: 0it [00:00, ?it/s]"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "application/vnd.jupyter.widget-view+json": {
+       "model_id": "f43c7eb452914c9f8d500554ce52de4e",
+       "version_major": 2,
+       "version_minor": 0
+      },
+      "text/plain": [
+       "Training: 0it [00:00, ?it/s]"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "application/vnd.jupyter.widget-view+json": {
+       "model_id": "22af0a8be6904c689e327b9547edd010",
+       "version_major": 2,
+       "version_minor": 0
+      },
+      "text/plain": [
+       "Validation: 0it [00:00, ?it/s]"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "application/vnd.jupyter.widget-view+json": {
+       "model_id": "6970077b200548b7a00971b48d88e5c4",
+       "version_major": 2,
+       "version_minor": 0
+      },
+      "text/plain": [
+       "Validation: 0it [00:00, ?it/s]"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "application/vnd.jupyter.widget-view+json": {
+       "model_id": "4c74ae0cc04740f19d412b2626aeb845",
+       "version_major": 2,
+       "version_minor": 0
+      },
+      "text/plain": [
+       "Validation: 0it [00:00, ?it/s]"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "application/vnd.jupyter.widget-view+json": {
+       "model_id": "d00471dfd6984c0ba4470f761297f6d6",
+       "version_major": 2,
+       "version_minor": 0
+      },
+      "text/plain": [
+       "Validation: 0it [00:00, ?it/s]"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "application/vnd.jupyter.widget-view+json": {
+       "model_id": "8d94abcb8e9140e39945b613de30d62a",
+       "version_major": 2,
+       "version_minor": 0
+      },
+      "text/plain": [
+       "Validation: 0it [00:00, ?it/s]"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "`Trainer.fit` stopped: `max_epochs=5` reached.\n"
+     ]
+    },
+    {
+     "data": {
+      "application/vnd.jupyter.widget-view+json": {
+       "model_id": "e8faa034ed974fbfbfa7012e79372e8c",
+       "version_major": 2,
+       "version_minor": 0
+      },
+      "text/plain": [
+       "Testing: 0it [00:00, ?it/s]"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────\n",
+      "       Test metric             DataLoader 0\n",
+      "────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────\n",
+      "      test_acc_top1         0.9915000200271606\n",
+      "        test_loss          0.031246893107891083\n",
+      "────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────\n"
+     ]
+    }
+   ],
+   "source": [
+    "model.train_approx(dm, test=True)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3.8.10 ('.venv': poetry)",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.8.10"
+  },
+  "orig_nbformat": 4,
+  "vscode": {
+   "interpreter": {
+    "hash": "bcfbc26219664d5aa2275c301081fce34ef3822c3b58c6fc90979e47294771c3"
+   }
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 2
+}
