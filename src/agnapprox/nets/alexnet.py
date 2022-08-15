@@ -10,16 +10,17 @@ from .approxnet import ApproxNet
 
 logger = logging.getLogger(__name__)
 
-#pylint: disable=too-many-ancestors
+# pylint: disable=too-many-ancestors
 class AlexNet(ApproxNet):
     """
     Definition of training hyperparameters for
     approximate AlexNet
     """
+
     def __init__(self, num_classes: int = 200, pretrained: bool = True):
         super().__init__()
 
-        self.name = 'AlexNet'
+        self.name = "AlexNet"
         self.model = torchvision.models.alexnet(pretrained=pretrained)
 
         # Replace last layer with randomly initialized layer of correct size

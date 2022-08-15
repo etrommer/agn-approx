@@ -10,7 +10,7 @@ from agnapprox.nets.base import lenet5
 
 logger = logging.getLogger(__name__)
 
-#pylint: disable=too-many-ancestors
+# pylint: disable=too-many-ancestors
 class LeNet5(ApproxNet):
     """
     Definition of training hyperparameters for

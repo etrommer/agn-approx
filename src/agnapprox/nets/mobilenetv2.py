@@ -16,10 +16,11 @@ class MobileNetV2(ApproxNet):
     Definition of training hyperparameters for
     approximate MobileNetV2
     """
+
     def __init__(self, num_classes: int = 200, pretrained: bool = True):
         super().__init__()
 
-        self.name = 'MobileNetV2'
+        self.name = "MobileNetV2"
         self.model = torchvision.models.mobilenet_v2(pretrained=pretrained)
 
         # Replace last layer with randomly initialized layer of correct size

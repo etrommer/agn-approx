@@ -112,7 +112,7 @@ def population_prediction(
     # Aggregate error distributions (Eq. 15 & Eq. 16)
     mean_aggregate = np.mean(means)
     std_aggregate = np.sqrt(
-        (np.sum(means ** 2 + stds ** 2) - (np.sum(means) ** 2) / x_multidist.shape[0])
+        (np.sum(means**2 + stds**2) - (np.sum(means) ** 2) / x_multidist.shape[0])
         / x_multidist.shape[0]
     )
     return mean_aggregate, std_aggregate
@@ -134,7 +134,7 @@ def to_distribution(
         of each operand
 
     Raises:
-        ValueError: If run before features maps have been populated 
+        ValueError: If run before features maps have been populated
         by call to `utils.model.get_feature_maps`
 
     """

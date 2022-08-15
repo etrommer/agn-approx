@@ -12,7 +12,7 @@ from .approxnet import ApproxNet
 logger = logging.getLogger(__name__)
 
 
-#pylint: disable=too-many-ancestors
+# pylint: disable=too-many-ancestors
 class VGG(ApproxNet):
     """
     Definition of training hyperparameters for

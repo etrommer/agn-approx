@@ -11,12 +11,13 @@ from .base import resnet
 
 logger = logging.getLogger(__name__)
 
-#pylint: disable=too-many-ancestors
+# pylint: disable=too-many-ancestors
 class ResNet(ApproxNet):
     """
     Definition of training hyperparameters for
     approximate ResNet
     """
+
     def __init__(self, resnet_size: Optional[str] = "ResNet8", **kwargs):
         super().__init__(**kwargs)
 
