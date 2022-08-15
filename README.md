@@ -1,5 +1,8 @@
-# AGN Approx
+<p align="center">
+<img width="400" height="400" src="docs/agnapprox_logo.png" alt="AGN Approx Logo">
+</p>
 
+# AGN Approx
 Code and experiments for the paper "Combining Gradients and Probabilities for Heterogeneours Approximation of Neural Networks"
 This is currently a work in progress.
 
