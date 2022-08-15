@@ -1,5 +1,5 @@
 <p align="center">
-<img width="400" height="400" src="docs/agnapprox_logo.png" alt="AGN Approx Logo">
+<img width="400" height="400" src="https://raw.githubusercontent.com/etrommer/agn-approx/main/docs/agnapprox_logo.png" alt="AGN Approx Logo">
 </p>
 
 # AGN Approx
@@ -39,5 +39,9 @@ Interested in contributing? Check out the contributing guidelines. Please note t
 `agnapprox` was created by Elias Trommer. It is licensed under the terms of the GNU General Public License v3.0 license.
 
 ## Credits
-
 `agnapprox` was created with [`cookiecutter`](https://cookiecutter.readthedocs.io/en/latest/) and the `py-pkgs-cookiecutter` [template](https://github.com/py-pkgs/py-pkgs-cookiecutter).
+
+This work was created as part of my Ph.D. research at Infineon Technologies Dresden
+<p align="center">
+<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/Infineon-Logo.svg/320px-Infineon-Logo.svg.png" alt="Infineon Logo">
+</p>
