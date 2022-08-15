@@ -9,6 +9,9 @@ This is currently a work in progress.
 ## Note
 *This package relies on the Python package TorchApprox for GPU-accelerated layer implementations. This package is currently not publicly available. It will likely be made available in late 2022/early 2023. If you need early access, please get in touch*
 
+## Documentation
+Detailed Documentation can be found under: [https://etrommer.github.io/agn-approx/](https://etrommer.github.io/agn-approx/)
+
 ## Installation
 This project is not yet hosted on PyPi. You can install it directly from this repository using `pip`:
 ```bash
