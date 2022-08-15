@@ -2,8 +2,9 @@
 Wrapper for MNIST dataset
 """
 import torch.utils.data as td
-from agnapprox.datamodules import ApproxDataModule
 from torchvision import datasets, transforms
+
+from .approx_datamodule import ApproxDataModule
 
 
 class MNIST(ApproxDataModule):

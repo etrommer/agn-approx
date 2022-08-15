@@ -4,8 +4,9 @@ Wrapper for TinyImageNet dataset
 import os
 
 import torch.utils.data as td
-from agnapprox.datamodules import ApproxDataModule
 from torchvision import datasets, transforms
+
+from .approx_datamodule import ApproxDataModule
 
 
 class TinyImageNet(ApproxDataModule):
