@@ -148,8 +148,11 @@
   <aside class="sidebar-drawer">
     <div class="sidebar-container">
       
-      <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
+      <div class="sidebar-sticky"><a class="sidebar-brand centered" href="../../../index.html">
   
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo" src="https://raw.githubusercontent.com/etrommer/agn-approx/main/docs/agnapprox_logo.png" alt="Logo"/>
+  </div>
   
   <span class="sidebar-brand-text">AGN Approx Documentation</span>
   
@@ -160,7 +163,7 @@
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../../../example.html">Example usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../1_mnist.html">Tutorial 1: Approximate MNIST</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Changelog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../conduct.html">Code of Conduct</a></li>
@@ -247,6 +250,27 @@
 </section>
 <section id="package-contents">
 <h2>Package Contents<a class="headerlink" href="#package-contents" title="Permalink to this heading">#</a></h2>
+<section id="classes">
+<h3>Classes<a class="headerlink" href="#classes" title="Permalink to this heading">#</a></h3>
+<div class="table-wrapper autosummary longtable docutils container">
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#agnapprox.utils.EnhancedJSONEncoder" title="agnapprox.utils.EnhancedJSONEncoder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">EnhancedJSONEncoder</span></code></a></p></td>
+<td><p>Workaround to make dataclasses JSON-serializable</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#agnapprox.utils.IntermediateLayerResults" title="agnapprox.utils.IntermediateLayerResults"><code class="xref py py-obj docutils literal notranslate"><span class="pre">IntermediateLayerResults</span></code></a></p></td>
+<td><p>Container that holds the results of running an inference pass</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#agnapprox.utils.LayerInfo" title="agnapprox.utils.LayerInfo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LayerInfo</span></code></a></p></td>
+<td><p>Multiplier Matching result for a single layer</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#agnapprox.utils.MatchingInfo" title="agnapprox.utils.MatchingInfo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MatchingInfo</span></code></a></p></td>
+<td><p>Multiplier Matching result for the entire model</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
 <section id="functions">
 <h3>Functions<a class="headerlink" href="#functions" title="Permalink to this heading">#</a></h3>
 <div class="table-wrapper autosummary longtable docutils container">
@@ -258,7 +282,7 @@
 <tr class="row-even"><td><p><a class="reference internal" href="#agnapprox.utils.error_prediction" title="agnapprox.utils.error_prediction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">error_prediction</span></code></a>(→ Tuple[float, float])</p></td>
 <td><p>Generate error mean and standard deviation using the</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#agnapprox.utils.get_sample_population" title="agnapprox.utils.get_sample_population"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_sample_population</span></code></a>(→ torch.Tensor)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#agnapprox.utils.get_sample_population" title="agnapprox.utils.get_sample_population"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_sample_population</span></code></a>(→ numpy.ndarray)</p></td>
 <td><p>Randomly select samples from a tensor that cover the receptive field of one neuron</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#agnapprox.utils.population_prediction" title="agnapprox.utils.population_prediction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">population_prediction</span></code></a>(→ Tuple[float, float])</p></td>
@@ -270,22 +294,28 @@
 <tr class="row-even"><td><p><a class="reference internal" href="#agnapprox.utils.error_calculation" title="agnapprox.utils.error_calculation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">error_calculation</span></code></a>(→ Tuple[float, float])</p></td>
 <td><p>Calculate mean and standard deviation of the observed error between</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#agnapprox.utils.set_all" title="agnapprox.utils.set_all"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_all</span></code></a>(model, attr, value)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#agnapprox.utils.dump_results" title="agnapprox.utils.dump_results"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dump_results</span></code></a>(result, lmbd)</p></td>
+<td><p>Write multiplier matching results to MLFlow tracking instance</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#agnapprox.utils.set_all" title="agnapprox.utils.set_all"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_all</span></code></a>(model, attr, value)</p></td>
 <td><p>Utility function to set an attribute for all modules in a model</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#id0" title="agnapprox.utils.get_feature_maps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_feature_maps</span></code></a>(→ Dict[str, Dict[str, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#id0" title="agnapprox.utils.get_feature_maps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_feature_maps</span></code></a>(→ Dict[str, IntermediateLayerResults])</p></td>
 <td><p>Capture intermediate feature maps of a model's layer</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#agnapprox.utils.topk_accuracy" title="agnapprox.utils.topk_accuracy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">topk_accuracy</span></code></a>() → List[float])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#agnapprox.utils.topk_accuracy" title="agnapprox.utils.topk_accuracy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">topk_accuracy</span></code></a>() → List[float])</p></td>
 <td><p>Computes the accuracy over the k top predictions for the specified values of k</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#id0" title="agnapprox.utils.get_feature_maps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_feature_maps</span></code></a>(→ Dict[str, Dict[str, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#id0" title="agnapprox.utils.get_feature_maps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_feature_maps</span></code></a>(→ Dict[str, IntermediateLayerResults])</p></td>
 <td><p>Capture intermediate feature maps of a model's layer</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#agnapprox.utils.select_layer_multiplier" title="agnapprox.utils.select_layer_multiplier"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_layer_multiplier</span></code></a>(→ Dict[str, Any])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#agnapprox.utils.select_layer_multiplier" title="agnapprox.utils.select_layer_multiplier"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_layer_multiplier</span></code></a>(→ Tuple[str, float])</p></td>
 <td><p>Select a matching approximate multiplier for a single layer</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="select_multipliers/index.html#module-agnapprox.utils.select_multipliers" title="agnapprox.utils.select_multipliers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_multipliers</span></code></a>(model, datamodule, library, trainer)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#agnapprox.utils.deploy_multipliers" title="agnapprox.utils.deploy_multipliers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">deploy_multipliers</span></code></a>(model, matching_result, library)</p></td>
+<td><p>Deploy selected approximate multipliers to network</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="select_multipliers/index.html#module-agnapprox.utils.select_multipliers" title="agnapprox.utils.select_multipliers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_multipliers</span></code></a>(→ MatchingInfo)</p></td>
 <td><p>Select matching Approximate Multipliers for all layers in a model</p></td>
 </tr>
 </tbody>
@@ -311,7 +341,7 @@ approach as described in: <a class="reference external" href="https://arxiv.org/
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>emap</strong> – _description_</p></li>
+<li><p><strong>emap</strong> – The multiplier’s error map</p></li>
 <li><p><strong>x_dist</strong> – Operand distribution of activations</p></li>
 <li><p><strong>w_dist</strong> – Operand distribution of weights</p></li>
 <li><p><strong>fan_in</strong> – Incoming connections for layer</p></li>
@@ -332,7 +362,7 @@ global distribution of activations and weights</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>emap</strong> – _description_</p></li>
+<li><p><strong>emap</strong> – The multiplier’s error map</p></li>
 <li><p><strong>x_dist</strong> – Operand distribution of activations</p></li>
 <li><p><strong>w_dist</strong> – Operand distribution of weights</p></li>
 <li><p><strong>fan_in</strong> – Incoming connections for layer</p></li>
@@ -346,7 +376,7 @@ global distribution of activations and weights</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="agnapprox.utils.get_sample_population">
-<span class="sig-prename descclassname"><span class="pre">agnapprox.utils.</span></span><span class="sig-name descname"><span class="pre">get_sample_population</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tensor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_samples</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">512</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="reference internal" href="../../../_modules/agnapprox/utils/error_stats.html#get_sample_population"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agnapprox.utils.get_sample_population" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">agnapprox.utils.</span></span><span class="sig-name descname"><span class="pre">get_sample_population</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tensor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_samples</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">512</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="reference internal" href="../../../_modules/agnapprox/utils/error_stats.html#get_sample_population"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agnapprox.utils.get_sample_population" title="Permalink to this definition">#</a></dt>
 <dd><p>Randomly select samples from a tensor that cover the receptive field of one neuron</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -369,7 +399,7 @@ sampled local distributions</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>emap</strong> – _description_</p></li>
+<li><p><strong>emap</strong> – The multiplier’s error map</p></li>
 <li><p><strong>x_multidist</strong> – Array of several operand distributions for activations</p></li>
 <li><p><strong>w_dist</strong> – Operand distribution of weights</p></li>
 <li><p><strong>fan_in</strong> – Incoming connections for layer</p></li>
@@ -383,7 +413,7 @@ sampled local distributions</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="agnapprox.utils.to_distribution">
-<span class="sig-prename descclassname"><span class="pre">agnapprox.utils.</span></span><span class="sig-name descname"><span class="pre">to_distribution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tensor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_val</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_val</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/agnapprox/utils/error_stats.html#to_distribution"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agnapprox.utils.to_distribution" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">agnapprox.utils.</span></span><span class="sig-name descname"><span class="pre">to_distribution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tensor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_val</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_val</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/agnapprox/utils/error_stats.html#to_distribution"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agnapprox.utils.to_distribution" title="Permalink to this definition">#</a></dt>
 <dd><p>Turn tensor of weights/activations into a frequency distribution (i.e. build a histogram)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -397,6 +427,12 @@ sampled local distributions</p>
 <dd class="field-even"><p>Tuple of Arrays where first array contains the full numerical range between
 min_val and max_val inclusively and second array contains the relative frequency
 of each operand</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ValueError</strong> – If run before features maps have been populated</p></li>
+<li><p><strong>by call to utils.model.get_feature_maps</strong> – </p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -420,6 +456,49 @@ accurate computation and approximate computation</p>
 </dl>
 </dd></dl>
 
+<dl class="py class">
+<dt class="sig sig-object py" id="agnapprox.utils.EnhancedJSONEncoder">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">agnapprox.utils.</span></span><span class="sig-name descname"><span class="pre">EnhancedJSONEncoder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skipkeys</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ensure_ascii</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">check_circular</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_nan</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sort_keys</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">separators</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/agnapprox/utils/model.html#EnhancedJSONEncoder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agnapprox.utils.EnhancedJSONEncoder" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">json.JSONEncoder</span></code></p>
+<p>Workaround to make dataclasses JSON-serializable
+<a class="reference external" href="https://stackoverflow.com/questions/51286748/make-the-python-json-encoder-support-pythons-new-dataclasses/51286749#51286749">https://stackoverflow.com/questions/51286748/make-the-python-json-encoder-support-pythons-new-dataclasses/51286749#51286749</a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="agnapprox.utils.EnhancedJSONEncoder.default">
+<span class="sig-name descname"><span class="pre">default</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">o</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/agnapprox/utils/model.html#EnhancedJSONEncoder.default"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agnapprox.utils.EnhancedJSONEncoder.default" title="Permalink to this definition">#</a></dt>
+<dd><p>Implement this method in a subclass such that it returns
+a serializable object for <code class="docutils literal notranslate"><span class="pre">o</span></code>, or calls the base implementation
+(to raise a <code class="docutils literal notranslate"><span class="pre">TypeError</span></code>).</p>
+<p>For example, to support arbitrary iterators, you could
+implement default like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">o</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">iterable</span> <span class="o">=</span> <span class="nb">iter</span><span class="p">(</span><span class="n">o</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+        <span class="k">pass</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">iterable</span><span class="p">)</span>
+    <span class="c1"># Let the base class default method raise the TypeError</span>
+    <span class="k">return</span> <span class="n">JSONEncoder</span><span class="o">.</span><span class="n">default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">o</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="agnapprox.utils.dump_results">
+<span class="sig-prename descclassname"><span class="pre">agnapprox.utils.</span></span><span class="sig-name descname"><span class="pre">dump_results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="select_multipliers/index.html#agnapprox.utils.select_multipliers.MatchingInfo" title="agnapprox.utils.select_multipliers.MatchingInfo"><span class="pre">agnapprox.utils.select_multipliers.MatchingInfo</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">lmbd</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/agnapprox/utils/model.html#dump_results"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agnapprox.utils.dump_results" title="Permalink to this definition">#</a></dt>
+<dd><p>Write multiplier matching results to MLFlow tracking instance</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>result</strong> – Multiplier Matching Results</p></li>
+<li><p><strong>lmbd</strong> – Lambda value</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="agnapprox.utils.set_all">
 <span class="sig-prename descclassname"><span class="pre">agnapprox.utils.</span></span><span class="sig-name descname"><span class="pre">set_all</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">pytorch_lightning.LightningDataModule</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.nn.Module</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/agnapprox/utils/model.html#set_all"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agnapprox.utils.set_all" title="Permalink to this definition">#</a></dt>
@@ -435,9 +514,50 @@ accurate computation and approximate computation</p>
 </dl>
 </dd></dl>
 
+<dl class="py class">
+<dt class="sig sig-object py" id="agnapprox.utils.IntermediateLayerResults">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">agnapprox.utils.</span></span><span class="sig-name descname"><span class="pre">IntermediateLayerResults</span></span><a class="reference internal" href="../../../_modules/agnapprox/utils/model.html#IntermediateLayerResults"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agnapprox.utils.IntermediateLayerResults" title="Permalink to this definition">#</a></dt>
+<dd><p>Container that holds the results of running an inference pass
+on sample data with accurate multiplication as well as layer metadata
+For each target layer, we track:
+- <cite>fan_in</cite>: Number of incoming connections
+- <cite>features</cite>: Input activations into the layer for the sample run, squashed</p>
+<blockquote>
+<div><p>to a single tensor</p>
+</div></blockquote>
+<ul class="simple">
+<li><dl class="simple">
+<dt><cite>outputs</cite>:  Accurate results of the layer for the sample run, squashed</dt><dd><p>to a single tensor</p>
+</dd>
+</dl>
+</li>
+<li><p><cite>weights</cite>: The layer’s weights tensor</p></li>
+</ul>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="agnapprox.utils.IntermediateLayerResults.fan_in">
+<span class="sig-name descname"><span class="pre">fan_in</span></span><em class="property"><span class="w"> </span><span class="pre">:int</span></em><a class="headerlink" href="#agnapprox.utils.IntermediateLayerResults.fan_in" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="agnapprox.utils.IntermediateLayerResults.features">
+<span class="sig-name descname"><span class="pre">features</span></span><em class="property"><span class="w"> </span><span class="pre">:Union[List[numpy.ndarray],</span> <span class="pre">numpy.ndarray]</span></em><a class="headerlink" href="#agnapprox.utils.IntermediateLayerResults.features" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="agnapprox.utils.IntermediateLayerResults.outputs">
+<span class="sig-name descname"><span class="pre">outputs</span></span><em class="property"><span class="w"> </span><span class="pre">:Union[List[numpy.ndarray],</span> <span class="pre">numpy.ndarray]</span></em><a class="headerlink" href="#agnapprox.utils.IntermediateLayerResults.outputs" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="agnapprox.utils.IntermediateLayerResults.weights">
+<span class="sig-name descname"><span class="pre">weights</span></span><em class="property"><span class="w"> </span><span class="pre">:Optional[numpy.ndarray]</span></em><a class="headerlink" href="#agnapprox.utils.IntermediateLayerResults.weights" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="agnapprox.utils.get_feature_maps">
-<span class="sig-prename descclassname"><span class="pre">agnapprox.utils.</span></span><span class="sig-name descname"><span class="pre">get_feature_maps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.LightningModule</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_modules</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.nn.Module</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trainer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.Trainer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">datamodule</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.LightningDataModule</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.array</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/agnapprox/utils/model.html#get_feature_maps"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agnapprox.utils.get_feature_maps" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">agnapprox.utils.</span></span><span class="sig-name descname"><span class="pre">get_feature_maps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.LightningModule</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_modules</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.nn.Module</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trainer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.Trainer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">datamodule</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.LightningDataModule</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#agnapprox.utils.IntermediateLayerResults" title="agnapprox.utils.IntermediateLayerResults"><span class="pre">IntermediateLayerResults</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/agnapprox/utils/model.html#get_feature_maps"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agnapprox.utils.get_feature_maps" title="Permalink to this definition">#</a></dt>
 <dd><p>Capture intermediate feature maps of a model’s layer
 by attaching hooks and running sample data</p>
 <dl class="field-list simple">
@@ -488,7 +608,7 @@ but if it were either cat or dog you’d accumulate +1 for that example.</p></li
 
 <dl class="py function">
 <dt class="sig sig-object py" id="id0">
-<span class="sig-prename descclassname"><span class="pre">agnapprox.utils.</span></span><span class="sig-name descname"><span class="pre">get_feature_maps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.LightningModule</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_modules</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.nn.Module</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trainer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.Trainer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">datamodule</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.LightningDataModule</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.array</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/agnapprox/utils/model.html#get_feature_maps"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id0" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">agnapprox.utils.</span></span><span class="sig-name descname"><span class="pre">get_feature_maps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.LightningModule</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_modules</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.nn.Module</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trainer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.Trainer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">datamodule</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.LightningDataModule</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#agnapprox.utils.IntermediateLayerResults" title="agnapprox.utils.IntermediateLayerResults"><span class="pre">IntermediateLayerResults</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/agnapprox/utils/model.html#get_feature_maps"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id0" title="Permalink to this definition">#</a></dt>
 <dd><p>Capture intermediate feature maps of a model’s layer
 by attaching hooks and running sample data</p>
 <dl class="field-list simple">
@@ -513,16 +633,19 @@ by attaching hooks and running sample data</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="agnapprox.utils.select_layer_multiplier">
-<span class="sig-prename descclassname"><span class="pre">agnapprox.utils.</span></span><span class="sig-name descname"><span class="pre">select_layer_multiplier</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">layer_ref_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multipliers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_noise</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_samples</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">512</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/agnapprox/utils/select_multipliers.html#select_layer_multiplier"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agnapprox.utils.select_layer_multiplier" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">agnapprox.utils.</span></span><span class="sig-name descname"><span class="pre">select_layer_multiplier</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">intermediate_results</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="model/index.html#agnapprox.utils.model.IntermediateLayerResults" title="agnapprox.utils.model.IntermediateLayerResults"><span class="pre">agnapprox.utils.model.IntermediateLayerResults</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">multipliers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">evoapproxlib.ApproximateMultiplier</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_noise</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_samples</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">512</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/agnapprox/utils/select_multipliers.html#select_layer_multiplier"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agnapprox.utils.select_layer_multiplier" title="Permalink to this definition">#</a></dt>
 <dd><p>Select a matching approximate multiplier for a single layer</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>layer_ref_data</strong> – Dictionary of Reference input/output data generated from
-a model run with accurate multiplication</p></li>
+<li><p><strong>layer_ref_data</strong> – Reference input/output data generated from
+a model run with <em>accurate</em> multiplication. This is used to calibrate
+the layer standard deviation for the error estimate and determine the
+distribution of numerical values in weights and activations.</p></li>
 <li><p><strong>multipliers</strong> – Approximate Multiplier Error Maps, Performance Metrics and name</p></li>
 <li><p><strong>max_noise</strong> – Learned allowable noise parameter (sigma_l)</p></li>
-<li><p><strong>num_samples</strong> – _description_. Defaults to 512.</p></li>
+<li><p><strong>num_samples</strong> – Number of samples to draw from features for multi-population prediction.
+Defaults to 512.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -531,9 +654,127 @@ a model run with accurate multiplication</p></li>
 </dl>
 </dd></dl>
 
+<dl class="py class">
+<dt class="sig sig-object py" id="agnapprox.utils.LayerInfo">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">agnapprox.utils.</span></span><span class="sig-name descname"><span class="pre">LayerInfo</span></span><a class="reference internal" href="../../../_modules/agnapprox/utils/select_multipliers.html#LayerInfo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agnapprox.utils.LayerInfo" title="Permalink to this definition">#</a></dt>
+<dd><p>Multiplier Matching result for a single layer</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="agnapprox.utils.LayerInfo.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="w"> </span><span class="pre">:str</span></em><a class="headerlink" href="#agnapprox.utils.LayerInfo.name" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="agnapprox.utils.LayerInfo.multiplier_name">
+<span class="sig-name descname"><span class="pre">multiplier_name</span></span><em class="property"><span class="w"> </span><span class="pre">:str</span></em><a class="headerlink" href="#agnapprox.utils.LayerInfo.multiplier_name" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="agnapprox.utils.LayerInfo.multiplier_performance_metric">
+<span class="sig-name descname"><span class="pre">multiplier_performance_metric</span></span><em class="property"><span class="w"> </span><span class="pre">:float</span></em><a class="headerlink" href="#agnapprox.utils.LayerInfo.multiplier_performance_metric" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="agnapprox.utils.LayerInfo.opcount">
+<span class="sig-name descname"><span class="pre">opcount</span></span><em class="property"><span class="w"> </span><span class="pre">:float</span></em><a class="headerlink" href="#agnapprox.utils.LayerInfo.opcount" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="agnapprox.utils.LayerInfo.relative_opcount">
+<span class="sig-name descname"><span class="pre">relative_opcount</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">total_opcount</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/agnapprox/utils/select_multipliers.html#LayerInfo.relative_opcount"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agnapprox.utils.LayerInfo.relative_opcount" title="Permalink to this definition">#</a></dt>
+<dd><p>Calculate the relative contribution of this layer to the network’s total operations</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>total_opcount</strong> – Number of operations in the entire networks</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p>0: layer contributes no operations to the network’s opcount</p></li>
+<li><p>1: layer conttibutes all operations to the network’s opcount</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float between 0..1 where</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="agnapprox.utils.LayerInfo.relative_energy_consumption">
+<span class="sig-name descname"><span class="pre">relative_energy_consumption</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metric_max</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/agnapprox/utils/select_multipliers.html#LayerInfo.relative_energy_consumption"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agnapprox.utils.LayerInfo.relative_energy_consumption" title="Permalink to this definition">#</a></dt>
+<dd><p>Relative energy consumption of selected approximate multiplier</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>metric_max</strong> – Highest possible value for performance metric
+(typically that of the respective accurate multiplier)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p>0: selected multiplier consumes no energy</p></li>
+<li><p>1: selected multiplier consumes the maximum amount of energy</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float between 0..1 where</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="agnapprox.utils.MatchingInfo">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">agnapprox.utils.</span></span><span class="sig-name descname"><span class="pre">MatchingInfo</span></span><a class="reference internal" href="../../../_modules/agnapprox/utils/select_multipliers.html#MatchingInfo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agnapprox.utils.MatchingInfo" title="Permalink to this definition">#</a></dt>
+<dd><p>Multiplier Matching result for the entire model</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="agnapprox.utils.MatchingInfo.layers">
+<span class="sig-name descname"><span class="pre">layers</span></span><em class="property"><span class="w"> </span><span class="pre">:List[LayerInfo]</span></em><a class="headerlink" href="#agnapprox.utils.MatchingInfo.layers" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="agnapprox.utils.MatchingInfo.metric_max">
+<span class="sig-name descname"><span class="pre">metric_max</span></span><em class="property"><span class="w"> </span><span class="pre">:float</span></em><a class="headerlink" href="#agnapprox.utils.MatchingInfo.metric_max" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="agnapprox.utils.MatchingInfo.opcount">
+<span class="sig-name descname"><span class="pre">opcount</span></span><em class="property"><span class="w"> </span><span class="pre">:float</span></em><a class="headerlink" href="#agnapprox.utils.MatchingInfo.opcount" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="agnapprox.utils.MatchingInfo.relative_energy_consumption">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">relative_energy_consumption</span></span><a class="headerlink" href="#agnapprox.utils.MatchingInfo.relative_energy_consumption" title="Permalink to this definition">#</a></dt>
+<dd><p>Relative Energy Consumption compared to network without approximation
+achieved by the current AM configuration</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>sum relative energy consumption for each layer,
+weighted with the layer’s contribution to overall operations</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="agnapprox.utils.deploy_multipliers">
+<span class="sig-prename descclassname"><span class="pre">agnapprox.utils.</span></span><span class="sig-name descname"><span class="pre">deploy_multipliers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../nets/index.html#agnapprox.nets.ApproxNet" title="agnapprox.nets.ApproxNet"><span class="pre">agnapprox.nets.ApproxNet</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">matching_result</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#agnapprox.utils.MatchingInfo" title="agnapprox.utils.MatchingInfo"><span class="pre">MatchingInfo</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">library</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/agnapprox/utils/select_multipliers.html#deploy_multipliers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agnapprox.utils.deploy_multipliers" title="Permalink to this definition">#</a></dt>
+<dd><p>Deploy selected approximate multipliers to network</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> – Model to deploy multipliers to</p></li>
+<li><p><strong>matching_result</strong> – Results of multiplier matching</p></li>
+<li><p><strong>library</strong> – Library to load Lookup tables from</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="agnapprox.utils.select_multipliers">
-<span class="sig-prename descclassname"><span class="pre">agnapprox.utils.</span></span><span class="sig-name descname"><span class="pre">select_multipliers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../nets/index.html#agnapprox.nets.ApproxNet" title="agnapprox.nets.ApproxNet"><span class="pre">agnapprox.nets.ApproxNet</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">datamodule</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.LightningDataModule</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">library</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trainer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.Trainer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deploy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/agnapprox/utils/select_multipliers.html#select_multipliers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agnapprox.utils.select_multipliers" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">agnapprox.utils.</span></span><span class="sig-name descname"><span class="pre">select_multipliers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../nets/index.html#agnapprox.nets.ApproxNet" title="agnapprox.nets.ApproxNet"><span class="pre">agnapprox.nets.ApproxNet</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">datamodule</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.LightningDataModule</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multipliers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">evoapproxlib.ApproximateMultiplier</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trainer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.Trainer</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#agnapprox.utils.MatchingInfo" title="agnapprox.utils.MatchingInfo"><span class="pre">MatchingInfo</span></a></span></span><a class="reference internal" href="../../../_modules/agnapprox/utils/select_multipliers.html#select_multipliers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agnapprox.utils.select_multipliers" title="Permalink to this definition">#</a></dt>
 <dd><p>Select matching Approximate Multipliers for all layers in a model</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -544,8 +785,6 @@ a model run with accurate multiplication</p></li>
 <li><p><strong>trainer</strong> – PyTorch Lightning Trainer instance to use for sampling run</p></li>
 <li><p><strong>signed</strong> – Whether to select signed or unsigned instances from Multiplier library provide.
 Defaults to True.</p></li>
-<li><p><strong>deploy</strong> – Whether to write selected approximate multiplier to layer configuration.
-Defaults to False.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -618,6 +857,7 @@ Defaults to False.</p></li>
 <li><a class="reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">agnapprox.utils</span></code></a><ul>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
 <li><a class="reference internal" href="#package-contents">Package Contents</a><ul>
+<li><a class="reference internal" href="#classes">Classes</a></li>
 <li><a class="reference internal" href="#functions">Functions</a></li>
 <li><a class="reference internal" href="#attributes">Attributes</a><ul>
 <li><a class="reference internal" href="#agnapprox.utils.single_dist_mc">single_dist_mc</a></li>
@@ -626,12 +866,41 @@ Defaults to False.</p></li>
 <li><a class="reference internal" href="#agnapprox.utils.population_prediction">population_prediction</a></li>
 <li><a class="reference internal" href="#agnapprox.utils.to_distribution">to_distribution</a></li>
 <li><a class="reference internal" href="#agnapprox.utils.error_calculation">error_calculation</a></li>
+<li><a class="reference internal" href="#agnapprox.utils.EnhancedJSONEncoder">EnhancedJSONEncoder</a><ul>
+<li><a class="reference internal" href="#agnapprox.utils.EnhancedJSONEncoder.default">default</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#agnapprox.utils.dump_results">dump_results</a></li>
 <li><a class="reference internal" href="#agnapprox.utils.set_all">set_all</a></li>
+<li><a class="reference internal" href="#agnapprox.utils.IntermediateLayerResults">IntermediateLayerResults</a><ul>
+<li><a class="reference internal" href="#agnapprox.utils.IntermediateLayerResults.fan_in">fan_in</a></li>
+<li><a class="reference internal" href="#agnapprox.utils.IntermediateLayerResults.features">features</a></li>
+<li><a class="reference internal" href="#agnapprox.utils.IntermediateLayerResults.outputs">outputs</a></li>
+<li><a class="reference internal" href="#agnapprox.utils.IntermediateLayerResults.weights">weights</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#agnapprox.utils.get_feature_maps">get_feature_maps</a></li>
 <li><a class="reference internal" href="#agnapprox.utils.topk_accuracy">topk_accuracy</a></li>
 <li><a class="reference internal" href="#id0">get_feature_maps</a></li>
 <li><a class="reference internal" href="#agnapprox.utils.logger">logger</a></li>
 <li><a class="reference internal" href="#agnapprox.utils.select_layer_multiplier">select_layer_multiplier</a></li>
+<li><a class="reference internal" href="#agnapprox.utils.LayerInfo">LayerInfo</a><ul>
+<li><a class="reference internal" href="#agnapprox.utils.LayerInfo.name">name</a></li>
+<li><a class="reference internal" href="#agnapprox.utils.LayerInfo.multiplier_name">multiplier_name</a></li>
+<li><a class="reference internal" href="#agnapprox.utils.LayerInfo.multiplier_performance_metric">multiplier_performance_metric</a></li>
+<li><a class="reference internal" href="#agnapprox.utils.LayerInfo.opcount">opcount</a></li>
+<li><a class="reference internal" href="#agnapprox.utils.LayerInfo.relative_opcount">relative_opcount</a></li>
+<li><a class="reference internal" href="#agnapprox.utils.LayerInfo.relative_energy_consumption">relative_energy_consumption</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#agnapprox.utils.MatchingInfo">MatchingInfo</a><ul>
+<li><a class="reference internal" href="#agnapprox.utils.MatchingInfo.layers">layers</a></li>
+<li><a class="reference internal" href="#agnapprox.utils.MatchingInfo.metric_max">metric_max</a></li>
+<li><a class="reference internal" href="#agnapprox.utils.MatchingInfo.opcount">opcount</a></li>
+<li><a class="reference internal" href="#agnapprox.utils.MatchingInfo.relative_energy_consumption">relative_energy_consumption</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#agnapprox.utils.deploy_multipliers">deploy_multipliers</a></li>
 <li><a class="reference internal" href="#agnapprox.utils.select_multipliers">select_multipliers</a></li>
 </ul>
 </li>

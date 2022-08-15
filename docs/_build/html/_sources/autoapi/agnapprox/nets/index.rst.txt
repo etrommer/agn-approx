@@ -501,24 +501,35 @@ Classes
            override the :meth:`optimizer_step` hook.
 
 
-   .. py:method:: _train(datamodule: Type[pytorch_lightning.LightningDataModule], run_name: str, epochs: Optional[int] = None, log_mlflow: bool = False, **kwargs)
+   .. py:method:: _train(datamodule: pytorch_lightning.LightningDataModule, run_name: str, epochs: Optional[int] = None, log_mlflow: bool = False, test: bool = False, **kwargs)
+
+      Internal Trainer function. This function is called by the different
+      training stage functions.
+
+      :param datamodule: The dataset to train on
+      :param run_name: Run name passed to MLFlow
+      :param epochs: Optional number of epochs to train for.
+                     If not set, number of epochs defined in the network definition will be used.
+                     Defaults to None.
+      :param log_mlflow: Log training data to MLFlow. Defaults to False.
+      :param test: Run on test set after training. Defaults to False.
 
 
-   .. py:method:: train_baseline(datamodule: Type[pytorch_lightning.LightningDataModule], **kwargs)
+   .. py:method:: train_baseline(datamodule: pytorch_lightning.LightningDataModule, **kwargs)
 
       Train an FP32 baseline model
 
       :param datamodule: Dataset provider
 
 
-   .. py:method:: train_quant(datamodule: Type[pytorch_lightning.LightningDataModule], **kwargs)
+   .. py:method:: train_quant(datamodule: pytorch_lightning.LightningDataModule, **kwargs)
 
       Train a quantized model using Quantization-Aware training
 
       :param datamodule: Dataset provider
 
 
-   .. py:method:: train_gradient(datamodule: Type[pytorch_lightning.LightningDataModule], lmbd: float = 0.2, initial_noise: float = 0.1, verbose: bool = False, **kwargs)
+   .. py:method:: train_gradient(datamodule: pytorch_lightning.LightningDataModule, lmbd: float = 0.2, initial_noise: float = 0.1, **kwargs)
 
       Run Gradient Search algorithm to optimize layer
       robustness parameters
@@ -530,12 +541,9 @@ Classes
                    Defaults to 0.2
       :param initial_noise: The initial value to set for the noise parameter.
                             Defaults to 0.1.
-      :param verbose: Print intermediate noise values for each layer after
-                      each epoch.
-                      Defaults to False.
 
 
-   .. py:method:: train_approx(datamodule: Type[pytorch_lightning.LightningDataModule], name_ext: Optional[str] = None, **kwargs)
+   .. py:method:: train_approx(datamodule: pytorch_lightning.LightningDataModule, name_ext: Optional[str] = None, **kwargs)
 
       Train model with simulated approximate multipliers
 

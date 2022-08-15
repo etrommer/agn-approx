@@ -12,16 +12,63 @@
 Module Contents
 ---------------
 
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   agnapprox.utils.model.EnhancedJSONEncoder
+   agnapprox.utils.model.IntermediateLayerResults
+
+
 
 Functions
 ~~~~~~~~~
 
 .. autoapisummary::
 
+   agnapprox.utils.model.dump_results
    agnapprox.utils.model.set_all
    agnapprox.utils.model.get_feature_maps
    agnapprox.utils.model.topk_accuracy
 
+
+
+.. py:class:: EnhancedJSONEncoder(*, skipkeys=False, ensure_ascii=True, check_circular=True, allow_nan=True, sort_keys=False, indent=None, separators=None, default=None)
+
+   Bases: :py:obj:`json.JSONEncoder`
+
+   Workaround to make dataclasses JSON-serializable
+   https://stackoverflow.com/questions/51286748/make-the-python-json-encoder-support-pythons-new-dataclasses/51286749#51286749
+
+   .. py:method:: default(o)
+
+      Implement this method in a subclass such that it returns
+      a serializable object for ``o``, or calls the base implementation
+      (to raise a ``TypeError``).
+
+      For example, to support arbitrary iterators, you could
+      implement default like this::
+
+          def default(self, o):
+              try:
+                  iterable = iter(o)
+              except TypeError:
+                  pass
+              else:
+                  return list(iterable)
+              # Let the base class default method raise the TypeError
+              return JSONEncoder.default(self, o)
+
+
+
+
+.. py:function:: dump_results(result: agnapprox.utils.select_multipliers.MatchingInfo, lmbd: float)
+
+   Write multiplier matching results to MLFlow tracking instance
+
+   :param result: Multiplier Matching Results
+   :param lmbd: Lambda value
 
 
 .. py:function:: set_all(model: Union[pytorch_lightning.LightningDataModule, torch.nn.Module], attr: str, value: Any)
@@ -33,7 +80,40 @@ Functions
    :param value: Attribute value to set
 
 
-.. py:function:: get_feature_maps(model: pytorch_lightning.LightningModule, target_modules: List[Tuple[str, torch.nn.Module]], trainer: pytorch_lightning.Trainer, datamodule: pytorch_lightning.LightningDataModule) -> Dict[str, Dict[str, Union[numpy.array, float]]]
+.. py:class:: IntermediateLayerResults
+
+   Container that holds the results of running an inference pass
+   on sample data with accurate multiplication as well as layer metadata
+   For each target layer, we track:
+   - `fan_in`: Number of incoming connections
+   - `features`: Input activations into the layer for the sample run, squashed
+       to a single tensor
+   - `outputs`:  Accurate results of the layer for the sample run, squashed
+       to a single tensor
+   - `weights`: The layer's weights tensor
+
+   .. py:attribute:: fan_in
+      :annotation: :int
+
+      
+
+   .. py:attribute:: features
+      :annotation: :Union[List[numpy.ndarray], numpy.ndarray]
+
+      
+
+   .. py:attribute:: outputs
+      :annotation: :Union[List[numpy.ndarray], numpy.ndarray]
+
+      
+
+   .. py:attribute:: weights
+      :annotation: :Optional[numpy.ndarray]
+
+      
+
+
+.. py:function:: get_feature_maps(model: pytorch_lightning.LightningModule, target_modules: List[Tuple[str, torch.nn.Module]], trainer: pytorch_lightning.Trainer, datamodule: pytorch_lightning.LightningDataModule) -> Dict[str, IntermediateLayerResults]
 
    Capture intermediate feature maps of a model's layer
    by attaching hooks and running sample data

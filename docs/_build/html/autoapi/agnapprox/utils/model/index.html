@@ -148,8 +148,11 @@
   <aside class="sidebar-drawer">
     <div class="sidebar-container">
       
-      <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../../index.html">
+      <div class="sidebar-sticky"><a class="sidebar-brand centered" href="../../../../index.html">
   
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo" src="https://raw.githubusercontent.com/etrommer/agn-approx/main/docs/agnapprox_logo.png" alt="Logo"/>
+  </div>
   
   <span class="sidebar-brand-text">AGN Approx Documentation</span>
   
@@ -160,7 +163,7 @@
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../../../../example.html">Example usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../1_mnist.html">Tutorial 1: Approximate MNIST</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../changelog.html">Changelog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../contributing.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../conduct.html">Code of Conduct</a></li>
@@ -237,23 +240,84 @@
 <p>Model-level utility functions</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Permalink to this heading">#</a></h2>
+<section id="classes">
+<h3>Classes<a class="headerlink" href="#classes" title="Permalink to this heading">#</a></h3>
+<div class="table-wrapper autosummary longtable docutils container">
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#agnapprox.utils.model.EnhancedJSONEncoder" title="agnapprox.utils.model.EnhancedJSONEncoder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">EnhancedJSONEncoder</span></code></a></p></td>
+<td><p>Workaround to make dataclasses JSON-serializable</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#agnapprox.utils.model.IntermediateLayerResults" title="agnapprox.utils.model.IntermediateLayerResults"><code class="xref py py-obj docutils literal notranslate"><span class="pre">IntermediateLayerResults</span></code></a></p></td>
+<td><p>Container that holds the results of running an inference pass</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
 <section id="functions">
 <h3>Functions<a class="headerlink" href="#functions" title="Permalink to this heading">#</a></h3>
 <div class="table-wrapper autosummary longtable docutils container">
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#agnapprox.utils.model.set_all" title="agnapprox.utils.model.set_all"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_all</span></code></a>(model, attr, value)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#agnapprox.utils.model.dump_results" title="agnapprox.utils.model.dump_results"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dump_results</span></code></a>(result, lmbd)</p></td>
+<td><p>Write multiplier matching results to MLFlow tracking instance</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#agnapprox.utils.model.set_all" title="agnapprox.utils.model.set_all"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_all</span></code></a>(model, attr, value)</p></td>
 <td><p>Utility function to set an attribute for all modules in a model</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#agnapprox.utils.model.get_feature_maps" title="agnapprox.utils.model.get_feature_maps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_feature_maps</span></code></a>(→ Dict[str, Dict[str, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#agnapprox.utils.model.get_feature_maps" title="agnapprox.utils.model.get_feature_maps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_feature_maps</span></code></a>(→ Dict[str, IntermediateLayerResults])</p></td>
 <td><p>Capture intermediate feature maps of a model's layer</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#agnapprox.utils.model.topk_accuracy" title="agnapprox.utils.model.topk_accuracy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">topk_accuracy</span></code></a>() → List[float])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#agnapprox.utils.model.topk_accuracy" title="agnapprox.utils.model.topk_accuracy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">topk_accuracy</span></code></a>() → List[float])</p></td>
 <td><p>Computes the accuracy over the k top predictions for the specified values of k</p></td>
 </tr>
 </tbody>
 </table>
 </div>
+<dl class="py class">
+<dt class="sig sig-object py" id="agnapprox.utils.model.EnhancedJSONEncoder">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">agnapprox.utils.model.</span></span><span class="sig-name descname"><span class="pre">EnhancedJSONEncoder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skipkeys</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ensure_ascii</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">check_circular</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_nan</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sort_keys</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">separators</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/agnapprox/utils/model.html#EnhancedJSONEncoder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agnapprox.utils.model.EnhancedJSONEncoder" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">json.JSONEncoder</span></code></p>
+<p>Workaround to make dataclasses JSON-serializable
+<a class="reference external" href="https://stackoverflow.com/questions/51286748/make-the-python-json-encoder-support-pythons-new-dataclasses/51286749#51286749">https://stackoverflow.com/questions/51286748/make-the-python-json-encoder-support-pythons-new-dataclasses/51286749#51286749</a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="agnapprox.utils.model.EnhancedJSONEncoder.default">
+<span class="sig-name descname"><span class="pre">default</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">o</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/agnapprox/utils/model.html#EnhancedJSONEncoder.default"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agnapprox.utils.model.EnhancedJSONEncoder.default" title="Permalink to this definition">#</a></dt>
+<dd><p>Implement this method in a subclass such that it returns
+a serializable object for <code class="docutils literal notranslate"><span class="pre">o</span></code>, or calls the base implementation
+(to raise a <code class="docutils literal notranslate"><span class="pre">TypeError</span></code>).</p>
+<p>For example, to support arbitrary iterators, you could
+implement default like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">o</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">iterable</span> <span class="o">=</span> <span class="nb">iter</span><span class="p">(</span><span class="n">o</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+        <span class="k">pass</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">iterable</span><span class="p">)</span>
+    <span class="c1"># Let the base class default method raise the TypeError</span>
+    <span class="k">return</span> <span class="n">JSONEncoder</span><span class="o">.</span><span class="n">default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">o</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="agnapprox.utils.model.dump_results">
+<span class="sig-prename descclassname"><span class="pre">agnapprox.utils.model.</span></span><span class="sig-name descname"><span class="pre">dump_results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../select_multipliers/index.html#agnapprox.utils.select_multipliers.MatchingInfo" title="agnapprox.utils.select_multipliers.MatchingInfo"><span class="pre">agnapprox.utils.select_multipliers.MatchingInfo</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">lmbd</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/agnapprox/utils/model.html#dump_results"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agnapprox.utils.model.dump_results" title="Permalink to this definition">#</a></dt>
+<dd><p>Write multiplier matching results to MLFlow tracking instance</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>result</strong> – Multiplier Matching Results</p></li>
+<li><p><strong>lmbd</strong> – Lambda value</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="agnapprox.utils.model.set_all">
 <span class="sig-prename descclassname"><span class="pre">agnapprox.utils.model.</span></span><span class="sig-name descname"><span class="pre">set_all</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">pytorch_lightning.LightningDataModule</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.nn.Module</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/agnapprox/utils/model.html#set_all"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agnapprox.utils.model.set_all" title="Permalink to this definition">#</a></dt>
@@ -269,9 +333,50 @@
 </dl>
 </dd></dl>
 
+<dl class="py class">
+<dt class="sig sig-object py" id="agnapprox.utils.model.IntermediateLayerResults">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">agnapprox.utils.model.</span></span><span class="sig-name descname"><span class="pre">IntermediateLayerResults</span></span><a class="reference internal" href="../../../../_modules/agnapprox/utils/model.html#IntermediateLayerResults"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agnapprox.utils.model.IntermediateLayerResults" title="Permalink to this definition">#</a></dt>
+<dd><p>Container that holds the results of running an inference pass
+on sample data with accurate multiplication as well as layer metadata
+For each target layer, we track:
+- <cite>fan_in</cite>: Number of incoming connections
+- <cite>features</cite>: Input activations into the layer for the sample run, squashed</p>
+<blockquote>
+<div><p>to a single tensor</p>
+</div></blockquote>
+<ul class="simple">
+<li><dl class="simple">
+<dt><cite>outputs</cite>:  Accurate results of the layer for the sample run, squashed</dt><dd><p>to a single tensor</p>
+</dd>
+</dl>
+</li>
+<li><p><cite>weights</cite>: The layer’s weights tensor</p></li>
+</ul>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="agnapprox.utils.model.IntermediateLayerResults.fan_in">
+<span class="sig-name descname"><span class="pre">fan_in</span></span><em class="property"><span class="w"> </span><span class="pre">:int</span></em><a class="headerlink" href="#agnapprox.utils.model.IntermediateLayerResults.fan_in" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="agnapprox.utils.model.IntermediateLayerResults.features">
+<span class="sig-name descname"><span class="pre">features</span></span><em class="property"><span class="w"> </span><span class="pre">:Union[List[numpy.ndarray],</span> <span class="pre">numpy.ndarray]</span></em><a class="headerlink" href="#agnapprox.utils.model.IntermediateLayerResults.features" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="agnapprox.utils.model.IntermediateLayerResults.outputs">
+<span class="sig-name descname"><span class="pre">outputs</span></span><em class="property"><span class="w"> </span><span class="pre">:Union[List[numpy.ndarray],</span> <span class="pre">numpy.ndarray]</span></em><a class="headerlink" href="#agnapprox.utils.model.IntermediateLayerResults.outputs" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="agnapprox.utils.model.IntermediateLayerResults.weights">
+<span class="sig-name descname"><span class="pre">weights</span></span><em class="property"><span class="w"> </span><span class="pre">:Optional[numpy.ndarray]</span></em><a class="headerlink" href="#agnapprox.utils.model.IntermediateLayerResults.weights" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="agnapprox.utils.model.get_feature_maps">
-<span class="sig-prename descclassname"><span class="pre">agnapprox.utils.model.</span></span><span class="sig-name descname"><span class="pre">get_feature_maps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.LightningModule</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_modules</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.nn.Module</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trainer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.Trainer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">datamodule</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.LightningDataModule</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.array</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/agnapprox/utils/model.html#get_feature_maps"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agnapprox.utils.model.get_feature_maps" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">agnapprox.utils.model.</span></span><span class="sig-name descname"><span class="pre">get_feature_maps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.LightningModule</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_modules</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.nn.Module</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trainer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.Trainer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">datamodule</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.LightningDataModule</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#agnapprox.utils.model.IntermediateLayerResults" title="agnapprox.utils.model.IntermediateLayerResults"><span class="pre">IntermediateLayerResults</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/agnapprox/utils/model.html#get_feature_maps"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agnapprox.utils.model.get_feature_maps" title="Permalink to this definition">#</a></dt>
 <dd><p>Capture intermediate feature maps of a model’s layer
 by attaching hooks and running sample data</p>
 <dl class="field-list simple">
@@ -383,8 +488,21 @@ but if it were either cat or dog you’d accumulate +1 for that example.</p></li
             <ul>
 <li><a class="reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">agnapprox.utils.model</span></code></a><ul>
 <li><a class="reference internal" href="#module-contents">Module Contents</a><ul>
+<li><a class="reference internal" href="#classes">Classes</a></li>
 <li><a class="reference internal" href="#functions">Functions</a><ul>
+<li><a class="reference internal" href="#agnapprox.utils.model.EnhancedJSONEncoder">EnhancedJSONEncoder</a><ul>
+<li><a class="reference internal" href="#agnapprox.utils.model.EnhancedJSONEncoder.default">default</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#agnapprox.utils.model.dump_results">dump_results</a></li>
 <li><a class="reference internal" href="#agnapprox.utils.model.set_all">set_all</a></li>
+<li><a class="reference internal" href="#agnapprox.utils.model.IntermediateLayerResults">IntermediateLayerResults</a><ul>
+<li><a class="reference internal" href="#agnapprox.utils.model.IntermediateLayerResults.fan_in">fan_in</a></li>
+<li><a class="reference internal" href="#agnapprox.utils.model.IntermediateLayerResults.features">features</a></li>
+<li><a class="reference internal" href="#agnapprox.utils.model.IntermediateLayerResults.outputs">outputs</a></li>
+<li><a class="reference internal" href="#agnapprox.utils.model.IntermediateLayerResults.weights">weights</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#agnapprox.utils.model.get_feature_maps">get_feature_maps</a></li>
 <li><a class="reference internal" href="#agnapprox.utils.model.topk_accuracy">topk_accuracy</a></li>
 </ul>

@@ -148,8 +148,11 @@
   <aside class="sidebar-drawer">
     <div class="sidebar-container">
       
-      <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
+      <div class="sidebar-sticky"><a class="sidebar-brand centered" href="../../../index.html">
   
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo" src="https://raw.githubusercontent.com/etrommer/agn-approx/main/docs/agnapprox_logo.png" alt="Logo"/>
+  </div>
   
   <span class="sidebar-brand-text">AGN Approx Documentation</span>
   
@@ -160,7 +163,7 @@
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../../../example.html">Example usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../1_mnist.html">Tutorial 1: Approximate MNIST</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Changelog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../conduct.html">Code of Conduct</a></li>
@@ -258,10 +261,13 @@ using the pytorch-lightning DataModule</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="#agnapprox.datamodules.ApproxDataModule" title="agnapprox.datamodules.ApproxDataModule"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ApproxDataModule</span></code></a></p></td>
 <td><p>Superclass that provides a common dataloader boilerplate</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#agnapprox.datamodules.MNIST" title="agnapprox.datamodules.MNIST"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MNIST</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#agnapprox.datamodules.CIFAR10" title="agnapprox.datamodules.CIFAR10"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CIFAR10</span></code></a></p></td>
+<td><p>Dataloader instance for the CIFAR10 dataset</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#agnapprox.datamodules.MNIST" title="agnapprox.datamodules.MNIST"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MNIST</span></code></a></p></td>
 <td><p>Dataloader instance for the MNIST dataset</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#agnapprox.datamodules.TinyImageNet" title="agnapprox.datamodules.TinyImageNet"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TinyImageNet</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#agnapprox.datamodules.TinyImageNet" title="agnapprox.datamodules.TinyImageNet"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TinyImageNet</span></code></a></p></td>
 <td><p>Dataloader instance for the TinyImageNet dataset</p></td>
 </tr>
 </tbody>
@@ -492,9 +498,125 @@ will have an argument <code class="docutils literal notranslate"><span class="pr
 </dd></dl>
 
 <dl class="py class">
+<dt class="sig sig-object py" id="agnapprox.datamodules.CIFAR10">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">agnapprox.datamodules.</span></span><span class="sig-name descname"><span class="pre">CIFAR10</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/agnapprox/datamodules/cifar10.html#CIFAR10"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agnapprox.datamodules.CIFAR10" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="approx_datamodule/index.html#agnapprox.datamodules.approx_datamodule.ApproxDataModule" title="agnapprox.datamodules.approx_datamodule.ApproxDataModule"><code class="xref py py-obj docutils literal notranslate"><span class="pre">agnapprox.datamodules.approx_datamodule.ApproxDataModule</span></code></a></p>
+<p>Dataloader instance for the CIFAR10 dataset</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="agnapprox.datamodules.CIFAR10.normalize">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">normalize</span></span><a class="headerlink" href="#agnapprox.datamodules.CIFAR10.normalize" title="Permalink to this definition">#</a></dt>
+<dd><p>Default CIFAR10 normalization parameters</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List of transformations to apply to input image</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="agnapprox.datamodules.CIFAR10.augment">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">augment</span></span><a class="headerlink" href="#agnapprox.datamodules.CIFAR10.augment" title="Permalink to this definition">#</a></dt>
+<dd><p>Default CIFAR10 augmentation pipeline</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List of transformations to apply to input image</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="agnapprox.datamodules.CIFAR10.prepare_data">
+<span class="sig-name descname"><span class="pre">prepare_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/agnapprox/datamodules/cifar10.html#CIFAR10.prepare_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agnapprox.datamodules.CIFAR10.prepare_data" title="Permalink to this definition">#</a></dt>
+<dd><p>Use this to download and prepare data. Downloading and saving data with multiple processes (distributed
+settings) will result in corrupted data. Lightning ensures this method is called only within a single
+process, so you can safely add your downloading logic within.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>DO NOT set state to the model (use <code class="docutils literal notranslate"><span class="pre">setup</span></code> instead)
+since this is NOT called on every device</p>
+</div>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">prepare_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="c1"># good</span>
+    <span class="n">download_data</span><span class="p">()</span>
+    <span class="n">tokenize</span><span class="p">()</span>
+    <span class="n">etc</span><span class="p">()</span>
+
+    <span class="c1"># bad</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">split</span> <span class="o">=</span> <span class="n">data_split</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">some_state</span> <span class="o">=</span> <span class="n">some_other_state</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>In a distributed environment, <code class="docutils literal notranslate"><span class="pre">prepare_data</span></code> can be called in two ways
+(using <span class="xref std std-ref">prepare_data_per_node</span>)</p>
+<ol class="arabic simple">
+<li><p>Once per node. This is the default and is only called on LOCAL_RANK=0.</p></li>
+<li><p>Once in total. Only called on GLOBAL_RANK=0.</p></li>
+</ol>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># DEFAULT</span>
+<span class="c1"># called once per node on LOCAL_RANK=0 of that node</span>
+<span class="k">class</span> <span class="nc">LitDataModule</span><span class="p">(</span><span class="n">LightningDataModule</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prepare_data_per_node</span> <span class="o">=</span> <span class="kc">True</span>
+
+
+<span class="c1"># call on GLOBAL_RANK=0 (great for shared file systems)</span>
+<span class="k">class</span> <span class="nc">LitDataModule</span><span class="p">(</span><span class="n">LightningDataModule</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prepare_data_per_node</span> <span class="o">=</span> <span class="kc">False</span>
+</pre></div>
+</div>
+<p>This is called before requesting the dataloaders:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">prepare_data</span><span class="p">()</span>
+<span class="n">initialize_distributed</span><span class="p">()</span>
+<span class="n">model</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">stage</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">train_dataloader</span><span class="p">()</span>
+<span class="n">model</span><span class="o">.</span><span class="n">val_dataloader</span><span class="p">()</span>
+<span class="n">model</span><span class="o">.</span><span class="n">test_dataloader</span><span class="p">()</span>
+<span class="n">model</span><span class="o">.</span><span class="n">predict_dataloader</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="agnapprox.datamodules.CIFAR10.setup">
+<span class="sig-name descname"><span class="pre">setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stage</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/agnapprox/datamodules/cifar10.html#CIFAR10.setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agnapprox.datamodules.CIFAR10.setup" title="Permalink to this definition">#</a></dt>
+<dd><p>Called at the beginning of fit (train + validate), validate, test, or predict. This is a good hook when
+you need to build models dynamically or adjust something about them. This hook is called on every process
+when using DDP.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>stage</strong> – either <code class="docutils literal notranslate"><span class="pre">'fit'</span></code>, <code class="docutils literal notranslate"><span class="pre">'validate'</span></code>, <code class="docutils literal notranslate"><span class="pre">'test'</span></code>, or <code class="docutils literal notranslate"><span class="pre">'predict'</span></code></p>
+</dd>
+</dl>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">LitModel</span><span class="p">(</span><span class="o">...</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">l1</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">prepare_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">download_data</span><span class="p">()</span>
+        <span class="n">tokenize</span><span class="p">()</span>
+
+        <span class="c1"># don&#39;t do this</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">something</span> <span class="o">=</span> <span class="k">else</span>
+
+    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stage</span><span class="p">):</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">load_data</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">l1</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">28</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">num_classes</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="agnapprox.datamodules.MNIST">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">agnapprox.datamodules.</span></span><span class="sig-name descname"><span class="pre">MNIST</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/agnapprox/datamodules/mnist.html#MNIST"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agnapprox.datamodules.MNIST" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#agnapprox.datamodules.ApproxDataModule" title="agnapprox.datamodules.ApproxDataModule"><code class="xref py py-obj docutils literal notranslate"><span class="pre">agnapprox.datamodules.ApproxDataModule</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="approx_datamodule/index.html#agnapprox.datamodules.approx_datamodule.ApproxDataModule" title="agnapprox.datamodules.approx_datamodule.ApproxDataModule"><code class="xref py py-obj docutils literal notranslate"><span class="pre">agnapprox.datamodules.approx_datamodule.ApproxDataModule</span></code></a></p>
 <p>Dataloader instance for the MNIST dataset</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="agnapprox.datamodules.MNIST.normalize">
@@ -599,7 +721,7 @@ when using DDP.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="agnapprox.datamodules.TinyImageNet">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">agnapprox.datamodules.</span></span><span class="sig-name descname"><span class="pre">TinyImageNet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">split</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.9</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/agnapprox/datamodules/tinyimagenet200.html#TinyImageNet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agnapprox.datamodules.TinyImageNet" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#agnapprox.datamodules.ApproxDataModule" title="agnapprox.datamodules.ApproxDataModule"><code class="xref py py-obj docutils literal notranslate"><span class="pre">agnapprox.datamodules.ApproxDataModule</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="approx_datamodule/index.html#agnapprox.datamodules.approx_datamodule.ApproxDataModule" title="agnapprox.datamodules.approx_datamodule.ApproxDataModule"><code class="xref py py-obj docutils literal notranslate"><span class="pre">agnapprox.datamodules.approx_datamodule.ApproxDataModule</span></code></a></p>
 <p>Dataloader instance for the TinyImageNet dataset</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="agnapprox.datamodules.TinyImageNet.normalize">
@@ -783,6 +905,13 @@ when using DDP.</p>
 <li><a class="reference internal" href="#agnapprox.datamodules.ApproxDataModule.val_dataloader">val_dataloader</a></li>
 <li><a class="reference internal" href="#agnapprox.datamodules.ApproxDataModule.test_dataloader">test_dataloader</a></li>
 <li><a class="reference internal" href="#agnapprox.datamodules.ApproxDataModule.sample_dataloader">sample_dataloader</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#agnapprox.datamodules.CIFAR10">CIFAR10</a><ul>
+<li><a class="reference internal" href="#agnapprox.datamodules.CIFAR10.normalize">normalize</a></li>
+<li><a class="reference internal" href="#agnapprox.datamodules.CIFAR10.augment">augment</a></li>
+<li><a class="reference internal" href="#agnapprox.datamodules.CIFAR10.prepare_data">prepare_data</a></li>
+<li><a class="reference internal" href="#agnapprox.datamodules.CIFAR10.setup">setup</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#agnapprox.datamodules.MNIST">MNIST</a><ul>
