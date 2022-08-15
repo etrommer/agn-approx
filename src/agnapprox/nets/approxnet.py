@@ -225,7 +225,7 @@ class ApproxNet(pl.LightningModule):
                 trainer.test(self, datamodule)
 
             # Calculate layer assignment results for logging instance
-            if self.mode == "gradient_search":
+            if self.mode == "gradient_search" and log_mlflow:
                 target_multipliers = EvoApproxLib().prepare(signed=False)
                 res = agnapprox.utils.select_multipliers(
                     self, datamodule, target_multipliers, trainer
@@ -258,7 +258,6 @@ class ApproxNet(pl.LightningModule):
         datamodule: pl.LightningDataModule,
         lmbd: float = 0.2,
         initial_noise: float = 0.1,
-        verbose: bool = False,
         **kwargs
     ):
         """Run Gradient Search algorithm to optimize layer
@@ -272,9 +271,6 @@ class ApproxNet(pl.LightningModule):
                 Defaults to 0.2
             initial_noise: The initial value to set for the noise parameter.
                 Defaults to 0.1.
-            verbose: Print intermediate noise values for each layer after
-                each epoch.
-                Defaults to False.
         """
         self.mode = "gradient_search"
 
@@ -284,8 +280,7 @@ class ApproxNet(pl.LightningModule):
             for _, module in self.noisy_modules:
                 module.stdev = initial_noise
 
-        verbose_callback = [GSVerboseCb()] if verbose else []
-        self._train(datamodule, "Gradient Search", callbacks=verbose_callback, **kwargs)
+        self._train(datamodule, "Gradient Search", callbacks=[GSInfoCb()], **kwargs)
 
     def train_approx(
         self,
@@ -333,7 +328,7 @@ class ApproxNet(pl.LightningModule):
         """
 
 
-class GSVerboseCb(pl.Callback):
+class GSInfoCb(pl.Callback):
     """
     Callback class implementation that prints out current values
     for sigma_l after each epoch
