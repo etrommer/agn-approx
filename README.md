@@ -40,7 +40,8 @@ Interested in contributing? Check out the contributing guidelines. Please note t
 
 ## Credits
 `agnapprox` was created with [`cookiecutter`](https://cookiecutter.readthedocs.io/en/latest/) and the `py-pkgs-cookiecutter` [template](https://github.com/py-pkgs/py-pkgs-cookiecutter).
-
+<br/>
+<br/>
 <p align="center">
 <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/Infineon-Logo.svg/320px-Infineon-Logo.svg.png" alt="Infineon Logo">
 </p>
