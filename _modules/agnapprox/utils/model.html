@@ -3,9 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
+        <link rel="canonical" href="https://etrommer.github.io/agn-approx/_modules/agnapprox/utils/model.html" />
 
     <meta name="generator" content="sphinx-5.1.1, furo 2022.06.21"/>
-        <title>agnapprox.utils.model - agnapprox documentation</title>
+        <title>agnapprox.utils.model - AGN Approx Documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?digest=40978830699223671f4072448e654b5958f38b89" />
     <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.css" />
@@ -126,7 +127,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">agnapprox  documentation</div></a>
+      <a href="../../../index.html"><div class="brand">AGN Approx Documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,10 +147,13 @@
   <aside class="sidebar-drawer">
     <div class="sidebar-container">
       
-      <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
+      <div class="sidebar-sticky"><a class="sidebar-brand centered" href="../../../index.html">
   
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo" src="../../../_static/agnapprox_logo.png" alt="Logo"/>
+  </div>
   
-  <span class="sidebar-brand-text">agnapprox  documentation</span>
+  <span class="sidebar-brand-text">AGN Approx Documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -158,7 +162,7 @@
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../example.html">Example usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../1_mnist.html">Tutorial 1: Approximate MNIST</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Changelog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../conduct.html">Code of Conduct</a></li>
@@ -234,12 +238,52 @@
 <span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Model-level utility functions</span>
 <span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">dataclasses</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">tempfile</span>
 <span class="kn">from</span> <span class="nn">operator</span> <span class="kn">import</span> <span class="n">attrgetter</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
 
+<span class="kn">import</span> <span class="nn">mlflow</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pytorch_lightning</span> <span class="k">as</span> <span class="nn">pl</span>
 <span class="kn">import</span> <span class="nn">torch</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">agnapprox.utils.select_multipliers</span> <span class="kn">import</span> <span class="n">MatchingInfo</span>
+
+
+<div class="viewcode-block" id="EnhancedJSONEncoder"><a class="viewcode-back" href="../../../autoapi/agnapprox/utils/model/index.html#agnapprox.utils.EnhancedJSONEncoder">[docs]</a><span class="k">class</span> <span class="nc">EnhancedJSONEncoder</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">JSONEncoder</span><span class="p">):</span>
+    <span class="c1"># pylint: disable=line-too-long</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Workaround to make dataclasses JSON-serializable</span>
+<span class="sd">    https://stackoverflow.com/questions/51286748/make-the-python-json-encoder-support-pythons-new-dataclasses/51286749#51286749</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="EnhancedJSONEncoder.default"><a class="viewcode-back" href="../../../autoapi/agnapprox/utils/model/index.html#agnapprox.utils.EnhancedJSONEncoder.default">[docs]</a>    <span class="k">def</span> <span class="nf">default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">o</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">is_dataclass</span><span class="p">(</span><span class="n">o</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">asdict</span><span class="p">(</span><span class="n">o</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">default</span><span class="p">(</span><span class="n">o</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="dump_results"><a class="viewcode-back" href="../../../autoapi/agnapprox/utils/model/index.html#agnapprox.utils.dump_results">[docs]</a><span class="k">def</span> <span class="nf">dump_results</span><span class="p">(</span><span class="n">result</span><span class="p">:</span> <span class="s2">&quot;MatchingInfo&quot;</span><span class="p">,</span> <span class="n">lmbd</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Write multiplier matching results to MLFlow tracking instance</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        result: Multiplier Matching Results</span>
+<span class="sd">        lmbd: Lambda value</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">temp_dir</span><span class="p">:</span>
+        <span class="n">res_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">temp_dir</span><span class="p">,</span> <span class="s2">&quot;gs_results.json&quot;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">res_path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
+            <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">handle</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="bp">cls</span><span class="o">=</span><span class="n">EnhancedJSONEncoder</span><span class="p">)</span>
+        <span class="n">mlflow</span><span class="o">.</span><span class="n">log_artifact</span><span class="p">(</span><span class="n">res_path</span><span class="p">)</span>
+        <span class="n">mlflow</span><span class="o">.</span><span class="n">log_metric</span><span class="p">(</span>
+            <span class="s2">&quot;Relative Energy Consumption&quot;</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">relative_energy_consumption</span>
+        <span class="p">)</span>
+        <span class="n">mlflow</span><span class="o">.</span><span class="n">log_param</span><span class="p">(</span><span class="s2">&quot;lambda&quot;</span><span class="p">,</span> <span class="n">lmbd</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="set_all"><a class="viewcode-back" href="../../../autoapi/agnapprox/utils/model/index.html#agnapprox.utils.set_all">[docs]</a><span class="k">def</span> <span class="nf">set_all</span><span class="p">(</span>
@@ -257,13 +301,33 @@
             <span class="nb">setattr</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span></div>
 
 
+<div class="viewcode-block" id="IntermediateLayerResults"><a class="viewcode-back" href="../../../autoapi/agnapprox/utils/model/index.html#agnapprox.utils.IntermediateLayerResults">[docs]</a><span class="nd">@dataclasses</span><span class="o">.</span><span class="n">dataclass</span>
+<span class="k">class</span> <span class="nc">IntermediateLayerResults</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Container that holds the results of running an inference pass</span>
+<span class="sd">    on sample data with accurate multiplication as well as layer metadata</span>
+<span class="sd">    For each target layer, we track:</span>
+<span class="sd">    - `fan_in`: Number of incoming connections</span>
+<span class="sd">    - `features`: Input activations into the layer for the sample run, squashed</span>
+<span class="sd">        to a single tensor</span>
+<span class="sd">    - `outputs`:  Accurate results of the layer for the sample run, squashed</span>
+<span class="sd">        to a single tensor</span>
+<span class="sd">    - `weights`: The layer&#39;s weights tensor</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">fan_in</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">features</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span>
+    <span class="n">outputs</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span>
+    <span class="n">weights</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+
 <span class="c1"># Get approximate op layer inputs, outputs weights and metadata</span>
 <div class="viewcode-block" id="get_feature_maps"><a class="viewcode-back" href="../../../autoapi/agnapprox/utils/model/index.html#agnapprox.utils.get_feature_maps">[docs]</a><span class="k">def</span> <span class="nf">get_feature_maps</span><span class="p">(</span>
     <span class="n">model</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">LightningModule</span><span class="p">,</span>
     <span class="n">target_modules</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">]],</span>
     <span class="n">trainer</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Trainer</span><span class="p">,</span>
     <span class="n">datamodule</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">LightningDataModule</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]]:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">IntermediateLayerResults</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Capture intermediate feature maps of a model&#39;s layer</span>
 <span class="sd">    by attaching hooks and running sample data</span>
@@ -282,22 +346,19 @@
     <span class="c1"># Create hook function for each layer</span>
     <span class="k">def</span> <span class="nf">get_hook</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
         <span class="n">module_getter</span> <span class="o">=</span> <span class="n">attrgetter</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
-        <span class="n">results</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;input&quot;</span><span class="p">:</span> <span class="p">[],</span>
-            <span class="s2">&quot;output&quot;</span><span class="p">:</span> <span class="p">[],</span>
-            <span class="s2">&quot;weights&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="s2">&quot;fan_in&quot;</span><span class="p">:</span> <span class="n">module_getter</span><span class="p">(</span><span class="n">model</span><span class="p">)</span><span class="o">.</span><span class="n">fan_in</span><span class="p">,</span>
-        <span class="p">}</span>
+        <span class="n">results</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">IntermediateLayerResults</span><span class="p">(</span>
+            <span class="n">fan_in</span><span class="o">=</span><span class="n">module_getter</span><span class="p">(</span><span class="n">model</span><span class="p">)</span><span class="o">.</span><span class="n">fan_in</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="p">[],</span> <span class="n">outputs</span><span class="o">=</span><span class="p">[]</span>
+        <span class="p">)</span>
 
         <span class="k">def</span> <span class="nf">hook</span><span class="p">(</span><span class="n">_module</span><span class="p">,</span> <span class="n">module_in</span><span class="p">,</span> <span class="n">module_out</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">results</span><span class="p">[</span><span class="n">name</span><span class="p">][</span><span class="s2">&quot;weights&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">results</span><span class="p">[</span><span class="n">name</span><span class="p">][</span><span class="s2">&quot;weights&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="k">if</span> <span class="n">results</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">weights</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">results</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">weights</span> <span class="o">=</span> <span class="p">(</span>
                     <span class="n">module_in</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
                 <span class="p">)</span>
-            <span class="n">results</span><span class="p">[</span><span class="n">name</span><span class="p">][</span><span class="s2">&quot;input&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">results</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">features</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                 <span class="n">module_in</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
             <span class="p">)</span>
-            <span class="n">results</span><span class="p">[</span><span class="n">name</span><span class="p">][</span><span class="s2">&quot;output&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">results</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">outputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                 <span class="n">module_out</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
             <span class="p">)</span>
 
@@ -315,10 +376,10 @@
     <span class="c1"># Run validation to populate</span>
     <span class="n">trainer</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">datamodule</span><span class="o">.</span><span class="n">sample_dataloader</span><span class="p">(),</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
-    <span class="c1"># Squash batches to a single array</span>
+    <span class="c1"># Squash list of batches to a single array</span>
     <span class="k">for</span> <span class="n">layer</span><span class="p">,</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">results</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="n">results</span><span class="p">[</span><span class="n">layer</span><span class="p">][</span><span class="s2">&quot;input&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;input&quot;</span><span class="p">])</span>
-        <span class="n">results</span><span class="p">[</span><span class="n">layer</span><span class="p">][</span><span class="s2">&quot;output&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">])</span>
+        <span class="n">results</span><span class="p">[</span><span class="n">layer</span><span class="p">]</span><span class="o">.</span><span class="n">features</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">features</span><span class="p">)</span>
+        <span class="n">results</span><span class="p">[</span><span class="n">layer</span><span class="p">]</span><span class="o">.</span><span class="n">outputs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">outputs</span><span class="p">)</span>
 
     <span class="c1"># Clean up</span>
     <span class="n">_</span> <span class="o">=</span> <span class="p">[</span><span class="n">h</span><span class="o">.</span><span class="n">remove</span><span class="p">()</span> <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">handles</span><span class="p">]</span>
@@ -395,9 +456,9 @@
             <span class="c1"># get tensor of which topk answer was right</span>
             <span class="n">ind_which_topk_matched_truth</span> <span class="o">=</span> <span class="n">correct</span><span class="p">[:</span><span class="n">k</span><span class="p">]</span>  <span class="c1"># [maxk, B] -&gt; [k, B]</span>
             <span class="c1"># flatten it to help compute if we got it correct for each example in batch</span>
-            <span class="n">flattened_indicator_which_topk_matched_truth</span> <span class="o">=</span> <span class="n">ind_which_topk_matched_truth</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span>
-                <span class="o">-</span><span class="mi">1</span>
-            <span class="p">)</span><span class="o">.</span><span class="n">float</span><span class="p">()</span>  <span class="c1"># [k, B] -&gt; [kB]</span>
+            <span class="n">flattened_indicator_which_topk_matched_truth</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">ind_which_topk_matched_truth</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">float</span><span class="p">()</span>
+            <span class="p">)</span>  <span class="c1"># [k, B] -&gt; [kB]</span>
             <span class="c1"># get if we got it right for any of our top k prediction for each example in batch</span>
             <span class="n">tot_correct_topk</span> <span class="o">=</span> <span class="n">flattened_indicator_which_topk_matched_truth</span><span class="o">.</span><span class="n">float</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span>
                 <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">keepdim</span><span class="o">=</span><span class="kc">True</span>

@@ -148,8 +148,11 @@
   <aside class="sidebar-drawer">
     <div class="sidebar-container">
       
-      <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../../index.html">
+      <div class="sidebar-sticky"><a class="sidebar-brand centered" href="../../../../index.html">
   
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo" src="https://raw.githubusercontent.com/etrommer/agn-approx/main/docs/agnapprox_logo.png" alt="Logo"/>
+  </div>
   
   <span class="sidebar-brand-text">AGN Approx Documentation</span>
   
@@ -160,7 +163,7 @@
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../../../../example.html">Example usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../1_mnist.html">Tutorial 1: Approximate MNIST</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../changelog.html">Changelog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../contributing.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../conduct.html">Code of Conduct</a></li>
@@ -248,7 +251,7 @@
 <tr class="row-even"><td><p><a class="reference internal" href="#agnapprox.utils.error_stats.error_prediction" title="agnapprox.utils.error_stats.error_prediction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">error_prediction</span></code></a>(→ Tuple[float, float])</p></td>
 <td><p>Generate error mean and standard deviation using the</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#agnapprox.utils.error_stats.get_sample_population" title="agnapprox.utils.error_stats.get_sample_population"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_sample_population</span></code></a>(→ torch.Tensor)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#agnapprox.utils.error_stats.get_sample_population" title="agnapprox.utils.error_stats.get_sample_population"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_sample_population</span></code></a>(→ numpy.ndarray)</p></td>
 <td><p>Randomly select samples from a tensor that cover the receptive field of one neuron</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#agnapprox.utils.error_stats.population_prediction" title="agnapprox.utils.error_stats.population_prediction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">population_prediction</span></code></a>(→ Tuple[float, float])</p></td>
@@ -271,7 +274,7 @@ approach as described in: <a class="reference external" href="https://arxiv.org/
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>emap</strong> – _description_</p></li>
+<li><p><strong>emap</strong> – The multiplier’s error map</p></li>
 <li><p><strong>x_dist</strong> – Operand distribution of activations</p></li>
 <li><p><strong>w_dist</strong> – Operand distribution of weights</p></li>
 <li><p><strong>fan_in</strong> – Incoming connections for layer</p></li>
@@ -292,7 +295,7 @@ global distribution of activations and weights</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>emap</strong> – _description_</p></li>
+<li><p><strong>emap</strong> – The multiplier’s error map</p></li>
 <li><p><strong>x_dist</strong> – Operand distribution of activations</p></li>
 <li><p><strong>w_dist</strong> – Operand distribution of weights</p></li>
 <li><p><strong>fan_in</strong> – Incoming connections for layer</p></li>
@@ -306,7 +309,7 @@ global distribution of activations and weights</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="agnapprox.utils.error_stats.get_sample_population">
-<span class="sig-prename descclassname"><span class="pre">agnapprox.utils.error_stats.</span></span><span class="sig-name descname"><span class="pre">get_sample_population</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tensor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_samples</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">512</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="reference internal" href="../../../../_modules/agnapprox/utils/error_stats.html#get_sample_population"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agnapprox.utils.error_stats.get_sample_population" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">agnapprox.utils.error_stats.</span></span><span class="sig-name descname"><span class="pre">get_sample_population</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tensor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_samples</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">512</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="reference internal" href="../../../../_modules/agnapprox/utils/error_stats.html#get_sample_population"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agnapprox.utils.error_stats.get_sample_population" title="Permalink to this definition">#</a></dt>
 <dd><p>Randomly select samples from a tensor that cover the receptive field of one neuron</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -329,7 +332,7 @@ sampled local distributions</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>emap</strong> – _description_</p></li>
+<li><p><strong>emap</strong> – The multiplier’s error map</p></li>
 <li><p><strong>x_multidist</strong> – Array of several operand distributions for activations</p></li>
 <li><p><strong>w_dist</strong> – Operand distribution of weights</p></li>
 <li><p><strong>fan_in</strong> – Incoming connections for layer</p></li>
@@ -343,7 +346,7 @@ sampled local distributions</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="agnapprox.utils.error_stats.to_distribution">
-<span class="sig-prename descclassname"><span class="pre">agnapprox.utils.error_stats.</span></span><span class="sig-name descname"><span class="pre">to_distribution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tensor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_val</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_val</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/agnapprox/utils/error_stats.html#to_distribution"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agnapprox.utils.error_stats.to_distribution" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">agnapprox.utils.error_stats.</span></span><span class="sig-name descname"><span class="pre">to_distribution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tensor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_val</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_val</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/agnapprox/utils/error_stats.html#to_distribution"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agnapprox.utils.error_stats.to_distribution" title="Permalink to this definition">#</a></dt>
 <dd><p>Turn tensor of weights/activations into a frequency distribution (i.e. build a histogram)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -357,6 +360,12 @@ sampled local distributions</p>
 <dd class="field-even"><p>Tuple of Arrays where first array contains the full numerical range between
 min_val and max_val inclusively and second array contains the relative frequency
 of each operand</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ValueError</strong> – If run before features maps have been populated</p></li>
+<li><p><strong>by call to utils.model.get_feature_maps</strong> – </p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>

@@ -3,9 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
+        <link rel="canonical" href="https://etrommer.github.io/agn-approx/_modules/agnapprox/utils/error_stats.html" />
 
     <meta name="generator" content="sphinx-5.1.1, furo 2022.06.21"/>
-        <title>agnapprox.utils.error_stats - agnapprox documentation</title>
+        <title>agnapprox.utils.error_stats - AGN Approx Documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?digest=40978830699223671f4072448e654b5958f38b89" />
     <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.css" />
@@ -126,7 +127,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">agnapprox  documentation</div></a>
+      <a href="../../../index.html"><div class="brand">AGN Approx Documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,10 +147,13 @@
   <aside class="sidebar-drawer">
     <div class="sidebar-container">
       
-      <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
+      <div class="sidebar-sticky"><a class="sidebar-brand centered" href="../../../index.html">
   
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo" src="../../../_static/agnapprox_logo.png" alt="Logo"/>
+  </div>
   
-  <span class="sidebar-brand-text">agnapprox  documentation</span>
+  <span class="sidebar-brand-text">AGN Approx Documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -158,7 +162,7 @@
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../example.html">Example usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../1_mnist.html">Tutorial 1: Approximate MNIST</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Changelog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../conduct.html">Code of Conduct</a></li>
@@ -235,10 +239,9 @@
 <span class="sd">Implementations for several probabilistic error models</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">torch</span>
 
 
 <div class="viewcode-block" id="single_dist_mc"><a class="viewcode-back" href="../../../autoapi/agnapprox/utils/index.html#agnapprox.utils.error_stats.single_dist_mc">[docs]</a><span class="k">def</span> <span class="nf">single_dist_mc</span><span class="p">(</span>
@@ -253,7 +256,7 @@
 <span class="sd">    approach as described in: https://arxiv.org/abs/1912.00700</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        emap: _description_</span>
+<span class="sd">        emap: The multiplier&#39;s error map</span>
 <span class="sd">        x_dist: Operand distribution of activations</span>
 <span class="sd">        w_dist: Operand distribution of weights</span>
 <span class="sd">        fan_in: Incoming connections for layer</span>
@@ -285,7 +288,7 @@
 <span class="sd">    global distribution of activations and weights</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        emap: _description_</span>
+<span class="sd">        emap: The multiplier&#39;s error map</span>
 <span class="sd">        x_dist: Operand distribution of activations</span>
 <span class="sd">        w_dist: Operand distribution of weights</span>
 <span class="sd">        fan_in: Incoming connections for layer</span>
@@ -302,7 +305,7 @@
     <span class="k">return</span> <span class="n">mean</span><span class="p">,</span> <span class="n">std</span></div>
 
 
-<div class="viewcode-block" id="get_sample_population"><a class="viewcode-back" href="../../../autoapi/agnapprox/utils/index.html#agnapprox.utils.error_stats.get_sample_population">[docs]</a><span class="k">def</span> <span class="nf">get_sample_population</span><span class="p">(</span><span class="n">tensor</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">num_samples</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">512</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<div class="viewcode-block" id="get_sample_population"><a class="viewcode-back" href="../../../autoapi/agnapprox/utils/index.html#agnapprox.utils.error_stats.get_sample_population">[docs]</a><span class="k">def</span> <span class="nf">get_sample_population</span><span class="p">(</span><span class="n">tensor</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">num_samples</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">512</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Randomly select samples from a tensor that cover the receptive field of one neuron</span>
 
@@ -322,11 +325,11 @@
     <span class="n">emap</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">x_multidist</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">w_dist</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">fan_in</span><span class="p">:</span> <span class="nb">float</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Generate prediction of mean and standard deviation using several </span>
+<span class="sd">    Generate prediction of mean and standard deviation using several</span>
 <span class="sd">    sampled local distributions</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        emap: _description_</span>
+<span class="sd">        emap: The multiplier&#39;s error map</span>
 <span class="sd">        x_multidist: Array of several operand distributions for activations</span>
 <span class="sd">        w_dist: Operand distribution of weights</span>
 <span class="sd">        fan_in: Incoming connections for layer</span>
@@ -346,14 +349,14 @@
     <span class="c1"># Aggregate error distributions (Eq. 15 &amp; Eq. 16)</span>
     <span class="n">mean_aggregate</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">means</span><span class="p">)</span>
     <span class="n">std_aggregate</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span>
-        <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">means</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">stds</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">-</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">means</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">x_multidist</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">means</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">stds</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">-</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">means</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">x_multidist</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
         <span class="o">/</span> <span class="n">x_multidist</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">mean_aggregate</span><span class="p">,</span> <span class="n">std_aggregate</span></div>
 
 
 <div class="viewcode-block" id="to_distribution"><a class="viewcode-back" href="../../../autoapi/agnapprox/utils/index.html#agnapprox.utils.error_stats.to_distribution">[docs]</a><span class="k">def</span> <span class="nf">to_distribution</span><span class="p">(</span>
-    <span class="n">tensor</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">min_val</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">max_val</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">tensor</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span> <span class="n">min_val</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">max_val</span><span class="p">:</span> <span class="nb">int</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Turn tensor of weights/activations into a frequency distribution (i.e. build a histogram)</span>
 
@@ -366,7 +369,14 @@
 <span class="sd">        Tuple of Arrays where first array contains the full numerical range between</span>
 <span class="sd">        min_val and max_val inclusively and second array contains the relative frequency</span>
 <span class="sd">        of each operand</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If run before features maps have been populated</span>
+<span class="sd">        by call to `utils.model.get_feature_maps`</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">tensor</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Populate input tensor with intermediate features maps&quot;</span><span class="p">)</span>
     <span class="n">num_range</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">min_val</span><span class="p">,</span> <span class="n">max_val</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
     <span class="n">counts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">num_range</span><span class="p">)</span>
     <span class="n">nums</span><span class="p">,</span> <span class="n">freqs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">tensor</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">),</span> <span class="n">return_counts</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>

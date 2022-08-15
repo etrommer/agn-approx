@@ -32,7 +32,7 @@ Functions
    Generate error mean and standard deviation using Monte Carlo
    approach as described in: https://arxiv.org/abs/1912.00700
 
-   :param emap: _description_
+   :param emap: The multiplier's error map
    :param x_dist: Operand distribution of activations
    :param w_dist: Operand distribution of weights
    :param fan_in: Incoming connections for layer
@@ -46,7 +46,7 @@ Functions
    Generate error mean and standard deviation using the
    global distribution of activations and weights
 
-   :param emap: _description_
+   :param emap: The multiplier's error map
    :param x_dist: Operand distribution of activations
    :param w_dist: Operand distribution of weights
    :param fan_in: Incoming connections for layer
@@ -54,7 +54,7 @@ Functions
    :returns: Mean and standard deviation for a single operation
 
 
-.. py:function:: get_sample_population(tensor: torch.Tensor, num_samples: int = 512) -> torch.Tensor
+.. py:function:: get_sample_population(tensor: numpy.ndarray, num_samples: int = 512) -> numpy.ndarray
 
    Randomly select samples from a tensor that cover the receptive field of one neuron
 
@@ -69,7 +69,7 @@ Functions
    Generate prediction of mean and standard deviation using several
    sampled local distributions
 
-   :param emap: _description_
+   :param emap: The multiplier's error map
    :param x_multidist: Array of several operand distributions for activations
    :param w_dist: Operand distribution of weights
    :param fan_in: Incoming connections for layer
@@ -77,7 +77,7 @@ Functions
    :returns: Mean and standard deviation for a single operation
 
 
-.. py:function:: to_distribution(tensor: numpy.ndarray, min_val: int, max_val: int) -> Tuple[numpy.ndarray, numpy.ndarray]
+.. py:function:: to_distribution(tensor: Optional[numpy.ndarray], min_val: int, max_val: int) -> Tuple[numpy.ndarray, numpy.ndarray]
 
    Turn tensor of weights/activations into a frequency distribution (i.e. build a histogram)
 
@@ -88,6 +88,9 @@ Functions
    :returns: Tuple of Arrays where first array contains the full numerical range between
              min_val and max_val inclusively and second array contains the relative frequency
              of each operand
+
+   :raises ValueError: If run before features maps have been populated
+   :raises by call to `utils.model.get_feature_maps`:
 
 
 .. py:function:: error_calculation(accurate: numpy.ndarray, approximate: numpy.ndarray, fan_in: float) -> Tuple[float, float]

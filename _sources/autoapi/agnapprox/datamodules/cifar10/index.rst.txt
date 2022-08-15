@@ -24,7 +24,7 @@ Classes
 
 .. py:class:: CIFAR10(**kwargs)
 
-   Bases: :py:obj:`agnapprox.datamodules.ApproxDataModule`
+   Bases: :py:obj:`agnapprox.datamodules.approx_datamodule.ApproxDataModule`
 
    Dataloader instance for the CIFAR10 dataset
 

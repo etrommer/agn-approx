@@ -148,8 +148,11 @@
   <aside class="sidebar-drawer">
     <div class="sidebar-container">
       
-      <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../../index.html">
+      <div class="sidebar-sticky"><a class="sidebar-brand centered" href="../../../../index.html">
   
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo" src="https://raw.githubusercontent.com/etrommer/agn-approx/main/docs/agnapprox_logo.png" alt="Logo"/>
+  </div>
   
   <span class="sidebar-brand-text">AGN Approx Documentation</span>
   
@@ -160,7 +163,7 @@
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../../../../example.html">Example usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../1_mnist.html">Tutorial 1: Approximate MNIST</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../changelog.html">Changelog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../contributing.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../conduct.html">Code of Conduct</a></li>
@@ -245,7 +248,7 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#agnapprox.nets.approxnet.ApproxNet" title="agnapprox.nets.approxnet.ApproxNet"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ApproxNet</span></code></a></p></td>
 <td><p>Base Class that provideds common functionality for approximate neural network training</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#agnapprox.nets.approxnet.GSVerboseCb" title="agnapprox.nets.approxnet.GSVerboseCb"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GSVerboseCb</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#agnapprox.nets.approxnet.GSInfoCb" title="agnapprox.nets.approxnet.GSInfoCb"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GSInfoCb</span></code></a></p></td>
 <td><p>Callback class implementation that prints out current values</p></td>
 </tr>
 </tbody>
@@ -723,12 +726,27 @@ override the <code class="xref py py-meth docutils literal notranslate"><span cl
 
 <dl class="py method">
 <dt class="sig sig-object py" id="agnapprox.nets.approxnet.ApproxNet._train">
-<span class="sig-name descname"><span class="pre">_train</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">datamodule</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><span class="pre">pytorch_lightning.LightningDataModule</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epochs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_mlflow</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/agnapprox/nets/approxnet.html#ApproxNet._train"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agnapprox.nets.approxnet.ApproxNet._train" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">_train</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">datamodule</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.LightningDataModule</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epochs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_mlflow</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/agnapprox/nets/approxnet.html#ApproxNet._train"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agnapprox.nets.approxnet.ApproxNet._train" title="Permalink to this definition">#</a></dt>
+<dd><p>Internal Trainer function. This function is called by the different
+training stage functions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>datamodule</strong> – The dataset to train on</p></li>
+<li><p><strong>run_name</strong> – Run name passed to MLFlow</p></li>
+<li><p><strong>epochs</strong> – Optional number of epochs to train for.
+If not set, number of epochs defined in the network definition will be used.
+Defaults to None.</p></li>
+<li><p><strong>log_mlflow</strong> – Log training data to MLFlow. Defaults to False.</p></li>
+<li><p><strong>test</strong> – Run on test set after training. Defaults to False.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="agnapprox.nets.approxnet.ApproxNet.train_baseline">
-<span class="sig-name descname"><span class="pre">train_baseline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">datamodule</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><span class="pre">pytorch_lightning.LightningDataModule</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/agnapprox/nets/approxnet.html#ApproxNet.train_baseline"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agnapprox.nets.approxnet.ApproxNet.train_baseline" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">train_baseline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">datamodule</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.LightningDataModule</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/agnapprox/nets/approxnet.html#ApproxNet.train_baseline"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agnapprox.nets.approxnet.ApproxNet.train_baseline" title="Permalink to this definition">#</a></dt>
 <dd><p>Train an FP32 baseline model</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -739,7 +757,7 @@ override the <code class="xref py py-meth docutils literal notranslate"><span cl
 
 <dl class="py method">
 <dt class="sig sig-object py" id="agnapprox.nets.approxnet.ApproxNet.train_quant">
-<span class="sig-name descname"><span class="pre">train_quant</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">datamodule</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><span class="pre">pytorch_lightning.LightningDataModule</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/agnapprox/nets/approxnet.html#ApproxNet.train_quant"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agnapprox.nets.approxnet.ApproxNet.train_quant" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">train_quant</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">datamodule</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.LightningDataModule</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/agnapprox/nets/approxnet.html#ApproxNet.train_quant"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agnapprox.nets.approxnet.ApproxNet.train_quant" title="Permalink to this definition">#</a></dt>
 <dd><p>Train a quantized model using Quantization-Aware training</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -750,7 +768,7 @@ override the <code class="xref py py-meth docutils literal notranslate"><span cl
 
 <dl class="py method">
 <dt class="sig sig-object py" id="agnapprox.nets.approxnet.ApproxNet.train_gradient">
-<span class="sig-name descname"><span class="pre">train_gradient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">datamodule</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><span class="pre">pytorch_lightning.LightningDataModule</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lmbd</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_noise</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/agnapprox/nets/approxnet.html#ApproxNet.train_gradient"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agnapprox.nets.approxnet.ApproxNet.train_gradient" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">train_gradient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">datamodule</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.LightningDataModule</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lmbd</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_noise</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/agnapprox/nets/approxnet.html#ApproxNet.train_gradient"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agnapprox.nets.approxnet.ApproxNet.train_gradient" title="Permalink to this definition">#</a></dt>
 <dd><p>Run Gradient Search algorithm to optimize layer
 robustness parameters</p>
 <dl class="field-list simple">
@@ -763,9 +781,6 @@ function.
 Defaults to 0.2</p></li>
 <li><p><strong>initial_noise</strong> – The initial value to set for the noise parameter.
 Defaults to 0.1.</p></li>
-<li><p><strong>verbose</strong> – Print intermediate noise values for each layer after
-each epoch.
-Defaults to False.</p></li>
 </ul>
 </dd>
 </dl>
@@ -773,7 +788,7 @@ Defaults to False.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="agnapprox.nets.approxnet.ApproxNet.train_approx">
-<span class="sig-name descname"><span class="pre">train_approx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">datamodule</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><span class="pre">pytorch_lightning.LightningDataModule</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name_ext</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/agnapprox/nets/approxnet.html#ApproxNet.train_approx"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agnapprox.nets.approxnet.ApproxNet.train_approx" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">train_approx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">datamodule</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.LightningDataModule</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name_ext</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/agnapprox/nets/approxnet.html#ApproxNet.train_approx"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agnapprox.nets.approxnet.ApproxNet.train_approx" title="Permalink to this definition">#</a></dt>
 <dd><p>Train model with simulated approximate multipliers</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -822,14 +837,14 @@ Defaults to None.</p></li>
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="agnapprox.nets.approxnet.GSVerboseCb">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">agnapprox.nets.approxnet.</span></span><span class="sig-name descname"><span class="pre">GSVerboseCb</span></span><a class="reference internal" href="../../../../_modules/agnapprox/nets/approxnet.html#GSVerboseCb"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agnapprox.nets.approxnet.GSVerboseCb" title="Permalink to this definition">#</a></dt>
+<dt class="sig sig-object py" id="agnapprox.nets.approxnet.GSInfoCb">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">agnapprox.nets.approxnet.</span></span><span class="sig-name descname"><span class="pre">GSInfoCb</span></span><a class="reference internal" href="../../../../_modules/agnapprox/nets/approxnet.html#GSInfoCb"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agnapprox.nets.approxnet.GSInfoCb" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">pytorch_lightning.Callback</span></code></p>
 <p>Callback class implementation that prints out current values
 for sigma_l after each epoch</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="agnapprox.nets.approxnet.GSVerboseCb.on_train_epoch_end">
-<span class="sig-name descname"><span class="pre">on_train_epoch_end</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">_trainer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">approxnet</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/agnapprox/nets/approxnet.html#GSVerboseCb.on_train_epoch_end"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agnapprox.nets.approxnet.GSVerboseCb.on_train_epoch_end" title="Permalink to this definition">#</a></dt>
+<dt class="sig sig-object py" id="agnapprox.nets.approxnet.GSInfoCb.on_train_epoch_end">
+<span class="sig-name descname"><span class="pre">on_train_epoch_end</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trainer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">approxnet</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/agnapprox/nets/approxnet.html#GSInfoCb.on_train_epoch_end"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agnapprox.nets.approxnet.GSInfoCb.on_train_epoch_end" title="Permalink to this definition">#</a></dt>
 <dd><p>Called when the train epoch ends.</p>
 <p>To access all batch outputs at the end of the epoch, either:</p>
 <ol class="arabic simple">
@@ -927,8 +942,8 @@ for sigma_l after each epoch</p>
 <li><a class="reference internal" href="#agnapprox.nets.approxnet.ApproxNet._gs_optimizers">_gs_optimizers</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#agnapprox.nets.approxnet.GSVerboseCb">GSVerboseCb</a><ul>
-<li><a class="reference internal" href="#agnapprox.nets.approxnet.GSVerboseCb.on_train_epoch_end">on_train_epoch_end</a></li>
+<li><a class="reference internal" href="#agnapprox.nets.approxnet.GSInfoCb">GSInfoCb</a><ul>
+<li><a class="reference internal" href="#agnapprox.nets.approxnet.GSInfoCb.on_train_epoch_end">on_train_epoch_end</a></li>
 </ul>
 </li>
 </ul>

@@ -32,6 +32,7 @@ Classes
 .. autoapisummary::
 
    agnapprox.datamodules.ApproxDataModule
+   agnapprox.datamodules.CIFAR10
    agnapprox.datamodules.MNIST
    agnapprox.datamodules.TinyImageNet
 
@@ -238,9 +239,114 @@ Classes
 
 
 
+.. py:class:: CIFAR10(**kwargs)
+
+   Bases: :py:obj:`agnapprox.datamodules.approx_datamodule.ApproxDataModule`
+
+   Dataloader instance for the CIFAR10 dataset
+
+   .. py:method:: normalize()
+      :property:
+
+      Default CIFAR10 normalization parameters
+
+      :returns: List of transformations to apply to input image
+
+
+   .. py:method:: augment()
+      :property:
+
+      Default CIFAR10 augmentation pipeline
+
+      :returns: List of transformations to apply to input image
+
+
+   .. py:method:: prepare_data()
+
+      Use this to download and prepare data. Downloading and saving data with multiple processes (distributed
+      settings) will result in corrupted data. Lightning ensures this method is called only within a single
+      process, so you can safely add your downloading logic within.
+
+      .. warning:: DO NOT set state to the model (use ``setup`` instead)
+          since this is NOT called on every device
+
+      Example::
+
+          def prepare_data(self):
+              # good
+              download_data()
+              tokenize()
+              etc()
+
+              # bad
+              self.split = data_split
+              self.some_state = some_other_state()
+
+      In a distributed environment, ``prepare_data`` can be called in two ways
+      (using :ref:`prepare_data_per_node<common/lightning_module:prepare_data_per_node>`)
+
+      1. Once per node. This is the default and is only called on LOCAL_RANK=0.
+      2. Once in total. Only called on GLOBAL_RANK=0.
+
+      Example::
+
+          # DEFAULT
+          # called once per node on LOCAL_RANK=0 of that node
+          class LitDataModule(LightningDataModule):
+              def __init__(self):
+                  super().__init__()
+                  self.prepare_data_per_node = True
+
+
+          # call on GLOBAL_RANK=0 (great for shared file systems)
+          class LitDataModule(LightningDataModule):
+              def __init__(self):
+                  super().__init__()
+                  self.prepare_data_per_node = False
+
+      This is called before requesting the dataloaders:
+
+      .. code-block:: python
+
+          model.prepare_data()
+          initialize_distributed()
+          model.setup(stage)
+          model.train_dataloader()
+          model.val_dataloader()
+          model.test_dataloader()
+          model.predict_dataloader()
+
+
+   .. py:method:: setup(stage=None)
+
+      Called at the beginning of fit (train + validate), validate, test, or predict. This is a good hook when
+      you need to build models dynamically or adjust something about them. This hook is called on every process
+      when using DDP.
+
+      :param stage: either ``'fit'``, ``'validate'``, ``'test'``, or ``'predict'``
+
+      Example::
+
+          class LitModel(...):
+              def __init__(self):
+                  self.l1 = None
+
+              def prepare_data(self):
+                  download_data()
+                  tokenize()
+
+                  # don't do this
+                  self.something = else
+
+              def setup(self, stage):
+                  data = load_data(...)
+                  self.l1 = nn.Linear(28, data.num_classes)
+
+
+
 .. py:class:: MNIST(**kwargs)
 
-   Bases: :py:obj:`agnapprox.datamodules.ApproxDataModule`
+   Bases: :py:obj:`agnapprox.datamodules.approx_datamodule.ApproxDataModule`
 
    Dataloader instance for the MNIST dataset
 
@@ -337,7 +443,7 @@ Classes
 
 .. py:class:: TinyImageNet(split=0.9, **kwargs)
 
-   Bases: :py:obj:`agnapprox.datamodules.ApproxDataModule`
+   Bases: :py:obj:`agnapprox.datamodules.approx_datamodule.ApproxDataModule`
 
    Dataloader instance for the TinyImageNet dataset
 

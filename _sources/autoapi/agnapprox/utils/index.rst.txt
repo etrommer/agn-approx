@@ -23,6 +23,17 @@ Submodules
 Package Contents
 ----------------
 
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   agnapprox.utils.EnhancedJSONEncoder
+   agnapprox.utils.IntermediateLayerResults
+   agnapprox.utils.LayerInfo
+   agnapprox.utils.MatchingInfo
+
+
 
 Functions
 ~~~~~~~~~
@@ -35,11 +46,13 @@ Functions
    agnapprox.utils.population_prediction
    agnapprox.utils.to_distribution
    agnapprox.utils.error_calculation
+   agnapprox.utils.dump_results
    agnapprox.utils.set_all
    agnapprox.utils.get_feature_maps
    agnapprox.utils.topk_accuracy
    agnapprox.utils.get_feature_maps
    agnapprox.utils.select_layer_multiplier
+   agnapprox.utils.deploy_multipliers
    agnapprox.utils.select_multipliers
 
 
@@ -57,7 +70,7 @@ Attributes
    Generate error mean and standard deviation using Monte Carlo
    approach as described in: https://arxiv.org/abs/1912.00700
 
-   :param emap: _description_
+   :param emap: The multiplier's error map
    :param x_dist: Operand distribution of activations
    :param w_dist: Operand distribution of weights
    :param fan_in: Incoming connections for layer
@@ -71,7 +84,7 @@ Attributes
    Generate error mean and standard deviation using the
    global distribution of activations and weights
 
-   :param emap: _description_
+   :param emap: The multiplier's error map
    :param x_dist: Operand distribution of activations
    :param w_dist: Operand distribution of weights
    :param fan_in: Incoming connections for layer
@@ -79,7 +92,7 @@ Attributes
    :returns: Mean and standard deviation for a single operation
 
 
-.. py:function:: get_sample_population(tensor: torch.Tensor, num_samples: int = 512) -> torch.Tensor
+.. py:function:: get_sample_population(tensor: numpy.ndarray, num_samples: int = 512) -> numpy.ndarray
 
    Randomly select samples from a tensor that cover the receptive field of one neuron
 
@@ -94,7 +107,7 @@ Attributes
    Generate prediction of mean and standard deviation using several
    sampled local distributions
 
-   :param emap: _description_
+   :param emap: The multiplier's error map
    :param x_multidist: Array of several operand distributions for activations
    :param w_dist: Operand distribution of weights
    :param fan_in: Incoming connections for layer
@@ -102,7 +115,7 @@ Attributes
    :returns: Mean and standard deviation for a single operation
 
 
-.. py:function:: to_distribution(tensor: numpy.ndarray, min_val: int, max_val: int) -> Tuple[numpy.ndarray, numpy.ndarray]
+.. py:function:: to_distribution(tensor: Optional[numpy.ndarray], min_val: int, max_val: int) -> Tuple[numpy.ndarray, numpy.ndarray]
 
    Turn tensor of weights/activations into a frequency distribution (i.e. build a histogram)
 
@@ -113,6 +126,9 @@ Attributes
    :returns: Tuple of Arrays where first array contains the full numerical range between
              min_val and max_val inclusively and second array contains the relative frequency
              of each operand
+
+   :raises ValueError: If run before features maps have been populated
+   :raises by call to `utils.model.get_feature_maps`:
 
 
 .. py:function:: error_calculation(accurate: numpy.ndarray, approximate: numpy.ndarray, fan_in: float) -> Tuple[float, float]
@@ -127,6 +143,43 @@ Attributes
    :returns: Mean and standard deviation for a single operation
 
 
+.. py:class:: EnhancedJSONEncoder(*, skipkeys=False, ensure_ascii=True, check_circular=True, allow_nan=True, sort_keys=False, indent=None, separators=None, default=None)
+
+   Bases: :py:obj:`json.JSONEncoder`
+
+   Workaround to make dataclasses JSON-serializable
+   https://stackoverflow.com/questions/51286748/make-the-python-json-encoder-support-pythons-new-dataclasses/51286749#51286749
+
+   .. py:method:: default(o)
+
+      Implement this method in a subclass such that it returns
+      a serializable object for ``o``, or calls the base implementation
+      (to raise a ``TypeError``).
+
+      For example, to support arbitrary iterators, you could
+      implement default like this::
+
+          def default(self, o):
+              try:
+                  iterable = iter(o)
+              except TypeError:
+                  pass
+              else:
+                  return list(iterable)
+              # Let the base class default method raise the TypeError
+              return JSONEncoder.default(self, o)
+
+
+
+
+.. py:function:: dump_results(result: agnapprox.utils.select_multipliers.MatchingInfo, lmbd: float)
+
+   Write multiplier matching results to MLFlow tracking instance
+
+   :param result: Multiplier Matching Results
+   :param lmbd: Lambda value
+
+
 .. py:function:: set_all(model: Union[pytorch_lightning.LightningDataModule, torch.nn.Module], attr: str, value: Any)
 
    Utility function to set an attribute for all modules in a model
@@ -136,7 +189,40 @@ Attributes
    :param value: Attribute value to set
 
 
-.. py:function:: get_feature_maps(model: pytorch_lightning.LightningModule, target_modules: List[Tuple[str, torch.nn.Module]], trainer: pytorch_lightning.Trainer, datamodule: pytorch_lightning.LightningDataModule) -> Dict[str, Dict[str, Union[numpy.array, float]]]
+.. py:class:: IntermediateLayerResults
+
+   Container that holds the results of running an inference pass
+   on sample data with accurate multiplication as well as layer metadata
+   For each target layer, we track:
+   - `fan_in`: Number of incoming connections
+   - `features`: Input activations into the layer for the sample run, squashed
+       to a single tensor
+   - `outputs`:  Accurate results of the layer for the sample run, squashed
+       to a single tensor
+   - `weights`: The layer's weights tensor
+
+   .. py:attribute:: fan_in
+      :annotation: :int
+
+      
+
+   .. py:attribute:: features
+      :annotation: :Union[List[numpy.ndarray], numpy.ndarray]
+
+      
+
+   .. py:attribute:: outputs
+      :annotation: :Union[List[numpy.ndarray], numpy.ndarray]
+
+      
+
+   .. py:attribute:: weights
+      :annotation: :Optional[numpy.ndarray]
+
+      
+
+
+.. py:function:: get_feature_maps(model: pytorch_lightning.LightningModule, target_modules: List[Tuple[str, torch.nn.Module]], trainer: pytorch_lightning.Trainer, datamodule: pytorch_lightning.LightningDataModule) -> Dict[str, IntermediateLayerResults]
 
    Capture intermediate feature maps of a model's layer
    by attaching hooks and running sample data
@@ -174,7 +260,7 @@ Attributes
    :returns: list of topk accuracy [top1st, top2nd, ...] depending on your topk input
 
 
-.. py:function:: get_feature_maps(model: pytorch_lightning.LightningModule, target_modules: List[Tuple[str, torch.nn.Module]], trainer: pytorch_lightning.Trainer, datamodule: pytorch_lightning.LightningDataModule) -> Dict[str, Dict[str, Union[numpy.array, float]]]
+.. py:function:: get_feature_maps(model: pytorch_lightning.LightningModule, target_modules: List[Tuple[str, torch.nn.Module]], trainer: pytorch_lightning.Trainer, datamodule: pytorch_lightning.LightningDataModule) -> Dict[str, IntermediateLayerResults]
 
    Capture intermediate feature maps of a model's layer
    by attaching hooks and running sample data
@@ -192,20 +278,114 @@ Attributes
 
    
 
-.. py:function:: select_layer_multiplier(layer_ref_data: Dict[str, Any], multipliers: Dict[str, Any], max_noise: float, num_samples: int = 512) -> Dict[str, Any]
+.. py:function:: select_layer_multiplier(intermediate_results: agnapprox.utils.model.IntermediateLayerResults, multipliers: List[evoapproxlib.ApproximateMultiplier], max_noise: float, num_samples: int = 512) -> Tuple[str, float]
 
    Select a matching approximate multiplier for a single layer
 
-   :param layer_ref_data: Dictionary of Reference input/output data generated from
-                          a model run with accurate multiplication
+   :param layer_ref_data: Reference input/output data generated from
+                          a model run with *accurate* multiplication. This is used to calibrate
+                          the layer standard deviation for the error estimate and determine the
+                          distribution of numerical values in weights and activations.
    :param multipliers: Approximate Multiplier Error Maps, Performance Metrics and name
    :param max_noise: Learned allowable noise parameter (sigma_l)
-   :param num_samples: _description_. Defaults to 512.
+   :param num_samples: Number of samples to draw from features for multi-population prediction.
+                       Defaults to 512.
 
    :returns: Dictionary with name and performance metric of selected multiplier
 
 
-.. py:function:: select_multipliers(model: agnapprox.nets.ApproxNet, datamodule: pytorch_lightning.LightningDataModule, library, trainer: pytorch_lightning.Trainer, signed: bool = True, deploy: bool = False)
+.. py:class:: LayerInfo
+
+   Multiplier Matching result for a single layer
+
+   .. py:attribute:: name
+      :annotation: :str
+
+      
+
+   .. py:attribute:: multiplier_name
+      :annotation: :str
+
+      
+
+   .. py:attribute:: multiplier_performance_metric
+      :annotation: :float
+
+      
+
+   .. py:attribute:: opcount
+      :annotation: :float
+
+      
+
+   .. py:method:: relative_opcount(total_opcount: float)
+
+      Calculate the relative contribution of this layer to the network's total operations
+
+      :param total_opcount: Number of operations in the entire networks
+
+      :returns:
+
+                - 0: layer contributes no operations to the network's opcount
+                - 1: layer conttibutes all operations to the network's opcount
+      :rtype: float between 0..1 where
+
+
+   .. py:method:: relative_energy_consumption(metric_max: float)
+
+      Relative energy consumption of selected approximate multiplier
+
+      :param metric_max: Highest possible value for performance metric
+                         (typically that of the respective accurate multiplier)
+
+      :returns:
+
+                - 0: selected multiplier consumes no energy
+                - 1: selected multiplier consumes the maximum amount of energy
+      :rtype: float between 0..1 where
+
+
+
+.. py:class:: MatchingInfo
+
+   Multiplier Matching result for the entire model
+
+   .. py:attribute:: layers
+      :annotation: :List[LayerInfo]
+
+      
+
+   .. py:attribute:: metric_max
+      :annotation: :float
+
+      
+
+   .. py:attribute:: opcount
+      :annotation: :float
+
+      
+
+   .. py:method:: relative_energy_consumption()
+      :property:
+
+      Relative Energy Consumption compared to network without approximation
+      achieved by the current AM configuration
+
+      :returns: sum relative energy consumption for each layer,
+                weighted with the layer's contribution to overall operations
+
+
+
+.. py:function:: deploy_multipliers(model: agnapprox.nets.ApproxNet, matching_result: MatchingInfo, library)
+
+   Deploy selected approximate multipliers to network
+
+   :param model: Model to deploy multipliers to
+   :param matching_result: Results of multiplier matching
+   :param library: Library to load Lookup tables from
+
+
+.. py:function:: select_multipliers(model: agnapprox.nets.ApproxNet, datamodule: pytorch_lightning.LightningDataModule, multipliers: List[evoapproxlib.ApproximateMultiplier], trainer: pytorch_lightning.Trainer) -> MatchingInfo
 
    Select matching Approximate Multipliers for all layers in a model
 
@@ -215,8 +395,6 @@ Attributes
    :param trainer: PyTorch Lightning Trainer instance to use for sampling run
    :param signed: Whether to select signed or unsigned instances from Multiplier library provide.
                   Defaults to True.
-   :param deploy: Whether to write selected approximate multiplier to layer configuration.
-                  Defaults to False.
 
    :returns: Dictionary of Assignment results
 
