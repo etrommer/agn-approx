@@ -190,7 +190,6 @@ class ApproxNet(pl.LightningModule):
         run_name: str,
         epochs: Optional[int] = None,
         log_mlflow: bool = False,
-        validate: bool = True,
         test: bool = False,
         **kwargs
     ):
@@ -204,7 +203,6 @@ class ApproxNet(pl.LightningModule):
                 If not set, number of epochs defined in the network definition will be used.
                 Defaults to None.
             log_mlflow: Log training data to MLFlow. Defaults to False.
-            validate: Run on validation set after training. Defaults to True.
             test: Run on test set after training. Defaults to False.
         """
         if epochs is None:
@@ -223,8 +221,6 @@ class ApproxNet(pl.LightningModule):
         mlflow.set_experiment(experiment_name=self.name)
         with mlflow.start_run(run_name=run_name):
             trainer.fit(self, datamodule)
-            if validate:
-                trainer.validate(self, datamodule)
             if test:
                 trainer.test(self, datamodule)
 
@@ -236,7 +232,6 @@ class ApproxNet(pl.LightningModule):
                 )
                 agnapprox.utils.deploy_multipliers(self, res, EvoApproxLib())
                 agnapprox.utils.dump_results(res, self.lmbd)
-
 
     def train_baseline(self, datamodule: pl.LightningDataModule, **kwargs):
         """
