@@ -3,8 +3,10 @@
 </p>
 
 # AGN Approx
-Code and experiments for the paper "Combining Gradients and Probabilities for Heterogeneours Approximation of Neural Networks"
-This is currently a work in progress.
+Code and experiments for the paper [Combining Gradients and Probabilities for Heterogeneours Approximation of Neural Networks](https://arxiv.org/abs/2208.07265).
+`agnapprox` allows for the study of neural networks using [Approximate Multipliers](https://en.wikipedia.org/wiki/Approximate_computing). It's main purpose is to optimize the _assignment_ of different approximate multipliers to the different layers of a Neural Network.
+By learning a perturbation term for each layer, agnapprox finds out which layers are more or less resilient to small errors in the computations. This information is then used to choose accurate/inaccurate approximate multipliers for each layer.
+The documentation contains two tutorials on agnapprox' functionality and demonstrates how to optimize a neural network supplied by the user.
 
 ## Note
 *This package relies on the Python package TorchApprox for GPU-accelerated layer implementations. This package is currently not publicly available. It will likely be made available in late 2022/early 2023. If you need early access, please get in touch*
