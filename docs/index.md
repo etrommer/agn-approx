@@ -5,7 +5,8 @@
 :maxdepth: 2
 :hidden:
 
-example.ipynb
+1_mnist.ipynb
+2_custom_network.ipynb
 changelog.md
 contributing.md
 conduct.md

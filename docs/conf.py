@@ -19,6 +19,7 @@ extensions = [
     "myst_nb",
     "autoapi.extension",
     "sphinx.ext.napoleon",
+    "sphinx.ext.githubpages",
     "sphinx.ext.viewcode",
     "sphinx_paramlinks",
 ]
@@ -35,3 +36,7 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 # a list of builtin themes.
 #
 html_theme = "furo"
+html_title = "AGN Approx Documentation"
+html_baseurl = "https://etrommer.github.io/agn-approx"
+html_logo = "https://raw.githubusercontent.com/etrommer/agn-approx/main/docs/agnapprox_logo.png"
+html_favicon = 'agnapprox_icon.png'
