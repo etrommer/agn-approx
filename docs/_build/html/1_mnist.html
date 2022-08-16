@@ -3,7 +3,7 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
-<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Changelog" href="changelog.html" /><link rel="prev" title="AGN Approx" href="index.html" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Tutorial 2: Define your own network" href="2_custom_network.html" /><link rel="prev" title="AGN Approx" href="index.html" />
         <link rel="canonical" href="https://etrommer.github.io/agn-approx/1_mnist.html" />
 
     <link rel="shortcut icon" href="_static/agnapprox_icon.png"/><meta name="generator" content="sphinx-5.1.1, furo 2022.06.21"/>
@@ -164,6 +164,7 @@
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <ul class="current">
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Tutorial 1: Approximate MNIST</a></li>
+<li class="toctree-l1"><a class="reference internal" href="2_custom_network.html">Tutorial 2: Define your own network</a></li>
 <li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="conduct.html">Code of Conduct</a></li>
@@ -318,11 +319,19 @@
 0.248     Total estimated model params size (MB)
 </pre></div>
 </div>
-<script type="application/vnd.jupyter.widget-view+json">{"version_major": 2, "version_minor": 0, "model_id": "4da7916b82d34c79bdb7c27fd57e83b7"}</script><script type="application/vnd.jupyter.widget-view+json">{"version_major": 2, "version_minor": 0, "model_id": "052485f85f71467bb2a9efc8bc4792d2"}</script><script type="application/vnd.jupyter.widget-view+json">{"version_major": 2, "version_minor": 0, "model_id": "8efdd022fa0644b79ce3597698fe0b6a"}</script><div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>/home/elias/agn-approx/.venv/lib/python3.8/site-packages/pytorch_lightning/trainer/trainer.py:653: UserWarning: Detected KeyboardInterrupt, attempting graceful shutdown...
+<script type="application/vnd.jupyter.widget-view+json">{"version_major": 2, "version_minor": 0, "model_id": "3a5c4dcd9fee4f1ead5dfeb83727d164"}</script><script type="application/vnd.jupyter.widget-view+json">{"version_major": 2, "version_minor": 0, "model_id": "30cb1bd4153a46d8924c125a88c391a6"}</script><script type="application/vnd.jupyter.widget-view+json">{"version_major": 2, "version_minor": 0, "model_id": "dd2c9502a8434687895b07d9b35ac963"}</script><div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>/home/elias/agn-approx/.venv/lib/python3.8/site-packages/pytorch_lightning/trainer/trainer.py:653: UserWarning: Detected KeyboardInterrupt, attempting graceful shutdown...
   rank_zero_warn(&quot;Detected KeyboardInterrupt, attempting graceful shutdown...&quot;)
 </pre></div>
 </div>
-<script type="application/vnd.jupyter.widget-view+json">{"version_major": 2, "version_minor": 0, "model_id": "4494287c98374d57b6b226698892bb2b"}</script></div>
+<script type="application/vnd.jupyter.widget-view+json">{"version_major": 2, "version_minor": 0, "model_id": "f7db46da962545e08deb232d3d3e5303"}</script><div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+       Test metric             DataLoader 0
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+      test_acc_top1         0.9850999712944031
+        test_loss           0.04709929972887039
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+</pre></div>
+</div>
+</div>
 </div>
 <p>Next, we optimze the model for 8-Bit quantization using the <code class="docutils literal notranslate"><span class="pre">train_quant</span></code> functions. If you are wondering where the training hyperparameters like optimizer, learning rate, learning rate schedule etc. are coming from: They are also pre-defined in the network’s definition.</p>
 <div class="cell docutils container">
@@ -347,7 +356,7 @@ HPU available: False, using: 0 HPUs
 0.248     Total estimated model params size (MB)
 </pre></div>
 </div>
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "cbdf6ad6afa64702b8b4051933c62afb", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "8f74e654f57e403b9af5f385863f19dd", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "de20614fe2444954816f4346d782c500", "version_major": 2, "version_minor": 0}</script><div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>`Trainer.fit` stopped: `max_epochs=1` reached.
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "1454c6fe1216449ca6eabd69ac8daa0e", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "592ba38cd6cc457c83a7664583e5b8d5", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "53ca5e40750b428eb2f4738815a8b93d", "version_major": 2, "version_minor": 0}</script><div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>`Trainer.fit` stopped: `max_epochs=1` reached.
 </pre></div>
 </div>
 </div>
@@ -382,28 +391,28 @@ HPU available: False, using: 0 HPUs
 0.248     Total estimated model params size (MB)
 </pre></div>
 </div>
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "6d4a77f23c5c42f19ab7e458117137d9", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "e9303f2fc2bb496fa569c8aabc9225a3", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "f5834429021d4f1c80d97def42220dcd", "version_major": 2, "version_minor": 0}</script><div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>INFO:agnapprox.nets.approxnet:Epoch: 0
-INFO:agnapprox.nets.approxnet:Layer: model.conv1.0 | sigma_l: +0.064
-INFO:agnapprox.nets.approxnet:Layer: model.conv2.0 | sigma_l: +0.380
-INFO:agnapprox.nets.approxnet:Layer: model.linear1 | sigma_l: +0.098
-INFO:agnapprox.nets.approxnet:Layer: model.linear2 | sigma_l: +0.045
-INFO:agnapprox.nets.approxnet:Layer: model.linear3 | sigma_l: +0.011
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "7683830f92114084a72cc4337ab42198", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "6fdbdb96d8584c13b33b08c94df06a19", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "bf21fb4e494140df9a969e475978d95c", "version_major": 2, "version_minor": 0}</script><div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>INFO:agnapprox.nets.approxnet:Epoch: 0
+INFO:agnapprox.nets.approxnet:Layer: model.conv1.0 | sigma_l: +0.061
+INFO:agnapprox.nets.approxnet:Layer: model.conv2.0 | sigma_l: +0.426
+INFO:agnapprox.nets.approxnet:Layer: model.linear1 | sigma_l: +0.091
+INFO:agnapprox.nets.approxnet:Layer: model.linear2 | sigma_l: +0.051
+INFO:agnapprox.nets.approxnet:Layer: model.linear3 | sigma_l: +0.017
 </pre></div>
 </div>
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "f8760ab806674e3f88e2a25915ee756a", "version_major": 2, "version_minor": 0}</script><div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>INFO:agnapprox.nets.approxnet:Epoch: 1
-INFO:agnapprox.nets.approxnet:Layer: model.conv1.0 | sigma_l: +0.065
-INFO:agnapprox.nets.approxnet:Layer: model.conv2.0 | sigma_l: +0.491
-INFO:agnapprox.nets.approxnet:Layer: model.linear1 | sigma_l: +0.103
-INFO:agnapprox.nets.approxnet:Layer: model.linear2 | sigma_l: +0.049
-INFO:agnapprox.nets.approxnet:Layer: model.linear3 | sigma_l: +0.014
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "edc078583cfc49fa82e91885b8e40cad", "version_major": 2, "version_minor": 0}</script><div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>INFO:agnapprox.nets.approxnet:Epoch: 1
+INFO:agnapprox.nets.approxnet:Layer: model.conv1.0 | sigma_l: +0.051
+INFO:agnapprox.nets.approxnet:Layer: model.conv2.0 | sigma_l: +0.500
+INFO:agnapprox.nets.approxnet:Layer: model.linear1 | sigma_l: +0.068
+INFO:agnapprox.nets.approxnet:Layer: model.linear2 | sigma_l: +0.063
+INFO:agnapprox.nets.approxnet:Layer: model.linear3 | sigma_l: +0.003
 </pre></div>
 </div>
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "cec2b7fadeda4ef0aac65e76cfce2ff5", "version_major": 2, "version_minor": 0}</script><div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>INFO:agnapprox.nets.approxnet:Epoch: 2
-INFO:agnapprox.nets.approxnet:Layer: model.conv1.0 | sigma_l: +0.069
-INFO:agnapprox.nets.approxnet:Layer: model.conv2.0 | sigma_l: +0.499
-INFO:agnapprox.nets.approxnet:Layer: model.linear1 | sigma_l: +0.107
-INFO:agnapprox.nets.approxnet:Layer: model.linear2 | sigma_l: +0.062
-INFO:agnapprox.nets.approxnet:Layer: model.linear3 | sigma_l: -0.006
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "de4b43494e3f465f897d47534c0f7129", "version_major": 2, "version_minor": 0}</script><div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>INFO:agnapprox.nets.approxnet:Epoch: 2
+INFO:agnapprox.nets.approxnet:Layer: model.conv1.0 | sigma_l: +0.074
+INFO:agnapprox.nets.approxnet:Layer: model.conv2.0 | sigma_l: +0.500
+INFO:agnapprox.nets.approxnet:Layer: model.linear1 | sigma_l: +0.093
+INFO:agnapprox.nets.approxnet:Layer: model.linear2 | sigma_l: +0.081
+INFO:agnapprox.nets.approxnet:Layer: model.linear3 | sigma_l: -0.004
 </pre></div>
 </div>
 <div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>`Trainer.fit` stopped: `max_epochs=3` reached.
@@ -475,7 +484,7 @@ HPU available: False, using: 0 HPUs
 </div>
 </div>
 <div class="cell_output docutils container">
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "db648b10202c4bad85ed5e01adea1ca3", "version_major": 2, "version_minor": 0}</script><div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>INFO:agnapprox.utils.select_multipliers:Layer: model.conv1.0, Best Match: mul8s_1L2H, Performance: 0.301000, Relative Performance: 0.708235
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "847e7560d79e44e1ac95deb7fa89f751", "version_major": 2, "version_minor": 0}</script><div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>INFO:agnapprox.utils.select_multipliers:Layer: model.conv1.0, Best Match: mul8s_1L2H, Performance: 0.301000, Relative Performance: 0.708235
 INFO:agnapprox.utils.select_multipliers:Layer: model.conv2.0, Best Match: mul8s_1L1G, Performance: 0.126000, Relative Performance: 0.296471
 INFO:agnapprox.utils.select_multipliers:Layer: model.linear1, Best Match: mul8s_1L2D, Performance: 0.200000, Relative Performance: 0.470588
 INFO:agnapprox.utils.select_multipliers:Layer: model.linear2, Best Match: mul8s_1L2D, Performance: 0.200000, Relative Performance: 0.470588
@@ -543,19 +552,62 @@ HPU available: False, using: 0 HPUs
 0.248     Total estimated model params size (MB)
 </pre></div>
 </div>
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "7ee83253ccd145aabe7719eda971cd96", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "f43c7eb452914c9f8d500554ce52de4e", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "22af0a8be6904c689e327b9547edd010", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "6970077b200548b7a00971b48d88e5c4", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "4c74ae0cc04740f19d412b2626aeb845", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "d00471dfd6984c0ba4470f761297f6d6", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "8d94abcb8e9140e39945b613de30d62a", "version_major": 2, "version_minor": 0}</script><div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>`Trainer.fit` stopped: `max_epochs=5` reached.
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "5594f60c19414d879fca30c98db97d50", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "404c3648713e477aa0f973725b8f3deb", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "949476a1d11f41f68817555eca7cd20e", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "fa948679fc574e65a11c5eb7b8120aa9", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "dcb58aa125b748aa853be5b94fcf020b", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "5bf7b088d63d4d2599bd2a5772e3da8c", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "5b7253d0d144443ba5ae14c14a70ecef", "version_major": 2, "version_minor": 0}</script><div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>`Trainer.fit` stopped: `max_epochs=5` reached.
 </pre></div>
 </div>
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "e8faa034ed974fbfbfa7012e79372e8c", "version_major": 2, "version_minor": 0}</script><div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "956576d97d1049ce84485d0182fcb4ef", "version_major": 2, "version_minor": 0}</script><div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
        Test metric             DataLoader 0
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-      test_acc_top1         0.9915000200271606
-        test_loss          0.031246893107891083
+      test_acc_top1         0.9914000034332275
+        test_loss           0.02799428068101406
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 </pre></div>
 </div>
 </div>
 </div>
+</section>
+<section id="uniform-approximation">
+<h2>Uniform approximation<a class="headerlink" href="#uniform-approximation" title="Permalink to this heading">#</a></h2>
+<p>Finally, we can compare that to a uniform solution where the same approximate multiplier is used across all layers</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">n</span><span class="p">,</span><span class="n">m</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">noisy_modules</span><span class="p">:</span>
+    <span class="n">m</span><span class="o">.</span><span class="n">approx_op</span><span class="o">.</span><span class="n">lut</span> <span class="o">=</span> <span class="n">evo</span><span class="o">.</span><span class="n">load_lut</span><span class="p">(</span><span class="s1">&#39;mul8s_1L2D&#39;</span><span class="p">)</span>
+
+<span class="n">model</span><span class="o">.</span><span class="n">train_approx</span><span class="p">(</span><span class="n">dm</span><span class="p">,</span> <span class="n">test</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>GPU available: False, used: False
+TPU available: False, using: 0 TPU cores
+IPU available: False, using: 0 IPUs
+HPU available: False, using: 0 HPUs
+
+  | Name  | Type   | Params
+---------------------------------
+0 | model | LeNet5 | 61.9 K
+---------------------------------
+61.9 K    Trainable params
+0         Non-trainable params
+61.9 K    Total params
+0.248     Total estimated model params size (MB)
+</pre></div>
+</div>
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "d995a93c3ec84ff0903f87f7aaad5eb6", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "283dbcd7598f414dad89f84f9f630983", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "873ec3f95fb0469297d2facc3efe97ee", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "d1cb394fbaf94b71a9c6ade0be537170", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "f3763bc29db44060b978d5a22219c7c5", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "3e1671743999406e94f27ddac57e7f30", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "36b1041ba3d04c20872bcdcffdd21456", "version_major": 2, "version_minor": 0}</script><div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>`Trainer.fit` stopped: `max_epochs=5` reached.
+</pre></div>
+</div>
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "06c304bc2e1c459fa9a6fafa3ebb6eac", "version_major": 2, "version_minor": 0}</script><div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+       Test metric             DataLoader 0
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+      test_acc_top1         0.9918000102043152
+        test_loss          0.025801436975598335
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+</pre></div>
+</div>
+</div>
+</div>
+<p>Depending on your initialization, the uniform solution might sometimes end up having a slightly better accuracy compared to the heterogeneous solution. This is because MNIST is an extremely simple problem and this notebook does not used hyperparameters that are particularly well-tuned.</p>
 </section>
 </section>
 
@@ -564,12 +616,12 @@ HPU available: False, using: 0 HPUs
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="changelog.html">
+          <a class="next-page" href="2_custom_network.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">Changelog</div>
+                <div class="title">Tutorial 2: Define your own network</div>
               </div>
               <svg><use href="#svg-arrow-right"></use></svg>
             </a>
@@ -624,6 +676,7 @@ HPU available: False, using: 0 HPUs
 </ul>
 </li>
 <li><a class="reference internal" href="#approximate-retraining">Approximate Retraining</a></li>
+<li><a class="reference internal" href="#uniform-approximation">Uniform approximation</a></li>
 </ul>
 </li>
 </ul>

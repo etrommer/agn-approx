@@ -1,0 +1,307 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Tutorial 2: Define your own network\n",
+    "\n",
+    "In the second tutorial, we will go over how to define your own network and optimize it in `agnapprox`. To keep things simple, we will continue to use the MNIST dataset."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "%load_ext autoreload\n",
+    "%autoreload 2"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from agnapprox.datamodules import MNIST"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "dm = MNIST(batch_size=128, num_workers=4)\n",
+    "dm.prepare_data()\n",
+    "dm.setup()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "We start by defining an extremely simple Neural Network with two Convolutional and one linear layer. Performance is likely not going to be great which is completely fine because it allows us to keep things simple.\n",
+    "We can define our NN like any other network in vanilla PyTorch."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import torch.nn as nn\n",
+    "\n",
+    "class TinyMNISTNet(nn.Module):\n",
+    "    \"\"\"\n",
+    "    Defintion of vanilla LeNet5 architecture torch.nn.Module\n",
+    "    \"\"\"\n",
+    "\n",
+    "    def __init__(self, num_classes):\n",
+    "        super().__init__()\n",
+    "        self.conv1 = nn.Sequential(\n",
+    "            nn.Conv2d(1, 8, kernel_size=5, stride=1, padding=2, bias=False),\n",
+    "            nn.BatchNorm2d(8),\n",
+    "            nn.ReLU(),\n",
+    "            nn.MaxPool2d(kernel_size=2, stride=2),\n",
+    "        )\n",
+    "        self.conv2 = nn.Sequential(\n",
+    "            nn.Conv2d(8, 16, kernel_size=5, stride=2, padding=0, bias=False),\n",
+    "            nn.BatchNorm2d(16),\n",
+    "            nn.ReLU(),\n",
+    "            nn.MaxPool2d(kernel_size=2, stride=2),\n",
+    "        )\n",
+    "        self.linear1 = nn.Linear(64, num_classes)\n",
+    "\n",
+    "    def forward(self, features):\n",
+    "        out = self.conv1(features)\n",
+    "        out = self.conv2(out)\n",
+    "        out = out.reshape(out.size(0), -1)\n",
+    "        out = self.linear1(out)\n",
+    "        return out"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Next, we wrap our network in a class that is derived from `agnapprox.nets.ApproxNet`. This adds a few extra features to our network, most importantly:\n",
+    "- Let `pytorch-lightning` handle the model training\n",
+    "- Track model metrics using MLFlow\n",
+    "- Handle the different optimizer and scheduler configurations for the different training stages\n",
+    "- The conversion of the vanilla Conv2d and Linear layers to approximate/noisy layers is handled by agnapprox internally. After instantiating, the `gather_noisy_modules()` method is called. This method identifies all target layers and replaces them with an upgraded version from the `torchapprox` library. These layer implementation bring additional functionality that implements the different training modes.\n",
+    "\n",
+    "The full definition of an `ApproxNet` instance looks like this:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "CUDA not found, running on CPU\n"
+     ]
+    }
+   ],
+   "source": [
+    "from agnapprox.nets import ApproxNet\n",
+    "import torch.optim as optim\n",
+    "\n",
+    "class TinyApproxNet(ApproxNet):\n",
+    "    \"\"\"\n",
+    "    Definition of training hyperparameters for\n",
+    "    approximate LeNet5\n",
+    "    \"\"\"\n",
+    "\n",
+    "    def __init__(self):\n",
+    "        super().__init__()\n",
+    "        # Instance of our model\n",
+    "        self.model = TinyMNISTNet(10)\n",
+    "        # Experiment name passed to MLFlow\n",
+    "        self.name = \"TinyMNISTNet\"\n",
+    "        # TopK metrics to keep track of\n",
+    "        self.topk = (1,)\n",
+    "        # Default number of epochs for each of the training stages\n",
+    "        # can be overridden by passing 'epochs=...' to the respective training functions\n",
+    "        self.epochs = {\n",
+    "            \"baseline\": 5,\n",
+    "            \"gradient_search\": 2,\n",
+    "            \"qat\": 1,\n",
+    "            \"approx\": 3,\n",
+    "        }\n",
+    "        # Maximum number of GPUs to train on if available\n",
+    "        self.num_gpus = 1\n",
+    "        # Pass model to agnapprox to identify target layers and upgrade them to noisy/approximate layers\n",
+    "        self.gather_noisy_modules()\n",
+    "\n",
+    "    # Define the respective optimizers, schedulers, learning rates, etc. for each stage\n",
+    "    def _baseline_optimizers(self):\n",
+    "        optimizer = optim.SGD(\n",
+    "            self.parameters(), lr=0.1, momentum=0.9, weight_decay=1e-4\n",
+    "        )\n",
+    "        scheduler = optim.lr_scheduler.StepLR(optimizer, 3, gamma=0.75)\n",
+    "        return [optimizer], [scheduler]\n",
+    "\n",
+    "    def _qat_optimizers(self):\n",
+    "        optimizer = optim.SGD(self.parameters(), lr=1e-3, momentum=0.9)\n",
+    "        return [optimizer], []\n",
+    "\n",
+    "    def _gs_optimizers(self):\n",
+    "        return self._qat_optimizers\n",
+    " \n",
+    "    def _approx_optimizers(self):\n",
+    "        optimizer = optim.SGD(self.parameters(), lr=1e-3, momentum=0.9)\n",
+    "        scheduler = optim.lr_scheduler.StepLR(optimizer, 2)\n",
+    "        return [optimizer], [scheduler]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "After setting up the network like this, we can run the individual training stages, just like we've seen in the first tutorial."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "GPU available: False, used: False\n",
+      "TPU available: False, using: 0 TPU cores\n",
+      "IPU available: False, using: 0 IPUs\n",
+      "HPU available: False, using: 0 HPUs\n",
+      "\n",
+      "  | Name  | Type         | Params\n",
+      "---------------------------------------\n",
+      "0 | model | TinyMNISTNet | 4.1 K \n",
+      "---------------------------------------\n",
+      "4.1 K     Trainable params\n",
+      "0         Non-trainable params\n",
+      "4.1 K     Total params\n",
+      "0.016     Total estimated model params size (MB)\n"
+     ]
+    },
+    {
+     "data": {
+      "application/vnd.jupyter.widget-view+json": {
+       "model_id": "e8dc492b809841a8b0824cc9cc6dad36",
+       "version_major": 2,
+       "version_minor": 0
+      },
+      "text/plain": [
+       "Sanity Checking: 0it [00:00, ?it/s]"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "application/vnd.jupyter.widget-view+json": {
+       "model_id": "f2517def739349aaa01a07f8f741946a",
+       "version_major": 2,
+       "version_minor": 0
+      },
+      "text/plain": [
+       "Training: 0it [00:00, ?it/s]"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "application/vnd.jupyter.widget-view+json": {
+       "model_id": "57d61fc136784dc387d10f0ba0e46228",
+       "version_major": 2,
+       "version_minor": 0
+      },
+      "text/plain": [
+       "Validation: 0it [00:00, ?it/s]"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "application/vnd.jupyter.widget-view+json": {
+       "model_id": "da24ac0479084032a06289e686d5d5c8",
+       "version_major": 2,
+       "version_minor": 0
+      },
+      "text/plain": [
+       "Validation: 0it [00:00, ?it/s]"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "application/vnd.jupyter.widget-view+json": {
+       "model_id": "276fcf66c0c145688d34808f5a67731d",
+       "version_major": 2,
+       "version_minor": 0
+      },
+      "text/plain": [
+       "Validation: 0it [00:00, ?it/s]"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "model = TinyApproxNet()\n",
+    "model.train_baseline(dm, test=True)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3.8.10 ('.venv': poetry)",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.8.10"
+  },
+  "orig_nbformat": 4,
+  "vscode": {
+   "interpreter": {
+    "hash": "bcfbc26219664d5aa2275c301081fce34ef3822c3b58c6fc90979e47294771c3"
+   }
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 2
+}

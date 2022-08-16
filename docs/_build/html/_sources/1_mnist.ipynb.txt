@@ -12,18 +12,9 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 6,
+   "execution_count": 2,
    "metadata": {},
-   "outputs": [
-    {
-     "name": "stdout",
-     "output_type": "stream",
-     "text": [
-      "The autoreload extension is already loaded. To reload it, use:\n",
-      "  %reload_ext autoreload\n"
-     ]
-    }
-   ],
+   "outputs": [],
    "source": [
     "%load_ext autoreload\n",
     "%autoreload 2"
@@ -31,9 +22,17 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 7,
+   "execution_count": 3,
    "metadata": {},
-   "outputs": [],
+   "outputs": [
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "CUDA not found, running on CPU\n"
+     ]
+    }
+   ],
    "source": [
     "from agnapprox.nets import LeNet5\n",
     "from agnapprox.datamodules import MNIST"
@@ -48,7 +47,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 8,
+   "execution_count": 4,
    "metadata": {},
    "outputs": [],
    "source": [
@@ -66,7 +65,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 9,
+   "execution_count": 5,
    "metadata": {},
    "outputs": [],
    "source": [
@@ -92,7 +91,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 10,
+   "execution_count": 6,
    "metadata": {},
    "outputs": [
     {
@@ -117,7 +116,7 @@
     {
      "data": {
       "application/vnd.jupyter.widget-view+json": {
-       "model_id": "9a259fc9206c48cdabd25c28aee21343",
+       "model_id": "1553328579ee44f7a5186f6eec10bb7c",
        "version_major": 2,
        "version_minor": 0
       },
@@ -131,7 +130,7 @@
     {
      "data": {
       "application/vnd.jupyter.widget-view+json": {
-       "model_id": "9fd0087c587e43bd8119a280d0bf8c74",
+       "model_id": "ca8e15e96df6460f91c9090496f2a6c1",
        "version_major": 2,
        "version_minor": 0
       },
@@ -145,7 +144,7 @@
     {
      "data": {
       "application/vnd.jupyter.widget-view+json": {
-       "model_id": "acc76c48833e4fde8b6534301875ffd0",
+       "model_id": "48b250e91d7a4a1786952e38f29e2f3e",
        "version_major": 2,
        "version_minor": 0
       },
@@ -159,7 +158,7 @@
     {
      "data": {
       "application/vnd.jupyter.widget-view+json": {
-       "model_id": "937975590b1b43288b8a1b44d8042da5",
+       "model_id": "56ca84cbc3ba4b5985a8a890c57b89ce",
        "version_major": 2,
        "version_minor": 0
       },
@@ -173,7 +172,7 @@
     {
      "data": {
       "application/vnd.jupyter.widget-view+json": {
-       "model_id": "7edf046dd8c94df9815846d239ff8622",
+       "model_id": "7aa3d90de8c2438fa78e0d7e2d1ff913",
        "version_major": 2,
        "version_minor": 0
       },
@@ -187,7 +186,7 @@
     {
      "data": {
       "application/vnd.jupyter.widget-view+json": {
-       "model_id": "5dd7ec7cc15a43d982a37ea4aa605fbb",
+       "model_id": "4c4a938c841f4569aa610c4c50715fc5",
        "version_major": 2,
        "version_minor": 0
       },
@@ -201,7 +200,49 @@
     {
      "data": {
       "application/vnd.jupyter.widget-view+json": {
-       "model_id": "a789ca6663194f8da9b008dd42c4102d",
+       "model_id": "2ea4978f55c94106a5c470be578fe638",
+       "version_major": 2,
+       "version_minor": 0
+      },
+      "text/plain": [
+       "Validation: 0it [00:00, ?it/s]"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "application/vnd.jupyter.widget-view+json": {
+       "model_id": "41f29bbfc13f4866b65384871318d549",
+       "version_major": 2,
+       "version_minor": 0
+      },
+      "text/plain": [
+       "Validation: 0it [00:00, ?it/s]"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "application/vnd.jupyter.widget-view+json": {
+       "model_id": "c2b29866fcff471b8433d9f198c90b6a",
+       "version_major": 2,
+       "version_minor": 0
+      },
+      "text/plain": [
+       "Validation: 0it [00:00, ?it/s]"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "application/vnd.jupyter.widget-view+json": {
+       "model_id": "933cad870bb0417387d2f87d16deb054",
        "version_major": 2,
        "version_minor": 0
       },
@@ -216,13 +257,13 @@
      "name": "stderr",
      "output_type": "stream",
      "text": [
-      "`Trainer.fit` stopped: `max_epochs=5` reached.\n"
+      "`Trainer.fit` stopped: `max_epochs=8` reached.\n"
      ]
     },
     {
      "data": {
       "application/vnd.jupyter.widget-view+json": {
-       "model_id": "154dbcb97a504c80942eb3f3c5c467f5",
+       "model_id": "e015a5d0b24147d2a8fee694b7b1ec56",
        "version_major": 2,
        "version_minor": 0
       },
@@ -240,8 +281,8 @@
       "────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────\n",
       "       Test metric             DataLoader 0\n",
       "────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────\n",
-      "      test_acc_top1         0.9894999861717224\n",
-      "        test_loss           0.03623034432530403\n",
+      "      test_acc_top1         0.9909999966621399\n",
+      "        test_loss          0.029996059834957123\n",
       "────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────\n"
      ]
     }
@@ -259,7 +300,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 11,
+   "execution_count": 7,
    "metadata": {},
    "outputs": [
     {
@@ -284,7 +325,7 @@
     {
      "data": {
       "application/vnd.jupyter.widget-view+json": {
-       "model_id": "cbdf6ad6afa64702b8b4051933c62afb",
+       "model_id": "1454c6fe1216449ca6eabd69ac8daa0e",
        "version_major": 2,
        "version_minor": 0
       },
@@ -298,7 +339,7 @@
     {
      "data": {
       "application/vnd.jupyter.widget-view+json": {
-       "model_id": "8f74e654f57e403b9af5f385863f19dd",
+       "model_id": "592ba38cd6cc457c83a7664583e5b8d5",
        "version_major": 2,
        "version_minor": 0
       },
@@ -312,7 +353,7 @@
     {
      "data": {
       "application/vnd.jupyter.widget-view+json": {
-       "model_id": "de20614fe2444954816f4346d782c500",
+       "model_id": "53ca5e40750b428eb2f4738815a8b93d",
        "version_major": 2,
        "version_minor": 0
       },
@@ -346,7 +387,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 12,
+   "execution_count": 8,
    "metadata": {},
    "outputs": [
     {
@@ -371,7 +412,7 @@
     {
      "data": {
       "application/vnd.jupyter.widget-view+json": {
-       "model_id": "6d4a77f23c5c42f19ab7e458117137d9",
+       "model_id": "7683830f92114084a72cc4337ab42198",
        "version_major": 2,
        "version_minor": 0
       },
@@ -385,7 +426,7 @@
     {
      "data": {
       "application/vnd.jupyter.widget-view+json": {
-       "model_id": "e9303f2fc2bb496fa569c8aabc9225a3",
+       "model_id": "6fdbdb96d8584c13b33b08c94df06a19",
        "version_major": 2,
        "version_minor": 0
       },
@@ -399,7 +440,7 @@
     {
      "data": {
       "application/vnd.jupyter.widget-view+json": {
-       "model_id": "f5834429021d4f1c80d97def42220dcd",
+       "model_id": "bf21fb4e494140df9a969e475978d95c",
        "version_major": 2,
        "version_minor": 0
       },
@@ -415,17 +456,17 @@
      "output_type": "stream",
      "text": [
       "INFO:agnapprox.nets.approxnet:Epoch: 0\n",
-      "INFO:agnapprox.nets.approxnet:Layer: model.conv1.0 | sigma_l: +0.064\n",
-      "INFO:agnapprox.nets.approxnet:Layer: model.conv2.0 | sigma_l: +0.380\n",
-      "INFO:agnapprox.nets.approxnet:Layer: model.linear1 | sigma_l: +0.098\n",
-      "INFO:agnapprox.nets.approxnet:Layer: model.linear2 | sigma_l: +0.045\n",
-      "INFO:agnapprox.nets.approxnet:Layer: model.linear3 | sigma_l: +0.011\n"
+      "INFO:agnapprox.nets.approxnet:Layer: model.conv1.0 | sigma_l: +0.061\n",
+      "INFO:agnapprox.nets.approxnet:Layer: model.conv2.0 | sigma_l: +0.426\n",
+      "INFO:agnapprox.nets.approxnet:Layer: model.linear1 | sigma_l: +0.091\n",
+      "INFO:agnapprox.nets.approxnet:Layer: model.linear2 | sigma_l: +0.051\n",
+      "INFO:agnapprox.nets.approxnet:Layer: model.linear3 | sigma_l: +0.017\n"
      ]
     },
     {
      "data": {
       "application/vnd.jupyter.widget-view+json": {
-       "model_id": "f8760ab806674e3f88e2a25915ee756a",
+       "model_id": "edc078583cfc49fa82e91885b8e40cad",
        "version_major": 2,
        "version_minor": 0
       },
@@ -441,17 +482,17 @@
      "output_type": "stream",
      "text": [
       "INFO:agnapprox.nets.approxnet:Epoch: 1\n",
-      "INFO:agnapprox.nets.approxnet:Layer: model.conv1.0 | sigma_l: +0.065\n",
-      "INFO:agnapprox.nets.approxnet:Layer: model.conv2.0 | sigma_l: +0.491\n",
-      "INFO:agnapprox.nets.approxnet:Layer: model.linear1 | sigma_l: +0.103\n",
-      "INFO:agnapprox.nets.approxnet:Layer: model.linear2 | sigma_l: +0.049\n",
-      "INFO:agnapprox.nets.approxnet:Layer: model.linear3 | sigma_l: +0.014\n"
+      "INFO:agnapprox.nets.approxnet:Layer: model.conv1.0 | sigma_l: +0.051\n",
+      "INFO:agnapprox.nets.approxnet:Layer: model.conv2.0 | sigma_l: +0.500\n",
+      "INFO:agnapprox.nets.approxnet:Layer: model.linear1 | sigma_l: +0.068\n",
+      "INFO:agnapprox.nets.approxnet:Layer: model.linear2 | sigma_l: +0.063\n",
+      "INFO:agnapprox.nets.approxnet:Layer: model.linear3 | sigma_l: +0.003\n"
      ]
     },
     {
      "data": {
       "application/vnd.jupyter.widget-view+json": {
-       "model_id": "cec2b7fadeda4ef0aac65e76cfce2ff5",
+       "model_id": "de4b43494e3f465f897d47534c0f7129",
        "version_major": 2,
        "version_minor": 0
       },
@@ -467,11 +508,11 @@
      "output_type": "stream",
      "text": [
       "INFO:agnapprox.nets.approxnet:Epoch: 2\n",
-      "INFO:agnapprox.nets.approxnet:Layer: model.conv1.0 | sigma_l: +0.069\n",
-      "INFO:agnapprox.nets.approxnet:Layer: model.conv2.0 | sigma_l: +0.499\n",
-      "INFO:agnapprox.nets.approxnet:Layer: model.linear1 | sigma_l: +0.107\n",
-      "INFO:agnapprox.nets.approxnet:Layer: model.linear2 | sigma_l: +0.062\n",
-      "INFO:agnapprox.nets.approxnet:Layer: model.linear3 | sigma_l: -0.006\n"
+      "INFO:agnapprox.nets.approxnet:Layer: model.conv1.0 | sigma_l: +0.074\n",
+      "INFO:agnapprox.nets.approxnet:Layer: model.conv2.0 | sigma_l: +0.500\n",
+      "INFO:agnapprox.nets.approxnet:Layer: model.linear1 | sigma_l: +0.093\n",
+      "INFO:agnapprox.nets.approxnet:Layer: model.linear2 | sigma_l: +0.081\n",
+      "INFO:agnapprox.nets.approxnet:Layer: model.linear3 | sigma_l: -0.004\n"
      ]
     },
     {
@@ -522,7 +563,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 13,
+   "execution_count": 9,
    "metadata": {},
    "outputs": [
     {
@@ -558,13 +599,13 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 14,
+   "execution_count": 10,
    "metadata": {},
    "outputs": [
     {
      "data": {
       "application/vnd.jupyter.widget-view+json": {
-       "model_id": "db648b10202c4bad85ed5e01adea1ca3",
+       "model_id": "847e7560d79e44e1ac95deb7fa89f751",
        "version_major": 2,
        "version_minor": 0
       },
@@ -605,7 +646,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 15,
+   "execution_count": 11,
    "metadata": {},
    "outputs": [
     {
@@ -657,7 +698,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 16,
+   "execution_count": 12,
    "metadata": {},
    "outputs": [
     {
@@ -682,7 +723,7 @@
     {
      "data": {
       "application/vnd.jupyter.widget-view+json": {
-       "model_id": "7ee83253ccd145aabe7719eda971cd96",
+       "model_id": "5594f60c19414d879fca30c98db97d50",
        "version_major": 2,
        "version_minor": 0
       },
@@ -696,7 +737,7 @@
     {
      "data": {
       "application/vnd.jupyter.widget-view+json": {
-       "model_id": "f43c7eb452914c9f8d500554ce52de4e",
+       "model_id": "404c3648713e477aa0f973725b8f3deb",
        "version_major": 2,
        "version_minor": 0
       },
@@ -710,7 +751,7 @@
     {
      "data": {
       "application/vnd.jupyter.widget-view+json": {
-       "model_id": "22af0a8be6904c689e327b9547edd010",
+       "model_id": "949476a1d11f41f68817555eca7cd20e",
        "version_major": 2,
        "version_minor": 0
       },
@@ -724,7 +765,7 @@
     {
      "data": {
       "application/vnd.jupyter.widget-view+json": {
-       "model_id": "6970077b200548b7a00971b48d88e5c4",
+       "model_id": "fa948679fc574e65a11c5eb7b8120aa9",
        "version_major": 2,
        "version_minor": 0
       },
@@ -738,7 +779,7 @@
     {
      "data": {
       "application/vnd.jupyter.widget-view+json": {
-       "model_id": "4c74ae0cc04740f19d412b2626aeb845",
+       "model_id": "dcb58aa125b748aa853be5b94fcf020b",
        "version_major": 2,
        "version_minor": 0
       },
@@ -752,7 +793,7 @@
     {
      "data": {
       "application/vnd.jupyter.widget-view+json": {
-       "model_id": "d00471dfd6984c0ba4470f761297f6d6",
+       "model_id": "5bf7b088d63d4d2599bd2a5772e3da8c",
        "version_major": 2,
        "version_minor": 0
       },
@@ -766,7 +807,7 @@
     {
      "data": {
       "application/vnd.jupyter.widget-view+json": {
-       "model_id": "8d94abcb8e9140e39945b613de30d62a",
+       "model_id": "5b7253d0d144443ba5ae14c14a70ecef",
        "version_major": 2,
        "version_minor": 0
       },
@@ -787,7 +828,7 @@
     {
      "data": {
       "application/vnd.jupyter.widget-view+json": {
-       "model_id": "e8faa034ed974fbfbfa7012e79372e8c",
+       "model_id": "956576d97d1049ce84485d0182fcb4ef",
        "version_major": 2,
        "version_minor": 0
       },
@@ -805,8 +846,8 @@
       "────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────\n",
       "       Test metric             DataLoader 0\n",
       "────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────\n",
-      "      test_acc_top1         0.9915000200271606\n",
-      "        test_loss          0.031246893107891083\n",
+      "      test_acc_top1         0.9914000034332275\n",
+      "        test_loss           0.02799428068101406\n",
       "────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────\n"
      ]
     }
@@ -816,11 +857,183 @@
    ]
   },
   {
-   "cell_type": "code",
-   "execution_count": null,
+   "cell_type": "markdown",
    "metadata": {},
-   "outputs": [],
-   "source": []
+   "source": [
+    "## Uniform approximation\n",
+    "\n",
+    "Finally, we can compare that to a uniform solution where the same approximate multiplier is used across all layers"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 13,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "GPU available: False, used: False\n",
+      "TPU available: False, using: 0 TPU cores\n",
+      "IPU available: False, using: 0 IPUs\n",
+      "HPU available: False, using: 0 HPUs\n",
+      "\n",
+      "  | Name  | Type   | Params\n",
+      "---------------------------------\n",
+      "0 | model | LeNet5 | 61.9 K\n",
+      "---------------------------------\n",
+      "61.9 K    Trainable params\n",
+      "0         Non-trainable params\n",
+      "61.9 K    Total params\n",
+      "0.248     Total estimated model params size (MB)\n"
+     ]
+    },
+    {
+     "data": {
+      "application/vnd.jupyter.widget-view+json": {
+       "model_id": "d995a93c3ec84ff0903f87f7aaad5eb6",
+       "version_major": 2,
+       "version_minor": 0
+      },
+      "text/plain": [
+       "Sanity Checking: 0it [00:00, ?it/s]"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "application/vnd.jupyter.widget-view+json": {
+       "model_id": "283dbcd7598f414dad89f84f9f630983",
+       "version_major": 2,
+       "version_minor": 0
+      },
+      "text/plain": [
+       "Training: 0it [00:00, ?it/s]"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "application/vnd.jupyter.widget-view+json": {
+       "model_id": "873ec3f95fb0469297d2facc3efe97ee",
+       "version_major": 2,
+       "version_minor": 0
+      },
+      "text/plain": [
+       "Validation: 0it [00:00, ?it/s]"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "application/vnd.jupyter.widget-view+json": {
+       "model_id": "d1cb394fbaf94b71a9c6ade0be537170",
+       "version_major": 2,
+       "version_minor": 0
+      },
+      "text/plain": [
+       "Validation: 0it [00:00, ?it/s]"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "application/vnd.jupyter.widget-view+json": {
+       "model_id": "f3763bc29db44060b978d5a22219c7c5",
+       "version_major": 2,
+       "version_minor": 0
+      },
+      "text/plain": [
+       "Validation: 0it [00:00, ?it/s]"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "application/vnd.jupyter.widget-view+json": {
+       "model_id": "3e1671743999406e94f27ddac57e7f30",
+       "version_major": 2,
+       "version_minor": 0
+      },
+      "text/plain": [
+       "Validation: 0it [00:00, ?it/s]"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "application/vnd.jupyter.widget-view+json": {
+       "model_id": "36b1041ba3d04c20872bcdcffdd21456",
+       "version_major": 2,
+       "version_minor": 0
+      },
+      "text/plain": [
+       "Validation: 0it [00:00, ?it/s]"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "`Trainer.fit` stopped: `max_epochs=5` reached.\n"
+     ]
+    },
+    {
+     "data": {
+      "application/vnd.jupyter.widget-view+json": {
+       "model_id": "06c304bc2e1c459fa9a6fafa3ebb6eac",
+       "version_major": 2,
+       "version_minor": 0
+      },
+      "text/plain": [
+       "Testing: 0it [00:00, ?it/s]"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────\n",
+      "       Test metric             DataLoader 0\n",
+      "────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────\n",
+      "      test_acc_top1         0.9918000102043152\n",
+      "        test_loss          0.025801436975598335\n",
+      "────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────\n"
+     ]
+    }
+   ],
+   "source": [
+    "for n,m in model.noisy_modules:\n",
+    "    m.approx_op.lut = evo.load_lut('mul8s_1L2D')\n",
+    "\n",
+    "model.train_approx(dm, test=True)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Depending on your initialization, the uniform solution might sometimes end up having a slightly better accuracy compared to the heterogeneous solution. This is because MNIST is an extremely simple problem and this notebook does not used hyperparameters that are particularly well-tuned."
+   ]
   }
  ],
  "metadata": {
