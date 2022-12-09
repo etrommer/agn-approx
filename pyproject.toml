@@ -9,12 +9,11 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.8"
 mlflow = "^1.27.0"
-torch = "1.12.0"
+torch = "^1.12.0"
 torchvision = "*"
 poethepoet = "*"
-torchapprox = {path = "../torch_approx", develop = true}
+torchapprox = {path = "../torch-approx", develop = true}
 pytorch-lightning = "^1.7.0"
-evoapproxlib = {path = "../evoapproxlib", develop = true}
 scikit-learn = "^1.1.1"
 
 [tool.poetry.group.extras.dependencies]
@@ -28,7 +27,6 @@ mypy = "^0.971"
 pytest = "^7.1.2"
 isort = "^5.10.1"
 black = "^22.6.0"
-
 
 [tool.poetry.group.notebooks.dependencies]
 ipywidgets = "^7.7.1"
