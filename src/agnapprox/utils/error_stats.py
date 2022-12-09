@@ -106,13 +106,16 @@ def population_prediction(
         mean, std = error_prediction(emap, x_dist, w_dist, fan_in)
         means.append(mean)
         stds.append(std)
-    means = np.array(means)
-    stds = np.array(stds)
+    npmeans = np.array(means)
+    npstds = np.array(stds)
 
     # Aggregate error distributions (Eq. 15 & Eq. 16)
-    mean_aggregate = np.mean(means)
+    mean_aggregate = np.mean(npmeans)
     std_aggregate = np.sqrt(
-        (np.sum(means**2 + stds**2) - (np.sum(means) ** 2) / x_multidist.shape[0])
+        (
+            np.sum(npmeans**2 + npstds**2)
+            - (np.sum(npmeans) ** 2) / x_multidist.shape[0]
+        )
         / x_multidist.shape[0]
     )
     return mean_aggregate, std_aggregate

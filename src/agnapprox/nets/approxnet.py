@@ -5,13 +5,14 @@ Approximate Neural Network boilerplate implementation
 import logging
 from typing import List, Optional, Tuple, Type
 
-import agnapprox.utils
 import mlflow
 import pytorch_lightning as pl
 import torch
 import torch.nn.functional as F
 import torchapprox.layers as al
 from evoapproxlib import EvoApproxLib
+
+import agnapprox.utils
 
 logger = logging.getLogger(__name__)
 
@@ -30,7 +31,7 @@ class ApproxNet(pl.LightningModule):
         self.lmbd: float = 0.0
         self.sigma_max: float = 0.5
         self.deterministic: bool = deterministic
-        self.noisy_modules: List[Tuple[str, torch.nn.Module]] = None
+        self.noisy_modules: List[Tuple[str, torch.nn.Module]] = []
 
     def gather_noisy_modules(self):
         """

@@ -19,6 +19,11 @@ This project is not yet hosted on PyPi. You can install it directly from this re
 ```bash
 $ pip install git+https://github.com/etrommer/agn-approx.git
 ```
+### Code Formatting & Linting (Development only)
+To automatically set up [pre-commit](https://pre-commit.com/), run:
+```bash
+poetry run pre-commit install
+```
 ### Tiny ImageNet 200
 Different from CIFAR10 and MNIST which are available through `torchvision`, the Tiny ImageNet dataset needs to be downloaded manually:
 ```bash
@@ -44,10 +49,5 @@ Interested in contributing? Check out the contributing guidelines. Please note t
 `agnapprox` was created by Elias Trommer. It is licensed under the terms of the GNU General Public License v3.0 license.
 
 ## Credits
-`agnapprox` was created with [`cookiecutter`](https://cookiecutter.readthedocs.io/en/latest/) and the `py-pkgs-cookiecutter` [template](https://github.com/py-pkgs/py-pkgs-cookiecutter).
-<br/>
-<br/>
-<p align="center">
-<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/Infineon-Logo.svg/320px-Infineon-Logo.svg.png" alt="Infineon Logo">
-</p>
-This work was created as part of my Ph.D. research at Infineon Technologies Dresden
+- `agnapprox` was created with [`cookiecutter`](https://cookiecutter.readthedocs.io/en/latest/) and the `py-pkgs-cookiecutter` [template](https://github.com/py-pkgs/py-pkgs-cookiecutter).
+- This work was created as part of my Ph.D. research at Infineon Technologies Dresden

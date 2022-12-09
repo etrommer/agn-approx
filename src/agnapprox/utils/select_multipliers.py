@@ -5,15 +5,17 @@ import logging
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, List, Optional, Tuple
 
-import agnapprox.utils.error_stats as stats
 import numpy as np
 import pytorch_lightning as pl
+
+import agnapprox.utils.error_stats as stats
 from agnapprox.utils.model import get_feature_maps
 
 if TYPE_CHECKING:
+    from evoapproxlib import ApproximateMultiplier
+
     from agnapprox.nets import ApproxNet
     from agnapprox.utils.model import IntermediateLayerResults
-    from evoapproxlib import ApproximateMultiplier
 
 
 logger = logging.getLogger(__name__)
