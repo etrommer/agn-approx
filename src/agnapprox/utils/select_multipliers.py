@@ -9,10 +9,11 @@ import numpy as np
 import pytorch_lightning as pl
 
 import agnapprox.utils.error_stats as stats
+from agnapprox.libs.approxlib import ApproxLibrary
 from agnapprox.utils.model import get_feature_maps
 
 if TYPE_CHECKING:
-    from evoapproxlib import ApproximateMultiplier
+    from torchapprox.utils.evoapprox import ApproximateMultiplier
 
     from agnapprox.nets import ApproxNet
     from agnapprox.utils.model import IntermediateLayerResults
@@ -176,14 +177,15 @@ class MatchingInfo:
         )
 
 
-def deploy_multipliers(model: "ApproxNet", matching_result: MatchingInfo, library):
+def deploy_multipliers(
+    model: "ApproxNet", matching_result: MatchingInfo, library: ApproxLibrary
+):
     """
     Deploy selected approximate multipliers to network
 
     Args:
         model: Model to deploy multipliers to
         matching_result: Results of multiplier matching
-        library: Library to load Lookup tables from
     """
     for layer_info, (name, module) in zip(matching_result.layers, model.noisy_modules):
         assert (

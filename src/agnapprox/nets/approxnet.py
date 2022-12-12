@@ -10,9 +10,9 @@ import pytorch_lightning as pl
 import torch
 import torch.nn.functional as F
 import torchapprox.layers as al
-from evoapproxlib import EvoApproxLib
 
 import agnapprox.utils
+from agnapprox.libs.evoapprox import EvoApprox
 
 logger = logging.getLogger(__name__)
 
@@ -227,11 +227,13 @@ class ApproxNet(pl.LightningModule):
 
             # Calculate layer assignment results for logging instance
             if self.mode == "gradient_search" and log_mlflow:
-                target_multipliers = EvoApproxLib().prepare(signed=False)
+                # FIXME: This should be a call parameter
+                lib = EvoApprox()
+                target_multipliers = lib.search_space()
                 res = agnapprox.utils.select_multipliers(
                     self, datamodule, target_multipliers, trainer
                 )
-                agnapprox.utils.deploy_multipliers(self, res, EvoApproxLib())
+                agnapprox.utils.deploy_multipliers(self, res, lib)
                 agnapprox.utils.dump_results(res, self.lmbd)
 
     def train_baseline(self, datamodule: pl.LightningDataModule, **kwargs):
