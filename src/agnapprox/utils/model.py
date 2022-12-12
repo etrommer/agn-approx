@@ -12,6 +12,7 @@ import mlflow
 import numpy as np
 import pytorch_lightning as pl
 import torch
+import torchapprox.layers as tal
 
 if TYPE_CHECKING:
     from agnapprox.utils.select_multipliers import MatchingInfo
@@ -82,6 +83,8 @@ class IntermediateLayerResults:
     features: Union[List[np.ndarray], np.ndarray]
     outputs: Union[List[np.ndarray], np.ndarray]
     weights: Optional[np.ndarray] = None
+    w_factor: Optional[float] = None
+    x_factor: Optional[float] = None
 
 
 # Get approximate op layer inputs, outputs weights and metadata
@@ -113,11 +116,15 @@ def get_feature_maps(
             fan_in=module_getter(model).fan_in, features=[], outputs=[]
         )
 
-        def hook(_module, module_in, module_out):
+        def hook(module, module_in, module_out):
             if results[name].weights is None:
                 results[name].weights = (
-                    module_in[1].cpu().detach().numpy().astype(np.float32)
+                    module.weight.cpu().detach().numpy().astype(np.float32)
                 )
+            if results[name].w_factor is None:
+                results[name].w_factor = module.w_quantizer.scale_factor.item()
+            if results[name].x_factor is None:
+                results[name].x_factor = module.x_quantizer.scale_factor.item()
             results[name].features.append(
                 module_in[0].cpu().detach().numpy().astype(np.float32)
             )
@@ -129,12 +136,16 @@ def get_feature_maps(
 
     # Set hooks
     handles = [
-        target_module.approx_op.register_forward_hook(get_hook(name))
+        target_module.register_forward_hook(get_hook(name))
         for name, target_module in target_modules
     ]
 
     # TODO: Set LUTs to None to force accurate calculation
-    set_all(model, "approximate", True)
+    # set_all(model, "inference_mode", tal.InferenceMode.APPROXIMATE)
+    for _, m in target_modules:
+        m.inference_mode = tal.InferenceMode.APPROXIMATE
+
+    # set_all(model, "approximate", True)
 
     # Run validation to populate
     trainer.validate(model, datamodule.sample_dataloader(), verbose=False)

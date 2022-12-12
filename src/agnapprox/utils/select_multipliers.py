@@ -194,6 +194,24 @@ def deploy_multipliers(
         module.approx_op.lut = library.load_lut(layer_info.multiplier_name)
 
 
+def estimate_noise(
+    model: "ApproxNet",
+    datamodule: pl.LightningDataModule,
+    trainer: pl.Trainer,
+    lut: np.ndarray,
+) -> List[Tuple[float, float]]:
+    ref_data = get_feature_maps(model, model.noisy_modules, trainer, datamodule)
+    for _, m in model.noisy_modules:
+        m.approx_op.lut = lut
+    approx_data = get_feature_maps(model, model.noisy_modules, trainer, datamodule)
+
+    ans = []
+    for ref, approx in zip(ref_data.values(), approx_data.values()):
+        error = ref.outputs - approx.outputs  # type: ignore
+        ans.append((np.mean(error), np.std(error)))
+    return ans
+
+
 def select_multipliers(
     model: "ApproxNet",
     datamodule: pl.LightningDataModule,
