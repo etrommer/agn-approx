@@ -11,6 +11,7 @@ import pytorch_lightning as pl
 import agnapprox.utils.error_stats as stats
 from agnapprox.libs.approxlib import ApproxLibrary
 from agnapprox.utils.model import get_feature_maps
+import torch
 
 if TYPE_CHECKING:
     from torchapprox.utils.evoapprox import ApproximateMultiplier
@@ -197,21 +198,24 @@ def deploy_multipliers(
 def estimate_noise(
     model: "ApproxNet",
     datamodule: pl.LightningDataModule,
-    trainer: pl.Trainer,
     lut: np.ndarray,
 ) -> List[Tuple[float, float]]:
 
     for _, m in model.noisy_modules:
         m.approx_op.lut = None
+
+    trainer = pl.Trainer(accelerator="auto", devices=1, max_epochs=1)
     ref_data = get_feature_maps(model, model.noisy_modules, trainer, datamodule)
-    for _, m in model.noisy_modules:
-        m.approx_op.lut = lut
-    approx_data = get_feature_maps(model, model.noisy_modules, trainer, datamodule)
 
     ans = []
-    for ref, approx in zip(ref_data.values(), approx_data.values()):
-        error = ref.outputs - approx.outputs  # type: ignore
+    for ref, (_, m) in zip(ref_data.values(), model.noisy_modules):
+        with torch.no_grad():
+            features = torch.from_numpy(ref.features).to(m.weight.device)
+            m.approx_op.lut = lut
+            approx = m(features).detach().cpu().numpy()
+        error = ref.outputs - approx
         ans.append((np.mean(error), np.std(error) / np.std(ref.outputs)))
+
     return ans
 
 

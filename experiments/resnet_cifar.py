@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import copy
 import os
 
@@ -46,12 +47,7 @@ def main():
             model.load_state_dict(torch.load(path))
             model.to(torch.device("cuda"))
 
-        trainer = pl.Trainer(
-            accelerator="auto",
-            devices=1,
-            max_epochs=1,
-        )
-        noise = estimate_noise(model, dm, trainer, lut(mul))
+        noise = estimate_noise(model, dm, lut(mul))
         for (mean, stdev), (name, module) in zip(noise, model.noisy_modules):
             module.mean = mean
             module.stdev = stdev
