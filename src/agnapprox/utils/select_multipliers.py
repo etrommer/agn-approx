@@ -200,6 +200,9 @@ def estimate_noise(
     trainer: pl.Trainer,
     lut: np.ndarray,
 ) -> List[Tuple[float, float]]:
+
+    for _, m in model.noisy_modules:
+        m.approx_op.lut = None
     ref_data = get_feature_maps(model, model.noisy_modules, trainer, datamodule)
     for _, m in model.noisy_modules:
         m.approx_op.lut = lut
@@ -208,7 +211,7 @@ def estimate_noise(
     ans = []
     for ref, approx in zip(ref_data.values(), approx_data.values()):
         error = ref.outputs - approx.outputs  # type: ignore
-        ans.append((np.mean(error), np.std(error)))
+        ans.append((np.mean(error), np.std(error) / np.std(ref.outputs)))
     return ans
 
 

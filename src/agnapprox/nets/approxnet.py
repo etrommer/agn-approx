@@ -9,7 +9,8 @@ import mlflow
 import pytorch_lightning as pl
 import torch
 import torch.nn.functional as F
-import torchapprox.layers as al
+import torchapprox.layers as tal
+from torchapprox.utils.conversion import get_approx_modules, inplace_conversion
 
 import agnapprox.utils
 from agnapprox.libs.evoapprox import EvoApprox
@@ -38,24 +39,9 @@ class ApproxNet(pl.LightningModule):
         Replace regular Conv2d and Linear layer instances with derived approximate layer
         instances that provide additional functionality
         """
-        layer_mappings = {
-            torch.nn.Conv2d: al.ApproxConv2d,
-            torch.nn.Linear: al.ApproxLinear,
-        }
+        self = inplace_conversion(self)
+        self.noisy_modules = get_approx_modules(self)
 
-        def replace_module(parent_module, base_type, approx_type):
-            for name, child_module in parent_module.named_children():
-                for child in parent_module.children():
-                    replace_module(child, base_type, approx_type)
-                if isinstance(child_module, base_type):
-                    setattr(parent_module, name, approx_type.from_super(child_module))
-
-        for base_type, approx_type in layer_mappings.items():
-            replace_module(self, base_type, approx_type)
-
-        self.noisy_modules = [
-            (n, m) for (n, m) in self.named_modules() if isinstance(m, al.ApproxLayer)
-        ]
         upgraded_module_names = "\n".join([n for n, _ in self.noisy_modules])
         logger.debug("Upgraded to TorchApprox layers:\n%s", upgraded_module_names)
 
@@ -92,23 +78,20 @@ class ApproxNet(pl.LightningModule):
 
     @mode.setter
     def mode(self, new_mode: str):
-        if not new_mode in ["baseline", "qat", "approx", "gradient_search"]:
+        if not new_mode in ["baseline", "qat", "approx", "noise"]:
             raise ValueError("Invalide mode")
-
-        def set_mode_params(quant, approx, noise):
-            agnapprox.utils.set_all(self, "quantize", quant)
-            agnapprox.utils.set_all(self, "approximate", approx)
-            agnapprox.utils.set_all(self, "noise", noise)
 
         self._mode = new_mode
         if self._mode == "baseline":
-            set_mode_params(False, False, False)
+            agnapprox.utils.set_all(self, "inference_mode", tal.InferenceMode.BASELINE)
         if self._mode == "qat":
-            set_mode_params(True, False, False)
-        if self._mode == "gradient_search":
-            set_mode_params(True, False, True)
+            agnapprox.utils.set_all(self, "inference_mode", tal.InferenceMode.QUANTIZED)
+        if self._mode == "noise":
+            agnapprox.utils.set_all(self, "inference_mode", tal.InferenceMode.NOISE)
         if self._mode == "approx":
-            set_mode_params(False, True, False)
+            agnapprox.utils.set_all(
+                self, "inference_mode", tal.InferenceMode.APPROXIMATE
+            )
 
     def forward(self, features) -> torch.Tensor:
         outputs = self.model(features)
@@ -120,18 +103,6 @@ class ApproxNet(pl.LightningModule):
         features, labels = train_batch
         outputs = self(features)
         loss = F.cross_entropy(outputs, labels)
-
-        # Add noise loss if we are training noise parameters
-        if self._mode == "gradient_search":
-            for _, module in self.noisy_modules:
-                noise_loss = (module.opcount / self.total_ops) * torch.minimum(
-                    torch.abs(module.stdev), torch.tensor(self.sigma_max)
-                )
-                loss -= self.lmbd * noise_loss
-
-        self.log(
-            "train_loss", loss, on_step=True, on_epoch=True, prog_bar=True, logger=True
-        )
 
         accuracies = agnapprox.utils.topk_accuracy(outputs, labels, self.topk)
         for topk, accuracy in zip(self.topk, accuracies):
@@ -179,8 +150,8 @@ class ApproxNet(pl.LightningModule):
             return self._baseline_optimizers()
         if self._mode == "qat":
             return self._qat_optimizers()
-        if self._mode == "gradient_search":
-            return self._gs_optimizers()
+        if self._mode == "noise":
+            return self._approx_optimizers()
         if self._mode == "approx":
             return self._approx_optimizers()
         raise ValueError("Unsupported mode: {}".format(self._mode))
@@ -225,17 +196,6 @@ class ApproxNet(pl.LightningModule):
             if test:
                 trainer.test(self, datamodule)
 
-            # Calculate layer assignment results for logging instance
-            if self.mode == "gradient_search" and log_mlflow:
-                # FIXME: This should be a call parameter
-                lib = EvoApprox()
-                target_multipliers = lib.search_space()
-                res = agnapprox.utils.select_multipliers(
-                    self, datamodule, target_multipliers, trainer
-                )
-                agnapprox.utils.deploy_multipliers(self, res, lib)
-                agnapprox.utils.dump_results(res, self.lmbd)
-
     def train_baseline(self, datamodule: pl.LightningDataModule, **kwargs):
         """
         Train an FP32 baseline model
@@ -256,34 +216,22 @@ class ApproxNet(pl.LightningModule):
         self.mode = "qat"
         self._train(datamodule, "QAT Model", **kwargs)
 
-    def train_gradient(
-        self,
-        datamodule: pl.LightningDataModule,
-        lmbd: float = 0.2,
-        initial_noise: float = 0.1,
-        **kwargs
+    def train_noise(
+        self, datamodule: pl.LightningDataModule, name_ext: str = "", **kwargs
     ):
-        """Run Gradient Search algorithm to optimize layer
-        robustness parameters
+        """Train model with additive noise
 
         Args:
             datamodule: Dataset provider
-            lmdb: Lambda parameter that controls weighing of
-                task loss and noise loss in the overall loss
-                function.
-                Defaults to 0.2
-            initial_noise: The initial value to set for the noise parameter.
-                Defaults to 0.1.
+            name_ext: Optional extension to add to experiment tracking name.
+                Helpful for distinguishing different multiplier configurations
+                (i.e. signed/unsigned, uniform/non-uniform, etc.).
+                Defaults to "".
         """
-        self.mode = "gradient_search"
-
-        # Set initial noise
-        with torch.no_grad():
-            self.lmbd = lmbd
-            for _, module in self.noisy_modules:
-                module.stdev = initial_noise
-
-        self._train(datamodule, "Gradient Search", callbacks=[GSInfoCb()], **kwargs)
+        self.mode = "noise"
+        name = "Noise Training"
+        name += name_ext
+        self._train(datamodule, name, **kwargs)
 
     def train_approx(
         self,
