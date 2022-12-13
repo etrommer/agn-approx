@@ -34,7 +34,7 @@ class ResNet(ApproxNet):
         self.topk: tuple = (1,)
         self.epochs = {
             "baseline": 180,
-            "gradient_search": 30,
+            "noise": 10,
             "qat": 30,
             "approx": 10,
         }
