@@ -23,6 +23,7 @@ class ApproxDataModule(pl.LightningDataModule):
         self.df_test = None
         self.args = kwargs
         self.data_dir = os.environ.get("AGNAPPROX_DATA_DIR", "./data")
+        self.sample_indices = None
 
     def _create_data_loader(self, data):
         return td.DataLoader(
@@ -50,5 +51,6 @@ class ApproxDataModule(pl.LightningDataModule):
         Returns:
             A dataloader instance with `num_samples` samples
         """
-        indices = torch.randint(len(self.df_train), (num_samples,))
-        return self._create_data_loader(td.Subset(self.df_train, indices))
+        if self.sample_indices is None:
+            self.sample_indices = torch.randint(len(self.df_train), (num_samples,))
+        return self._create_data_loader(td.Subset(self.df_train, self.sample_indices))

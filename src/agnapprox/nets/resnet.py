@@ -46,12 +46,12 @@ class ResNet(ApproxNet):
             self.parameters(), lr=0.1, momentum=0.9, weight_decay=1e-4
         )
         scheduler = optim.lr_scheduler.MultiStepLR(
-            optimizer, milestones=[90, 135], gamma=0.1
+            optimizer, milestones=[90, 130, 160], gamma=0.1
         )
         return [optimizer], [scheduler]
 
     def _qat_optimizers(self):
-        optimizer = optim.SGD(self.parameters(), lr=1e-2, momentum=0.9)
+        optimizer = optim.SGD(self.parameters(), lr=1e-3, momentum=0.9)
         scheduler = optim.lr_scheduler.StepLR(optimizer, 10)
         return [optimizer], [scheduler]
 

@@ -161,7 +161,7 @@ class ApproxNet(pl.LightningModule):
         datamodule: pl.LightningDataModule,
         run_name: str,
         epochs: Optional[int] = None,
-        log_mlflow: bool = False,
+        log_mlflow: bool = True,
         test: bool = False,
         **kwargs
     ):
@@ -186,7 +186,11 @@ class ApproxNet(pl.LightningModule):
         logger.debug("Training %s - %s on %d GPUs", self.name, run_name, num_gpus)
 
         trainer = pl.Trainer(
-            accelerator="auto", devices=device_count, max_epochs=epochs, **kwargs
+            accelerator="auto",
+            devices=device_count,
+            max_epochs=epochs,
+            deterministic=self.deterministic,
+            **kwargs
         )
 
         mlflow.pytorch.autolog(log_models=False, disable=not log_mlflow)
@@ -194,6 +198,13 @@ class ApproxNet(pl.LightningModule):
         with mlflow.start_run(run_name=run_name):
             trainer.fit(self, datamodule)
             if test:
+                if self.mode == "noise" or self.mode == "approx":
+                    for _, m in self.noisy_modules:
+                        m.inference_mode = tal.InferenceMode.APPROXIMATE
+                        m.fast_model = None
+                        assert (
+                            m.approx_op.lut is not None
+                        ), "Cannot test behavioral simulation with empty LUT"
                 trainer.test(self, datamodule)
 
     def train_baseline(self, datamodule: pl.LightningDataModule, **kwargs):
