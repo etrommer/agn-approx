@@ -7,11 +7,11 @@ from typing import TYPE_CHECKING, List, Optional, Tuple
 
 import numpy as np
 import pytorch_lightning as pl
+import torch
 
 import agnapprox.utils.error_stats as stats
 from agnapprox.libs.approxlib import ApproxLibrary
 from agnapprox.utils.model import get_feature_maps
-import torch
 
 if TYPE_CHECKING:
     from torchapprox.utils.evoapprox import ApproximateMultiplier
@@ -206,6 +206,9 @@ def estimate_noise(
 
     trainer = pl.Trainer(accelerator="auto", devices=1, max_epochs=1)
     ref_data = get_feature_maps(model, model.noisy_modules, trainer, datamodule)
+
+    # FIXME: No clue why model is on CPU when returning from `get_feature_maps`
+    model.to(torch.device("cuda"))
 
     ans = []
     for ref, (_, m) in zip(ref_data.values(), model.noisy_modules):
