@@ -39,7 +39,11 @@ class ApproxNet(pl.LightningModule):
         Replace regular Conv2d and Linear layer instances with derived approximate layer
         instances that provide additional functionality
         """
-        self = inplace_conversion(self)
+        layer_mappings = {
+            # torch.nn.Conv2d: tal.ApproxConv2d,
+            torch.nn.Linear: tal.ApproxLinear,
+        }
+        self = inplace_conversion(self, layer_mappings=layer_mappings)
         self.noisy_modules = get_approx_modules(self)
 
         upgraded_module_names = "\n".join([n for n, _ in self.noisy_modules])
@@ -83,15 +87,17 @@ class ApproxNet(pl.LightningModule):
 
         self._mode = new_mode
         if self._mode == "baseline":
-            agnapprox.utils.set_all(self, "inference_mode", tal.InferenceMode.BASELINE)
+            for _, m in self.noisy_modules:
+                m.inference_mode = tal.InferenceMode.BASELINE
         if self._mode == "qat":
-            agnapprox.utils.set_all(self, "inference_mode", tal.InferenceMode.QUANTIZED)
+            for _, m in self.noisy_modules:
+                m.inference_mode = tal.InferenceMode.QUANTIZED
         if self._mode == "noise":
-            agnapprox.utils.set_all(self, "inference_mode", tal.InferenceMode.NOISE)
+            for _, m in self.noisy_modules:
+                m.inference_mode = tal.InferenceMode.NOISE
         if self._mode == "approx":
-            agnapprox.utils.set_all(
-                self, "inference_mode", tal.InferenceMode.APPROXIMATE
-            )
+            for _, m in self.noisy_modules:
+                m.inference_mode = tal.InferenceMode.APPROXIMATE
 
     def forward(self, features) -> torch.Tensor:
         outputs = self.model(features)
@@ -189,7 +195,8 @@ class ApproxNet(pl.LightningModule):
             accelerator="auto",
             devices=device_count,
             max_epochs=epochs,
-            deterministic=self.deterministic,
+            # accumulate_grad_batches=16,
+            # deterministic=self.deterministic,
             **kwargs
         )
 
