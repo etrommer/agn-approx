@@ -17,8 +17,8 @@ class AlexNet(ApproxNet):
     approximate AlexNet
     """
 
-    def __init__(self, num_classes: int = 200, pretrained: bool = True):
-        super().__init__()
+    def __init__(self, num_classes: int = 200, pretrained: bool = True, **kwargs):
+        super().__init__(**kwargs)
 
         self.name = "AlexNet"
         self.model = torchvision.models.alexnet(pretrained=pretrained)
@@ -31,7 +31,7 @@ class AlexNet(ApproxNet):
         self.epochs: dict = {
             "baseline": 30,
             "qat": 8,
-            "gradient_search": 5,
+            "noise": 2,
             "approx": 2,
         }
         self.num_gpus = 1
