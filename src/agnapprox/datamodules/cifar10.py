@@ -1,6 +1,7 @@
 """
 Wrapper for CIFAR10 dataset
 """
+import torch
 import torch.utils.data as td
 from torchvision import datasets, transforms
 
@@ -51,7 +52,9 @@ class CIFAR10(ApproxDataModule):
             cifar_full = datasets.CIFAR10(
                 root=self.data_dir, train=True, transform=target_transform
             )
-            self.df_train, self.df_val = td.random_split(cifar_full, [45000, 5000])
+            self.df_train, self.df_val = td.random_split(
+                cifar_full, [45000, 5000], generator=torch.Generator().manual_seed(42)
+            )
         if stage == "test" or stage is None:
             target_transform = transforms.Compose(self.normalize)
             self.df_test = datasets.CIFAR10(

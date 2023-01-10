@@ -3,6 +3,7 @@ Wrapper for TinyImageNet dataset
 """
 import os
 
+import torch
 import torch.utils.data as td
 from torchvision import datasets, transforms
 
@@ -35,7 +36,7 @@ class TinyImageNet(ApproxDataModule):
     @property
     def augment(self):
         """
-        Default CIFAR10 augmentation pipeline
+        Default ImageNet augmentation pipeline
 
         Returns:
             List of transformations to apply to input image
@@ -55,7 +56,9 @@ class TinyImageNet(ApproxDataModule):
             train_size = int(self.split * len(ds_full))
             val_size = len(ds_full) - train_size
             self.df_train, self.df_val = td.random_split(
-                ds_full, [train_size, val_size]
+                ds_full,
+                [train_size, val_size],
+                generator=torch.Generator().manual_seed(42),
             )
 
         if stage == "test" or stage is None:

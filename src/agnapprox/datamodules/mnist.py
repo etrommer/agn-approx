@@ -1,6 +1,7 @@
 """
 Wrapper for MNIST dataset
 """
+import torch
 import torch.utils.data as td
 from torchvision import datasets, transforms
 
@@ -38,7 +39,9 @@ class MNIST(ApproxDataModule):
             mnist_full = datasets.MNIST(
                 root=self.data_dir, train=True, transform=target_transform
             )
-            self.df_train, self.df_val = td.random_split(mnist_full, [55000, 5000])
+            self.df_train, self.df_val = td.random_split(
+                mnist_full, [55000, 5000], generator=torch.Generator().manual_seed(42)
+            )
         if stage == "test" or stage is None:
             target_transform = transforms.Compose(self.normalize)
             self.df_test = datasets.MNIST(
