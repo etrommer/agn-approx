@@ -80,13 +80,25 @@ class VGG(ApproxNet):
         return [optimizer], [scheduler]
 
     def _approx_optimizers(self):
-        trainable_params = []
-        for p in self.model.parameters():
+
+        # Freeze BatchNorm layers
+        # for m in self.model.modules():
+        #     if isinstance(m, torch.nn.BatchNorm2d) or isinstance(
+        #         m, torch.nn.BatchNorm1d
+        #     ):
+        #         m.eval()
+
+        # Freeze feature detector params
+        for p in self.parameters():
             p.requires_grad = False
-        for p in self.model.classifier.parameters():
+
+        # Train Classifier params
+        trainable_params = []
+        for n, p in self.model.classifier.named_parameters():
             p.requires_grad = True
             trainable_params.append(p)
-        optimizer = torch.optim.SGD(trainable_params, lr=1e-3, weight_decay=1e-4)
+
+        optimizer = torch.optim.SGD(trainable_params, lr=1e-3)
         scheduler = torch.optim.lr_scheduler.StepLR(optimizer, 1)
         return [optimizer], [scheduler]
 

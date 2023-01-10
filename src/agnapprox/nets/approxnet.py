@@ -195,7 +195,7 @@ class ApproxNet(pl.LightningModule):
             accelerator="auto",
             devices=device_count,
             max_epochs=epochs,
-            # accumulate_grad_batches=16,
+            accumulate_grad_batches=16,
             # deterministic=self.deterministic,
             **kwargs
         )
@@ -209,9 +209,7 @@ class ApproxNet(pl.LightningModule):
                     for _, m in self.noisy_modules:
                         m.inference_mode = tal.InferenceMode.APPROXIMATE
                         m.fast_model = None
-                        assert (
-                            m.approx_op.lut is not None
-                        ), "Cannot test behavioral simulation with empty LUT"
+                        m.approx_op.lut = self.lut
                 trainer.test(self, datamodule)
 
     def train_baseline(self, datamodule: pl.LightningDataModule, **kwargs):
