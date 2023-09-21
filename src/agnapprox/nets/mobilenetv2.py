@@ -37,7 +37,7 @@ class MobileNetV2(ApproxNet):
             "approx": 2,
         }
         self.num_gpus = 1
-        self.gather_noisy_modules()
+        self.convert_layers()
 
     def _baseline_optimizers(self):
         # for p in self.model.parameters():

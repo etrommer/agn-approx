@@ -10,6 +10,7 @@ from .approxnet import ApproxNet
 
 logger = logging.getLogger(__name__)
 
+
 # pylint: disable=too-many-ancestors
 class AlexNet(ApproxNet):
     """
@@ -35,7 +36,7 @@ class AlexNet(ApproxNet):
             "approx": 2,
         }
         self.num_gpus = 1
-        self.gather_noisy_modules()
+        self.convert_layers()
 
     def _baseline_optimizers(self):
         optimizer = torch.optim.SGD(

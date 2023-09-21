@@ -9,19 +9,25 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.8"
 mlflow = "^1.27.0"
+torch = "2.0.0"
 numpy = "^1.23.0"
-torch = "^1.12.0"
-torchvision = "*"
-poethepoet = "*"
-torchapprox = {git = "ssh://git@github.com/etrommer/torch-approx.git", branch="wip/11/benchmark-accuracy"}
+# torchapprox = {git = "ssh://git@github.com/etrommer/torch-approx.git", branch="feature/torchquant"}
+torchapprox = {path = "/home/elias/torch-approx", develop=true}
 pytorch-lightning = "^1.7.0"
 scikit-learn = "^1.1.1"
+torchvision = "0.15.1"
+
+[tool.poetry.group.extras]
+optional = true
 
 [tool.poetry.group.extras.dependencies]
 sphinx-autoapi = "^1.9.0"
 myst-nb = "^0.16.0"
 sphinx-paramlinks = "^0.5.4"
 furo = "^2022.6.21"
+
+[tool.poetry.group.dev]
+optional = true
 
 [tool.poetry.group.dev.dependencies]
 mypy = "^0.971"
@@ -34,15 +40,12 @@ pylint = "^2.15.0"
 [tool.poetry.group.notebooks.dependencies]
 ipywidgets = "^7.7.1"
 matplotlib = "^3.5.3"
-
-[tool.poe.tasks]
-install-ltt = "python3 -m pip install light-the-torch"
-run-ltt = "python3 -m light_the_torch install --upgrade torch torchaudio torchvision"
-autoinstall-torch-cuda = ["install-ltt", "run-ltt"]
-
-[tool.isort]
-profile = "black"
+seaborn = "^0.12.2"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+line-length = 120
+ignore-init-module-imports = true

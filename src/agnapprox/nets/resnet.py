@@ -11,6 +11,7 @@ from .base import resnet
 
 logger = logging.getLogger(__name__)
 
+
 # pylint: disable=too-many-ancestors
 class ResNet(ApproxNet):
     """
@@ -39,7 +40,7 @@ class ResNet(ApproxNet):
             "approx": 10,
         }
         self.num_gpus: int = 1
-        self.gather_noisy_modules()
+        self.convert_layers()
 
     def _baseline_optimizers(self):
         optimizer = optim.SGD(

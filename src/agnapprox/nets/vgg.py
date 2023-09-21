@@ -58,7 +58,7 @@ class VGG(ApproxNet):
             "approx": 1,
         }
         self.num_gpus = 1
-        self.gather_noisy_modules()
+        self.convert_layers()
 
     def _baseline_optimizers(self):
         optimizer = torch.optim.SGD(self.parameters(), lr=1e-2, momentum=0.9)
