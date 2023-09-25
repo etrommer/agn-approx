@@ -13,9 +13,10 @@ torch = "2.0.0"
 numpy = "^1.23.0"
 # torchapprox = {git = "ssh://git@github.com/etrommer/torch-approx.git", branch="feature/torchquant"}
 torchapprox = {path = "/home/elias/torch-approx", develop=true}
-pytorch-lightning = "^1.7.0"
+pytorch-lightning = "^2.0.0"
 scikit-learn = "^1.1.1"
 torchvision = "0.15.1"
+protobuf = "3.20"
 
 [tool.poetry.group.extras]
 optional = true
@@ -30,12 +31,7 @@ furo = "^2022.6.21"
 optional = true
 
 [tool.poetry.group.dev.dependencies]
-mypy = "^0.971"
-pytest = "^7.1.2"
-isort = "^5.10.1"
-black = "^22.6.0"
 pre-commit = "^2.20.0"
-pylint = "^2.15.0"
 
 [tool.poetry.group.notebooks.dependencies]
 ipywidgets = "^7.7.1"
