@@ -42,8 +42,10 @@ class ApproxNet(pl.LightningModule):
         Replace regular Conv2d and Linear layer instances with derived approximate layer
         instances that provide additional functionality
         """
-        self = wrap_quantizable(self)
-        prepare_qat(self, mapping=tal.approx_wrapper.layer_mapping_dict(), inplace=True)
+        self.model = wrap_quantizable(self.model)
+        prepare_qat(
+            self.model, mapping=tal.approx_wrapper.layer_mapping_dict(), inplace=True
+        )
 
         self.approx_modules = get_approx_modules(self)
         upgraded_module_names = "\n".join([n for n, _ in self.approx_modules])
@@ -196,6 +198,12 @@ class ApproxNet(pl.LightningModule):
                         m.htp_model = None
                 trainer.test(self, datamodule)
 
+    def on_train_epoch_start(self) -> None:
+        if self.mode == "qat" and self.current_epoch == 2:
+            print("Enabling Fake Quant")
+            self.model.apply(torch.ao.quantization.disable_observer)
+            self.model.apply(torch.ao.quantization.enable_fake_quant)
+
     def train_baseline(self, datamodule: pl.LightningDataModule, **kwargs):
         """
         Train an FP32 baseline model
@@ -207,8 +215,7 @@ class ApproxNet(pl.LightningModule):
         self._train(datamodule, "Baseline Model", **kwargs)
 
         self.convert()
-        # self.model.apply(torch.ao.quantization.enable_observer)
-        self.model.apply(torch.ao.quantization.disable_observer)
+        self.model.apply(torch.ao.quantization.enable_observer)
         self.model.apply(torch.ao.quantization.disable_fake_quant)
         self.mode = "qat"
         self._train(datamodule, "Quantized Model", **kwargs)
