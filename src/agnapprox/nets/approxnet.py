@@ -11,7 +11,7 @@ import torch
 import torch.nn.functional as F
 import torchapprox.layers as tal
 from torchapprox.utils.conversion import get_approx_modules, wrap_quantizable
-from torch.ao.quantization import prepare_qat
+from torch.ao.quantization import prepare_qat, QConfig
 
 import agnapprox.utils
 
@@ -36,13 +36,14 @@ class ApproxNet(pl.LightningModule):
         self._total_ops: Optional[int] = None
         self.deterministic: bool = deterministic
         self.approx_modules: List[Tuple[str, torch.nn.Module]] = []
+        self.qconfig: Optional[QConfig] = None
 
     def convert(self):
         """
         Replace regular Conv2d and Linear layer instances with derived approximate layer
         instances that provide additional functionality
         """
-        self.model = wrap_quantizable(self.model)
+        self.model = wrap_quantizable(self.model, self.qconfig)
         prepare_qat(
             self.model, mapping=tal.approx_wrapper.layer_mapping_dict(), inplace=True
         )
@@ -200,7 +201,6 @@ class ApproxNet(pl.LightningModule):
 
     def on_train_epoch_start(self) -> None:
         if self.mode == "qat" and self.current_epoch == 2:
-            print("Enabling Fake Quant")
             self.model.apply(torch.ao.quantization.disable_observer)
             self.model.apply(torch.ao.quantization.enable_fake_quant)
 
