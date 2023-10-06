@@ -1,43 +1,44 @@
-import logging
+#!/usr/bin/env python3
 import os
+import pytorch_lightning as pl
 
-# Silence warnings
+import logging
 import warnings
 
-import pytorch_lightning as pl
 import torch
-from evoapproxlib import EvoApproxLib
+from torchapprox.utils.evoapprox import lut, module_names
+from torchapprox.operators.htp_models.htp_models_mul8s import htp_models_mul8s
 
-from agnapprox.datamodules import CIFAR10
-from agnapprox.nets import AlexNet
+from agnapprox.datamodules import TinyImageNet
+from agnapprox.nets import SqueezeNet
+from agnapprox.utils.select_multipliers import estimate_noise
 
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 logging.basicConfig(level=logging.DEBUG)
-
 pl.seed_everything(42, workers=True)
 
 
 def get_baseline_model(path: str) -> pl.LightningModule:
     pl.seed_everything(42, workers=True)
-    model = AlexNet(num_classes=10, deterministic=True)
+    model = SqueezeNet(deterministic=True)
     model.load_state_dict(torch.load(path))
     model.to(torch.device("cuda"))
     return model
 
 
 def main():
-    dm = CIFAR10(batch_size=128, num_workers=16)
+    dm = TinyImageNet(batch_size=128, num_workers=16)
     dm.prepare_data()
     dm.setup()
 
     multipliers = module_names("mul8s")
-    size = "AlexNet"
+    size = "SqueezeNet"
     path = os.path.join("ref_model_{}.pt".format(size.lower()))
 
     for mul in multipliers:
         # Train Baseline & quantized
         if not os.path.exists(path):
-            model = AlexNet(num_classes=10, deterministic=True)
+            model = SqueezeNet(deterministic=True)
             model.train_baseline(dm, test=True)
             model.train_quant(dm, test=True)
             torch.save(model.state_dict(), path)

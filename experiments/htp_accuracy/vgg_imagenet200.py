@@ -1,12 +1,8 @@
 #!/usr/bin/env python3
 import os
 
-import mlflow
-import numpy as np
-import pandas as pd
 import pytorch_lightning as pl
 
-pl.seed_everything(42, workers=True)
 
 import logging
 
@@ -23,6 +19,7 @@ from agnapprox.utils.select_multipliers import estimate_noise
 
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 logging.basicConfig(level=logging.DEBUG)
+pl.seed_everything(42, workers=True)
 
 
 def get_baseline_model(path: str, size: str) -> pl.LightningModule:

@@ -43,7 +43,7 @@ class ApproxNet(pl.LightningModule):
         Replace regular Conv2d and Linear layer instances with derived approximate layer
         instances that provide additional functionality
         """
-        self.model = wrap_quantizable(self.model, self.qconfig)
+        self.model = wrap_quantizable(self.model, qconfig=self.qconfig)
         prepare_qat(
             self.model, mapping=tal.approx_wrapper.layer_mapping_dict(), inplace=True
         )
@@ -90,9 +90,14 @@ class ApproxNet(pl.LightningModule):
 
         self._mode = new_mode
         if self._mode == "qat":
+            self.model.apply(torch.ao.quantization.enable_observer)
+            # Fake-quant is enabled after two warm-up epochs to calibrate observers
+            self.model.apply(torch.ao.quantization.disable_fake_quant)
             for _, m in self.approx_modules:
                 m.inference_mode = tal.InferenceMode.QUANTIZED
         if self._mode == "approx":
+            self.model.apply(torch.ao.quantization.enable_observer)
+            self.model.apply(torch.ao.quantization.disable_fake_quant)
             for _, m in self.approx_modules:
                 m.inference_mode = tal.InferenceMode.APPROXIMATE
 
@@ -184,6 +189,7 @@ class ApproxNet(pl.LightningModule):
 
         logger.debug("Training %s - %s on %d GPUs", self.name, run_name, num_gpus)
 
+        mlf_extra_params = kwargs.pop("mlf_params", {})
         trainer = pl.Trainer(
             accelerator="auto", devices=device_count, max_epochs=epochs, **kwargs
         )
@@ -191,20 +197,37 @@ class ApproxNet(pl.LightningModule):
         mlflow.pytorch.autolog(log_models=False, disable=not log_mlflow)
         mlflow.set_experiment(experiment_name=self.name)
         with mlflow.start_run(run_name=run_name):
+            mlflow.log_params(mlf_extra_params)
             trainer.fit(self, datamodule)
             if test:
-                if self.mode == "noise" or self.mode == "approx":
-                    for _, m in self.approx_modules:
-                        m.inference_mode = tal.InferenceMode.APPROXIMATE
-                        m.htp_model = None
                 trainer.test(self, datamodule)
 
     def on_train_epoch_start(self) -> None:
         if self.mode == "qat" and self.current_epoch == 2:
             self.model.apply(torch.ao.quantization.disable_observer)
             self.model.apply(torch.ao.quantization.enable_fake_quant)
+        if self.mode == "approx" and self.current_epoch == 2:
+            pass
+            # self.model.apply(torch.ao.quantization.disable_observer)
 
-    def train_baseline(self, datamodule: pl.LightningDataModule, **kwargs):
+    def on_test_start(self) -> None:
+        self.model.apply(torch.ao.quantization.disable_observer)
+        if self.mode == "approx":
+            for _, m in self.approx_modules:
+                m.inference_mode = tal.InferenceMode.APPROXIMATE
+                m.htp_model = None
+
+    def on_validation_start(self) -> None:
+        pass
+        # self.model.apply(torch.ao.quantization.disable_observer)
+
+    def on_validation_end(self) -> None:
+        pass
+        # Slight hack:
+        # Setting the current mode sets the training configuratin for the current mode
+        # self.mode = self.mode
+
+    def train_baseline_fp32(self, datamodule: pl.LightningDataModule, **kwargs):
         """
         Train an FP32 baseline model
 
@@ -214,9 +237,8 @@ class ApproxNet(pl.LightningModule):
         self.mode = "baseline"
         self._train(datamodule, "Baseline Model", **kwargs)
 
+    def train_baseline_quant(self, datamodule: pl.LightningDataModule, **kwargs):
         self.convert()
-        self.model.apply(torch.ao.quantization.enable_observer)
-        self.model.apply(torch.ao.quantization.disable_fake_quant)
         self.mode = "qat"
         self._train(datamodule, "Quantized Model", **kwargs)
 
