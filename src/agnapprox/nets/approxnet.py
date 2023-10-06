@@ -28,7 +28,7 @@ class ApproxNet(pl.LightningModule):
 
     def __init__(
         self,
-        deterministic: bool = False,
+        deterministic: bool = True,
     ):
         super().__init__()
 

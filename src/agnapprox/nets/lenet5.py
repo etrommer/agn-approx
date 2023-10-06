@@ -21,25 +21,18 @@ class LeNet5(ApproxNet):
     """
 
     def __init__(self, baseline_model: Optional[torch.nn.Module] = None):
-        super().__init__()
+        super().__init__(deterministic=True)
 
         self.model = lenet5.LeNet5(10)
 
         self.name = "LeNet5"
         self.topk = (1,)
         self.epochs = {
-            "baseline": 0,
-            "qat": 4,
-            "approx": 5,
+            "baseline": 10,
+            "qat": 6,
+            "approx": 6,
         }
         self.num_gpus = 1
-
-    # def on_train_epoch_start(self) -> None:
-    #     self.model.apply(torch.ao.quantization.disable_fake_quant)
-    #     if self.mode == "qat" and self.current_epoch >= 2:
-    #         logger.warning("Enabling Fake Quant")
-    #         self.model.apply(torch.ao.quantization.disable_observer)
-    #         self.model.apply(torch.ao.quantization.enable_fake_quant)
 
     def _baseline_optimizers(self):
         optimizer = optim.SGD(
@@ -49,11 +42,12 @@ class LeNet5(ApproxNet):
         return [optimizer], [scheduler]
 
     def _qat_optimizers(self):
-        optimizer = optim.SGD(self.parameters(), lr=1e-3, momentum=0.9)
-        scheduler = optim.lr_scheduler.StepLR(optimizer, 5)
+        optimizer = optim.SGD(self.parameters(), lr=5e-3, momentum=0.9)
+        scheduler = optim.lr_scheduler.MultiStepLR(optimizer, [4, 5])
+        # scheduler = optim.lr_scheduler.StepLR(optimizer, 2)
         return [optimizer], [scheduler]
 
     def _approx_optimizers(self):
-        optimizer = optim.SGD(self.parameters(), lr=1e-3, momentum=0.9)
-        scheduler = optim.lr_scheduler.StepLR(optimizer, 2)
+        optimizer = optim.SGD(self.parameters(), lr=5e-3, momentum=0.9)
+        scheduler = optim.lr_scheduler.MultiStepLR(optimizer, [4, 5])
         return [optimizer], [scheduler]
