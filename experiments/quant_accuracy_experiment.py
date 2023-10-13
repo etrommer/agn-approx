@@ -3,18 +3,16 @@
 import experiment
 import torch
 import torch.ao.quantization as quant
-from agnapprox.datamodules import MNIST
+from agnapprox.datamodules import MNIST, CIFAR10
 from agnapprox.datamodules.approx_datamodule import ApproxDataModule
-from agnapprox.nets import LeNet5
+from agnapprox.nets import LeNet5, ResNet
 from agnapprox.nets.approxnet import ApproxNet
 from torchapprox import layers as tal
 import numpy as np
 from glob import glob
 
-# with open('/home/elias/evo_luts/mul8x2u_0TD.npy', 'rb') as f:
-#     lut = np.load(f)
 
-BITWIDTH = 2
+BITWIDTH = 4
 multipliers = glob(f"/home/elias/evo_luts/mul8x{BITWIDTH}u_*.npy")
 
 
@@ -35,7 +33,6 @@ class QuantAccuracyExperiment(experiment.ApproxExperiment):
             "mul_name": mul_name,
             "qtype": qtype,
             "experiment": "quant_comparison",
-            "gradient_clip": 0.5,
         }
         lut = np.load(lut_path)
         qmodel = self.quantized_model(qconfig, qtype)
@@ -44,7 +41,6 @@ class QuantAccuracyExperiment(experiment.ApproxExperiment):
         qmodel.train_approx(
             self.datamodule,
             test=self.test,
-            gradient_clip_val=0.5,
             mlf_params=mlf_extra_params,
         )
 
@@ -77,6 +73,18 @@ def lenet_mnist():
     net = LeNet5()
     dm = MNIST(batch_size=128, num_workers=4)
     experiment = QuantAccuracyExperiment(net, dm, "LeNet5", test=True)
+    default_qconfig = tal.ApproxLayer.default_qconfig()
+
+    for mul in multipliers:
+        for wq, wqname in weight_quant_configs:
+            qconfig = quant.QConfig(activation=default_qconfig.activation, weight=wq)
+            experiment.test_qconfig(qconfig, wqname, mul)
+
+
+def resnet_cifar10():
+    net = ResNet("ResNet8")
+    dm = CIFAR10(batch_size=128, num_workers=4)
+    experiment = QuantAccuracyExperiment(net, dm, "ResNet8", test=True)
     default_qconfig = tal.ApproxLayer.default_qconfig()
 
     for mul in multipliers:
