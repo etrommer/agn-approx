@@ -35,12 +35,10 @@ class ResNet(ApproxNet):
         self.topk: tuple = (1,)
         self.epochs = {
             "baseline": 180,
-            "noise": 10,
-            "qat": 30,
-            "approx": 10,
+            "qat": 12,
+            "approx": 6,
         }
         self.num_gpus: int = 1
-        self.convert_layers()
 
     def _baseline_optimizers(self):
         optimizer = optim.SGD(
@@ -52,16 +50,11 @@ class ResNet(ApproxNet):
         return [optimizer], [scheduler]
 
     def _qat_optimizers(self):
-        optimizer = optim.SGD(self.parameters(), lr=1e-3, momentum=0.9)
-        scheduler = optim.lr_scheduler.StepLR(optimizer, 10)
+        optimizer = optim.SGD(self.parameters(), lr=1e-2, momentum=0.9)
+        scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=[6, 9])
         return [optimizer], [scheduler]
 
     def _approx_optimizers(self):
-        optimizer = optim.SGD(self.parameters(), lr=1e-3, momentum=0.9)
-        scheduler = optim.lr_scheduler.StepLR(optimizer, 4)
-        return [optimizer], [scheduler]
-
-    def _gs_optimizers(self):
-        optimizer = optim.SGD(self.parameters(), lr=0.1, momentum=0.9)
-        scheduler = optim.lr_scheduler.StepLR(optimizer, 10)
+        optimizer = optim.SGD(self.parameters(), lr=1e-2, momentum=0.9)
+        scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=[3, 5])
         return [optimizer], [scheduler]
