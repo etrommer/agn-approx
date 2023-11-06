@@ -4511,7 +4511,7 @@ torch = "1.13.0"
 
 [package.source]
 type = "git"
-url = "https://github.com/etrommer/torch-approx.git"
+url = "ssh://git@github.com/etrommer/torch-approx.git"
 reference = "compatibility/agnapprox"
 resolved_reference = "889fe38f6f58cd9db23c4fdbe0641c3d32e6ba62"
 
@@ -5034,4 +5034,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "e0660907bcfae92c8d10e7707b913ac17ba510a55baf5a94a45cfbc22e668083"
+content-hash = "1946e6f6630c505f31d382515c4baf06b68ad405527c894479fed1d36819e7c6"
