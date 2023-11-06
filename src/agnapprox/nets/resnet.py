@@ -11,6 +11,7 @@ from .base import resnet
 
 logger = logging.getLogger(__name__)
 
+
 # pylint: disable=too-many-ancestors
 class ResNet(ApproxNet):
     """
@@ -34,7 +35,7 @@ class ResNet(ApproxNet):
         self.topk: tuple = (1,)
         self.epochs = {
             "baseline": 180,
-            "gradient_search": 30,
+            "noise": 30,
             "qat": 30,
             "approx": 10,
         }

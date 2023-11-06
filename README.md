@@ -8,9 +8,6 @@ Code and experiments for the paper [Combining Gradients and Probabilities for He
 By learning a perturbation term for each layer, agnapprox finds out which layers are more or less resilient to small errors in the computations. This information is then used to choose accurate/inaccurate approximate multipliers for each layer.
 The documentation contains two tutorials on agnapprox' functionality and demonstrates how to optimize a neural network supplied by the user.
 
-## Note
-*This package relies on the Python package TorchApprox for GPU-accelerated layer implementations. This package is currently not publicly available. It will likely be made available in late 2022/early 2023. If you need early access, please get in touch*
-
 ## Documentation
 Detailed Documentation can be found under: [https://etrommer.github.io/agn-approx/](https://etrommer.github.io/agn-approx/)
 

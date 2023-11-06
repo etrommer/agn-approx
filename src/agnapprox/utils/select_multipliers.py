@@ -217,12 +217,12 @@ def select_multipliers(
     ref_data = get_feature_maps(model, model.noisy_modules, trainer, datamodule)
 
     metric_max = max([m.performance_metric for m in multipliers])
-    result = MatchingInfo([], metric_max, model.total_ops.item())
+    result = MatchingInfo([], metric_max, model.total_ops)
     for name, module in model.noisy_modules:
         mul_name, mul_metric = select_layer_multiplier(
             ref_data[name], multipliers, abs(module.stdev.item())
         )
-        layer_result = LayerInfo(name, mul_name, mul_metric, module.opcount.item())
+        layer_result = LayerInfo(name, mul_name, mul_metric, module.opcount)
         result.layers.append(layer_result)
 
         logger.info(

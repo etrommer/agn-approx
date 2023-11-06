@@ -10,6 +10,7 @@ from .approxnet import ApproxNet
 
 logger = logging.getLogger(__name__)
 
+
 # pylint: disable=too-many-ancestors
 class AlexNet(ApproxNet):
     """
@@ -31,7 +32,7 @@ class AlexNet(ApproxNet):
         self.epochs: dict = {
             "baseline": 30,
             "qat": 8,
-            "gradient_search": 5,
+            "noise": 5,
             "approx": 2,
         }
         self.num_gpus = 1

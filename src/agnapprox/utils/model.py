@@ -134,7 +134,8 @@ def get_feature_maps(
     ]
 
     # TODO: Set LUTs to None to force accurate calculation
-    set_all(model, "approximate", True)
+    prev_mode = model.mode
+    model.mode = "approx"
 
     # Run validation to populate
     trainer.validate(model, datamodule.sample_dataloader(), verbose=False)
@@ -146,7 +147,7 @@ def get_feature_maps(
 
     # Clean up
     _ = [h.remove() for h in handles]
-    set_all(model, "approximate", False)
+    model.mode = prev_mode
 
     return results
 

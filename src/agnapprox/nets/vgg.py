@@ -45,7 +45,7 @@ class VGG(ApproxNet):
         self.epochs: dict = {
             "baseline": 30,
             "qat": 8,
-            "gradient_search": 3,
+            "noise": 3,
             "approx": 2,
         }
         self.num_gpus = 1

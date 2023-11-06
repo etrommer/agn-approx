@@ -95,20 +95,19 @@ class ApproxNet(pl.LightningModule):
         if not new_mode in ["baseline", "qat", "approx", "gradient_search"]:
             raise ValueError("Invalide mode")
 
-        def set_mode_params(quant, approx, noise):
-            agnapprox.utils.set_all(self, "quantize", quant)
-            agnapprox.utils.set_all(self, "approximate", approx)
-            agnapprox.utils.set_all(self, "noise", noise)
-
         self._mode = new_mode
         if self._mode == "baseline":
-            set_mode_params(False, False, False)
+            for _, m in self.noisy_modules:
+                m.inference_mode = al.InferenceMode.BASELINE
         if self._mode == "qat":
-            set_mode_params(True, False, False)
+            for _, m in self.noisy_modules:
+                m.inference_mode = al.InferenceMode.QUANTIZED
         if self._mode == "gradient_search":
-            set_mode_params(True, False, True)
+            for _, m in self.noisy_modules:
+                m.inference_mode = al.InferenceMode.NOISE
         if self._mode == "approx":
-            set_mode_params(False, True, False)
+            for _, m in self.noisy_modules:
+                m.inference_mode = al.InferenceMode.APPROXIMATE
 
     def forward(self, features) -> torch.Tensor:
         outputs = self.model(features)
