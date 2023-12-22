@@ -13,6 +13,8 @@ import numpy as np
 import pytorch_lightning as pl
 import torch
 
+from torchapprox.layers.approx_layer import TracedGeMMInputs
+
 if TYPE_CHECKING:
     from agnapprox.utils.select_multipliers import MatchingInfo
 
@@ -83,6 +85,14 @@ class IntermediateLayerResults:
     outputs: Union[List[np.ndarray], np.ndarray]
     weights: Optional[np.ndarray] = None
 
+    def finalize(self):
+        if self.features.shape[1] != 1:
+            self.features = self.features.transpose((0, 2, 1))
+            self.weights = self.weights.T
+        self.fan_in = self.weights.shape[0]
+
+        return self
+
 
 # Get approximate op layer inputs, outputs weights and metadata
 def get_feature_maps(
@@ -106,47 +116,25 @@ def get_feature_maps(
     """
     results = {}
 
-    # Create hook function for each layer
-    def get_hook(name):
-        module_getter = attrgetter(name)
-        results[name] = IntermediateLayerResults(
-            fan_in=module_getter(model).fan_in, features=[], outputs=[]
-        )
-
-        def hook(_module, module_in, module_out):
-            if results[name].weights is None:
-                results[name].weights = (
-                    module_in[1].cpu().detach().numpy().astype(np.float32)
-                )
-            results[name].features.append(
-                module_in[0].cpu().detach().numpy().astype(np.float32)
-            )
-            results[name].outputs.append(
-                module_out.cpu().detach().numpy().astype(np.float32)
-            )
-
-        return hook
-
-    # Set hooks
-    handles = [
-        target_module.approx_op.register_forward_hook(get_hook(name))
-        for name, target_module in target_modules
-    ]
-
     # TODO: Set LUTs to None to force accurate calculation
     prev_mode = model.mode
     model.mode = "approx"
 
+    for _, m in target_modules:
+        m.traced_inputs = TracedGeMMInputs(None, None)
+
     # Run validation to populate
     trainer.validate(model, datamodule.sample_dataloader(), verbose=False)
 
-    # Squash list of batches to a single array
-    for layer, result in results.items():
-        results[layer].features = np.concatenate(result.features)
-        results[layer].outputs = np.concatenate(result.outputs)
+    for n, m in target_modules:
+        results[n] = IntermediateLayerResults(
+            0,
+            m.traced_inputs.features.numpy(),
+            None,
+            m.traced_inputs.weights.numpy(),
+        ).finalize()
+        m.traced_inputs = None
 
-    # Clean up
-    _ = [h.remove() for h in handles]
     model.mode = prev_mode
 
     return results

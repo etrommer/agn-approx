@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, List, Optional, Tuple
 
 import numpy as np
+import numpy.typing as npt
 import pytorch_lightning as pl
 
 import agnapprox.utils.error_stats as stats
@@ -13,8 +14,6 @@ from agnapprox.libs.approxlib import ApproxLibrary
 from agnapprox.utils.model import get_feature_maps
 
 if TYPE_CHECKING:
-    from torchapprox.utils.evoapprox import ApproximateMultiplier
-
     from agnapprox.nets import ApproxNet
     from agnapprox.utils.model import IntermediateLayerResults
 
@@ -22,9 +21,16 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
+@dataclass
+class ApproximateMultiplier:
+    name: str
+    error_map: npt.NDArray
+    performance_metric: float
+
+
 def select_layer_multiplier(
     intermediate_results: "IntermediateLayerResults",
-    multipliers: List["ApproximateMultiplier"],
+    multipliers: List[ApproximateMultiplier],
     max_noise: float,
     num_samples: int = 512,
 ) -> Tuple[str, float]:
@@ -54,10 +60,12 @@ def select_layer_multiplier(
     _, w_dist = stats.to_distribution(intermediate_results.weights, -128, 127)
 
     # Maximum tolerable standard deviation
-    max_std = np.std(intermediate_results.outputs) * max_noise
-    logger.debug(
+    max_std = (
+        np.std(intermediate_results.features @ intermediate_results.weights) * max_noise
+    )
+    logger.warning(
         "Layer Standard Deviation: %f Maximum Standard Deviation: %f",
-        np.std(intermediate_results.outputs),
+        np.std(intermediate_results.features @ intermediate_results.weights),
         max_std,
     )
 
@@ -187,17 +195,17 @@ def deploy_multipliers(
         model: Model to deploy multipliers to
         matching_result: Results of multiplier matching
     """
-    for layer_info, (name, module) in zip(matching_result.layers, model.noisy_modules):
+    for layer_info, (name, module) in zip(matching_result.layers, model.approx_modules):
         assert (
             layer_info.name == name
         ), "Inconsistent layer order between model and optimization results"
-        module.approx_op.lut = library.load_lut(layer_info.multiplier_name)
+        module.lut = library.load_lut(layer_info.multiplier_name)
 
 
 def select_multipliers(
     model: "ApproxNet",
     datamodule: pl.LightningDataModule,
-    multipliers: List["ApproximateMultiplier"],
+    multipliers: List[ApproximateMultiplier],
     trainer: pl.Trainer,
 ) -> MatchingInfo:
     """
@@ -214,11 +222,11 @@ def select_multipliers(
     Returns:
         Dictionary of Assignment results
     """
-    ref_data = get_feature_maps(model, model.noisy_modules, trainer, datamodule)
+    ref_data = get_feature_maps(model, model.approx_modules, trainer, datamodule)
 
     metric_max = max([m.performance_metric for m in multipliers])
     result = MatchingInfo([], metric_max, model.total_ops)
-    for name, module in model.noisy_modules:
+    for name, module in model.approx_modules:
         mul_name, mul_metric = select_layer_multiplier(
             ref_data[name], multipliers, abs(module.stdev.item())
         )
