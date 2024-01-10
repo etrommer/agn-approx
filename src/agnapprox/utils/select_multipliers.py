@@ -3,14 +3,13 @@ Utility functions to select approximate multipliers based on reference data
 """
 import logging
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, List, Optional, Tuple
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple
 
 import numpy as np
 import numpy.typing as npt
 import pytorch_lightning as pl
 
 import agnapprox.utils.error_stats as stats
-from agnapprox.libs.approxlib import ApproxLibrary
 from agnapprox.utils.model import get_feature_maps
 
 if TYPE_CHECKING:
@@ -22,18 +21,30 @@ logger = logging.getLogger(__name__)
 
 
 @dataclass
-class ApproximateMultiplier:
+class LayerInfo:
+    """
+    Multiplier Matching result for a single layer
+    """
+
     name: str
+    opcount: float
+    max_std: float
+    mul_stds: List[float]
+
+
+@dataclass
+class ApproximateMultiplier:
     error_map: npt.NDArray
     performance_metric: float
 
 
 def select_layer_multiplier(
     intermediate_results: "IntermediateLayerResults",
-    multipliers: List[ApproximateMultiplier],
+    info: LayerInfo,
+    multipliers: Dict[str, ApproximateMultiplier],
     max_noise: float,
     num_samples: int = 512,
-) -> Tuple[str, float]:
+) -> LayerInfo:
     """
     Select a matching approximate multiplier for a single layer
 
@@ -63,27 +74,15 @@ def select_layer_multiplier(
     max_std = (
         np.std(intermediate_results.features @ intermediate_results.weights) * max_noise
     )
-    logger.warning(
-        "Layer Standard Deviation: %f Maximum Standard Deviation: %f",
-        np.std(intermediate_results.features @ intermediate_results.weights),
-        max_std,
-    )
+    # logger.warning(
+    #     "Layer Standard Deviation: %f Maximum Standard Deviation: %f",
+    #     np.std(intermediate_results.features @ intermediate_results.weights),
+    #     max_std,
+    # )
 
-    @dataclass
-    class Match:
-        """
-        Container that tracks the best AM seen so far in the search space
-        """
+    info.max_std = max_std
 
-        performance_metric: float
-        stdev: float = 0.0
-        idx: Optional[int] = None
-
-    # Initialize best match to be worse than anything in the search space
-    metric_max = max([m.performance_metric for m in multipliers]) + 1e-3
-    best_match = Match(metric_max)
-
-    for idx, mul in enumerate(multipliers):
+    for mul_name, mul in multipliers.items():
         # Calculate error standard deviation for current multiplier
         _, mul_std = stats.population_prediction(mul.error_map, x_dists, w_dist, fan_in)
         # Error is calculated w.r.t. to a single multiplication and
@@ -91,123 +90,17 @@ def select_layer_multiplier(
         # We need to scale it to the numerical range of the neuron output to make
         # it comparable.
         mul_std *= fan_in
+        info.mul_stds.append(mul_std)
 
-        # Check if multiplier is within accuracty tolerance and
-        # improves the performance metric
-        if (
-            mul_std <= max_std
-            and mul.performance_metric <= best_match.performance_metric
-        ):
-            best_match = Match(mul.performance_metric, mul_std, idx)
-
-        logger.debug(
-            "Multiplier %s: Standard Deviation: %f, Metric: %f",
-            mul.name,
-            mul_std,
-            mul.performance_metric,
-        )
-
-    if best_match.idx is None:
-        raise ValueError(
-            "Search did not yield any result. Possibly empty search space?"
-        )
-    result = multipliers[best_match.idx]
-    return result.name, result.performance_metric
-
-
-@dataclass
-class LayerInfo:
-    """
-    Multiplier Matching result for a single layer
-    """
-
-    name: str
-    multiplier_name: str
-    multiplier_performance_metric: float
-    opcount: float
-
-    def relative_opcount(self, total_opcount: float):
-        """
-        Calculate the relative contribution of this layer to the network's total operations
-
-        Args:
-            total_opcount: Number of operations in the entire networks
-
-        Returns:
-            float between 0..1 where:
-            - 0: layer contributes no operations to the network's opcount
-            - 1: layer conttibutes all operations to the network's opcount
-        """
-        return self.opcount / total_opcount
-
-    def relative_energy_consumption(self, metric_max: float):
-        """
-        Relative energy consumption of selected approximate multiplier
-
-        Args:
-            metric_max: Highest possible value for performance metric
-                (typically that of the respective accurate multiplier)
-
-        Returns:
-            float between 0..1 where:
-            - 0: selected multiplier consumes no energy
-            - 1: selected multiplier consumes the maximum amount of energy
-        """
-        return self.multiplier_performance_metric / metric_max
-
-
-@dataclass
-class MatchingInfo:
-    """
-    Multiplier Matching result for the entire model
-    """
-
-    layers: List[LayerInfo]
-    metric_max: float
-    opcount: float
-
-    @property
-    def relative_energy_consumption(self):
-        """
-        Relative Energy Consumption compared to network without approximation
-        achieved by the current AM configuration
-
-        Returns:
-            sum relative energy consumption for each layer,
-            weighted with the layer's contribution to overall operations
-        """
-        return sum(
-            [
-                l.relative_opcount(self.opcount)
-                * l.relative_energy_consumption(self.metric_max)
-                for l in self.layers
-            ]
-        )
-
-
-def deploy_multipliers(
-    model: "ApproxNet", matching_result: MatchingInfo, library: ApproxLibrary
-):
-    """
-    Deploy selected approximate multipliers to network
-
-    Args:
-        model: Model to deploy multipliers to
-        matching_result: Results of multiplier matching
-    """
-    for layer_info, (name, module) in zip(matching_result.layers, model.approx_modules):
-        assert (
-            layer_info.name == name
-        ), "Inconsistent layer order between model and optimization results"
-        module.lut = library.load_lut(layer_info.multiplier_name)
+    return info
 
 
 def select_multipliers(
     model: "ApproxNet",
     datamodule: pl.LightningDataModule,
-    multipliers: List[ApproximateMultiplier],
+    multipliers: Dict[str, ApproximateMultiplier],
     trainer: pl.Trainer,
-) -> MatchingInfo:
+) -> List[LayerInfo]:
     """
     Select matching Approximate Multipliers for all layers in a model
 
@@ -224,21 +117,12 @@ def select_multipliers(
     """
     ref_data = get_feature_maps(model, model.approx_modules, trainer, datamodule)
 
-    metric_max = max([m.performance_metric for m in multipliers])
-    result = MatchingInfo([], metric_max, model.total_ops)
+    result = []
     for name, module in model.approx_modules:
-        mul_name, mul_metric = select_layer_multiplier(
-            ref_data[name], multipliers, abs(module.stdev.item())
+        layer_result = LayerInfo(name, module.opcount, 0, [])
+        layer_result = select_layer_multiplier(
+            ref_data[name], layer_result, multipliers, abs(module.stdev.item())
         )
-        layer_result = LayerInfo(name, mul_name, mul_metric, module.opcount)
-        result.layers.append(layer_result)
-
-        logger.info(
-            "Layer: %s, Best Match: %s, Performance: %f, Relative Performance: %f",
-            name,
-            mul_name,
-            mul_metric,
-            mul_metric / metric_max,
-        )
+        result.append(layer_result)
 
     return result
