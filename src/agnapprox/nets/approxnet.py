@@ -3,7 +3,7 @@ Approximate Neural Network boilerplate implementation
 """
 # pylint: disable=arguments-differ
 import logging
-from typing import List, Optional, Tuple, Type
+from typing import List, Optional, Tuple
 
 import mlflow
 import pytorch_lightning as pl
@@ -13,7 +13,6 @@ import torchapprox.layers as tal
 from torchapprox.utils.conversion import get_approx_modules, inplace_conversion
 
 import agnapprox.utils
-from agnapprox.libs.evoapprox import EvoApprox
 
 logger = logging.getLogger(__name__)
 
@@ -40,7 +39,7 @@ class ApproxNet(pl.LightningModule):
         instances that provide additional functionality
         """
         layer_mappings = {
-            # torch.nn.Conv2d: tal.ApproxConv2d,
+            torch.nn.Conv2d: tal.ApproxConv2d,
             torch.nn.Linear: tal.ApproxLinear,
         }
         self = inplace_conversion(self, layer_mappings=layer_mappings)
@@ -82,7 +81,7 @@ class ApproxNet(pl.LightningModule):
 
     @mode.setter
     def mode(self, new_mode: str):
-        if not new_mode in ["baseline", "qat", "approx", "noise"]:
+        if new_mode not in ["baseline", "qat", "approx", "noise"]:
             raise ValueError("Invalide mode")
 
         self._mode = new_mode
@@ -126,9 +125,7 @@ class ApproxNet(pl.LightningModule):
         features, labels = val_batch
         outputs = self(features)
         loss = F.cross_entropy(outputs, labels)
-        self.log(
-            "val_loss", loss, on_step=False, on_epoch=True, prog_bar=False, logger=True
-        )
+        self.log("val_loss", loss, on_step=False, on_epoch=True, prog_bar=False, logger=True)
         accuracies = agnapprox.utils.topk_accuracy(outputs, labels, self.topk)
         for topk, accuracy in zip(self.topk, accuracies):
             self.log(
@@ -169,7 +166,7 @@ class ApproxNet(pl.LightningModule):
         epochs: Optional[int] = None,
         log_mlflow: bool = True,
         test: bool = False,
-        **kwargs
+        **kwargs,
     ):
         """Internal Trainer function. This function is called by the different
         training stage functions.
@@ -195,9 +192,9 @@ class ApproxNet(pl.LightningModule):
             accelerator="auto",
             devices=device_count,
             max_epochs=epochs,
-            accumulate_grad_batches=16,
-            # deterministic=self.deterministic,
-            **kwargs
+            # accumulate_grad_batches=16,
+            deterministic=self.deterministic,
+            **kwargs,
         )
 
         mlflow.pytorch.autolog(log_models=False, disable=not log_mlflow)
@@ -232,9 +229,7 @@ class ApproxNet(pl.LightningModule):
         self.mode = "qat"
         self._train(datamodule, "QAT Model", **kwargs)
 
-    def train_noise(
-        self, datamodule: pl.LightningDataModule, name_ext: str = "", **kwargs
-    ):
+    def train_noise(self, datamodule: pl.LightningDataModule, name_ext: str = "", **kwargs):
         """Train model with additive noise
 
         Args:
@@ -253,7 +248,7 @@ class ApproxNet(pl.LightningModule):
         self,
         datamodule: pl.LightningDataModule,
         name_ext: Optional[str] = None,
-        **kwargs
+        **kwargs,
     ):
         """Train model with simulated approximate multipliers
 
