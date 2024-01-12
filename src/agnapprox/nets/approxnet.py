@@ -38,6 +38,7 @@ class ApproxNet(pl.LightningModule):
         self.deterministic: bool = deterministic
         self.approx_modules: List[Tuple[str, torch.nn.Module]] = []
         self.qconfig: Optional[QConfig] = None
+        self.name: str = ""
 
     def convert(self):
         """

@@ -31,6 +31,7 @@ class LeNet5(ApproxNet):
             "baseline": 10,
             "qat": 6,
             "approx": 6,
+            "noise": 6,
         }
         self.num_gpus = 1
 
@@ -53,8 +54,9 @@ class LeNet5(ApproxNet):
         return [optimizer], [scheduler]
 
     def _noise_optimizers(self):
-        optimizer = optim.SGD(self.parameters(), lr=5e-3, momentum=0.9)
-        scheduler = optim.lr_scheduler.MultiStepLR(optimizer, [4, 5])
+        params = [m.stdev for _, m in self.approx_modules]
+        optimizer = optim.SGD(params, lr=2e-2)
+        scheduler = optim.lr_scheduler.MultiStepLR(optimizer, [3, 4])
         return [optimizer], [scheduler]
 
     def _prune_optimizers(self):
