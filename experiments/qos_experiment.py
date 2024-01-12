@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-from typing import Dict, List, Any, Optional
+from dataclasses import dataclass
+from typing import Dict, List, Any, Optional, Union
 import torch
 
 from agnapprox.nets import ApproxNet
@@ -16,6 +17,14 @@ import pytorch_lightning as pl
 import numpy as np
 
 from experiment import ApproxExperiment
+from torchapprox.operators.htp_models.htp_models_mul8s import htp_models_mul8s
+
+
+@dataclass
+class GradientSearchParams:
+    lmbd: Union[float, List[float]]
+    sigma_max: float
+    sigma_initial: float
 
 
 class QoSExperiment(ApproxExperiment):
@@ -40,16 +49,16 @@ class QoSExperiment(ApproxExperiment):
             )
         return axmuls
 
-    def gradient_model(self, sigma_inital, sigma_max, lmbd) -> ApproxNet:
+    def gradient_model(self, sigma_initial, sigma_max, lmbd) -> ApproxNet:
         model = self.baseline_model
         model.sigma_max = sigma_max
         for _, m in model.approx_modules:
-            m.stdev = sigma_inital
+            m.stdev = sigma_initial
         model.lmbd = lmbd
         mlf_params = {
             "lambda": lmbd,
             "sigma_max": sigma_max,
-            "sigma_intial": sigma_inital,
+            "sigma_intial": sigma_initial,
         }
         model.train_noise(self.datamodule, mlf_params=mlf_params, test=self.test)
         return model
@@ -58,16 +67,15 @@ class QoSExperiment(ApproxExperiment):
         self, multipliers: List[str], mlf_extra_params: Optional[Dict[str, Any]]
     ):
         model = self.quantized_model(self.qconfig, "8ux8u_t")
+        print(f"Testing configuration: {multipliers}")
         for mul_name, (_, m) in zip(multipliers, model.approx_modules):
-            m.lut = evo.lut(mul_name)
+            m.lut = np.load(f"/home/elias/evo_luts/{mul_name}.npy")
         model.train_approx(self.datamodule, mlf_params=mlf_extra_params, test=self.test)
 
 
 def n_multiplier_search(
     experiment: QoSExperiment,
-    lambda_vals: List[float],
-    sigma_max: float,
-    sigma_inital: float,
+    mul_search_params: GradientSearchParams,
     n_multipliers: int,
     prune: bool = False,
 ):
@@ -78,8 +86,10 @@ def n_multiplier_search(
     # Sweep of lambda values:
     # Higher values = lower resource consumption, worse performance
     # Lower values = higher resource conumption, better performance
-    for lmbd in lambda_vals:
-        model = experiment.gradient_model(sigma_inital, sigma_max, lmbd)
+    for lmbd in mul_search_params.lmbd:
+        model = experiment.gradient_model(
+            mul_search_params.sigma_initial, mul_search_params.sigma_max, lmbd
+        )
         matching_result = select_multipliers(
             model, experiment.datamodule, experiment.search_space(), pl.Trainer()
         )
@@ -100,11 +110,16 @@ def n_multiplier_search(
     # k-Means Search Space:
     # Standard Deviation results across all multipliers for each layer for each lambda value
     # normalized to the respective layer's standard deviation
-    std_results = (
-        matching_results.loc[:, matching_results.columns.str.contains("mul8")].values
-        / matching_results.std_max.values[:, np.newaxis]
+    EPS = 1e-6
+    std_results = matching_results.loc[
+        :, matching_results.columns.str.contains("mul8")
+    ].values / (matching_results.std_max.values[:, np.newaxis] + EPS)
+    # Transform points with stdev >= 1.0 using log-transform
+    # This avoids a disproportionally strong drag of points that are not relevant to the final choice anyway
+    std_results = np.where(
+        std_results >= 1.0, 1 + np.log(std_results + EPS), std_results
     )
-    kmeans = KMeans(n_clusters=n_multipliers).fit(std_results)
+    kmeans = KMeans(n_clusters=n_multipliers, n_init=1).fit(std_results)
 
     # Assign appropriate multiplier based on k-Means centroids
     def stdresults_to_mul(std_estimate, mul_names, mul_performance):
@@ -145,14 +160,14 @@ def n_multiplier_search(
 
 qconfig_8ux8u = quant.QConfig(
     activation=quant.FakeQuantize.with_args(
-        observer=quant.HistogramObserver,
+        observer=quant.MovingAverageMinMaxObserver,
         dtype=torch.quint8,
         qscheme=torch.per_tensor_affine,
         quant_min=0,
         quant_max=255,
     ),
     weight=quant.FakeQuantize.with_args(
-        observer=quant.HistogramObserver,
+        observer=quant.MinMaxObserver,
         dtype=torch.quint8,
         qscheme=torch.per_tensor_affine,
         quant_min=0,
@@ -168,11 +183,10 @@ def lenet_mnist():
     dm = MNIST(batch_size=128, num_workers=4)
     experiment = QoSExperiment(net, dm, "mul8u", qconfig=qconfig_8ux8u)
 
-    lambda_vals = [0.5, 0.05, 0.005]
-    sigma_max = 0.5
-    sigma_inital = 0.1
+    mul_search_params = GradientSearchParams([0.5, 0.05, 0.005], 1.0, 0.5)
     n_multipliers = 3
-    n_multiplier_search(experiment, lambda_vals, sigma_max, sigma_inital, n_multipliers)
+
+    n_multiplier_search(experiment, mul_search_params, n_multipliers)
 
 
 if __name__ == "__main__":
