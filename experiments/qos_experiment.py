@@ -2,13 +2,14 @@
 from dataclasses import dataclass
 from typing import Dict, List, Any, Optional, Union
 import torch
+import tempfile
+import os
 
-from agnapprox.nets import ApproxNet
-from agnapprox.datamodules import ApproxDataModule, MNIST
+from agnapprox.datamodules import ApproxDataModule, MNIST, CIFAR10
 import torch.ao.quantization as quant
 
 import torchapprox.utils.evoapprox as evo
-from agnapprox.nets.lenet5 import LeNet5
+from agnapprox.nets import ResNet, LeNet5, ApproxNet
 from agnapprox.utils.select_multipliers import ApproximateMultiplier, select_multipliers
 import pandas as pd
 from sklearn.cluster import KMeans
@@ -17,7 +18,6 @@ import pytorch_lightning as pl
 import numpy as np
 
 from experiment import ApproxExperiment
-from torchapprox.operators.htp_models.htp_models_mul8s import htp_models_mul8s
 
 
 @dataclass
@@ -40,6 +40,8 @@ class QoSExperiment(ApproxExperiment):
         super().__init__(model, datamodule, model_dir, test)
         self.mul_filter_str = mul_filter_str
         self.qconfig = qconfig
+        # Train quantized model during initialization
+        # to provide
 
     def search_space(self) -> Dict[str, ApproximateMultiplier]:
         axmuls = {}
@@ -50,7 +52,7 @@ class QoSExperiment(ApproxExperiment):
         return axmuls
 
     def gradient_model(self, sigma_initial, sigma_max, lmbd) -> ApproxNet:
-        model = self.baseline_model
+        model = self.quantized_model(self.qconfig, "8ux8u_t")
         model.sigma_max = sigma_max
         for _, m in model.approx_modules:
             m.stdev = sigma_initial
@@ -64,13 +66,21 @@ class QoSExperiment(ApproxExperiment):
         return model
 
     def test_mul_config(
-        self, multipliers: List[str], mlf_extra_params: Optional[Dict[str, Any]]
+        self,
+        multipliers: List[str],
+        mlf_extra_params: Optional[Dict[str, Any]],
+        mlf_artifacts: Optional[List[str]],
     ):
         model = self.quantized_model(self.qconfig, "8ux8u_t")
         print(f"Testing configuration: {multipliers}")
         for mul_name, (_, m) in zip(multipliers, model.approx_modules):
             m.lut = np.load(f"/home/elias/evo_luts/{mul_name}.npy")
-        model.train_approx(self.datamodule, mlf_params=mlf_extra_params, test=self.test)
+        model.train_approx(
+            self.datamodule,
+            mlf_params=mlf_extra_params,
+            mlf_artifacts=mlf_artifacts,
+            test=self.test,
+        )
 
 
 def n_multiplier_search(
@@ -79,6 +89,10 @@ def n_multiplier_search(
     n_multipliers: int,
     prune: bool = False,
 ):
+    # experiment.test_mul_config(
+    #     ["mul8u_1JJQ"] * len(experiment.baseline_model.approx_modules), {}, []
+    # )
+    # return
     if prune:
         raise NotImplementedError("Pruning not implemented yet")
 
@@ -155,7 +169,13 @@ def n_multiplier_search(
             current_df.pwr_factor * (current_df.ops / current_df.ops.sum())
         ).sum()
         log_params = {"power_reduction": power_reduction, "lambda": lmbd}
-        experiment.test_mul_config(current_df.assignment.values, log_params)
+
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            df_path = os.path.join(tmpdirname, "matching_result.csv")
+            current_df.to_csv(df_path)
+            experiment.test_mul_config(
+                current_df.assignment.values, log_params, [df_path]
+            )
 
 
 qconfig_8ux8u = quant.QConfig(
@@ -189,5 +209,20 @@ def lenet_mnist():
     n_multiplier_search(experiment, mul_search_params, n_multipliers)
 
 
+def resnet_cifar10():
+    size = "ResNet32"
+    net = ResNet(resnet_size=size)
+    net.name = f"QoS_{size}"
+
+    dm = CIFAR10(batch_size=128, num_workers=4)
+    experiment = QoSExperiment(net, dm, "mul8u", qconfig=qconfig_8ux8u, test=True)
+
+    mul_search_params = GradientSearchParams([0.001], 0.01, 1e-3)
+    n_multipliers = 3
+
+    n_multiplier_search(experiment, mul_search_params, n_multipliers)
+
+
 if __name__ == "__main__":
-    lenet_mnist()
+    # lenet_mnist()
+    resnet_cifar10()
