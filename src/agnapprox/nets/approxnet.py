@@ -99,12 +99,12 @@ class ApproxNet(pl.LightningModule):
                 m.inference_mode = tal.InferenceMode.QUANTIZED
         if self._mode == "approx":
             self.model.apply(torch.ao.quantization.enable_observer)
-            self.model.apply(torch.ao.quantization.disable_fake_quant)
+            self.model.apply(torch.ao.quantization.enable_fake_quant)
             for _, m in self.approx_modules:
                 m.inference_mode = tal.InferenceMode.APPROXIMATE
         if self.mode == "noise":
-            self.model.apply(torch.ao.quantization.disable_observer)
-            self.model.apply(torch.ao.quantization.disable_fake_quant)
+            self.model.apply(torch.ao.quantization.enable_observer)
+            self.model.apply(torch.ao.quantization.enable_fake_quant)
             for _, m in self.approx_modules:
                 m.inference_mode = tal.InferenceMode.NOISE
 
@@ -209,6 +209,8 @@ class ApproxNet(pl.LightningModule):
         logger.debug("Training %s - %s on %d GPUs", self.name, run_name, num_gpus)
 
         mlf_extra_params = kwargs.pop("mlf_params", {})
+        mlf_artifacts = kwargs.pop("mlf_artifacts", [])
+
         trainer = pl.Trainer(
             accelerator="auto", devices=device_count, max_epochs=epochs, **kwargs
         )
@@ -217,13 +219,15 @@ class ApproxNet(pl.LightningModule):
         mlflow.set_experiment(experiment_name=self.name)
         with mlflow.start_run(run_name=run_name):
             mlflow.log_params(mlf_extra_params)
+            for artifact in mlf_artifacts:
+                mlflow.log_artifact(artifact)
             trainer.fit(self, datamodule)
             if test:
                 trainer.test(self, datamodule)
 
     def on_train_epoch_start(self) -> None:
         if self.mode == "qat" and self.current_epoch == 2:
-            self.model.apply(torch.ao.quantization.disable_observer)
+            self.model.apply(torch.ao.quantization.enable_observer)
             self.model.apply(torch.ao.quantization.enable_fake_quant)
         if self.mode == "approx" and self.current_epoch == 2:
             pass
