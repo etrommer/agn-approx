@@ -90,10 +90,6 @@ def n_multiplier_search(
     n_multipliers: int,
     prune: bool = False,
 ):
-    # experiment.test_mul_config(
-    #     ["mul8u_1JJQ"] * len(experiment.baseline_model.approx_modules), {}, []
-    # )
-    # return
     if prune:
         raise NotImplementedError("Pruning not implemented yet")
 
@@ -169,7 +165,11 @@ def n_multiplier_search(
         power_reduction = (
             current_df.pwr_factor * (current_df.ops / current_df.ops.sum())
         ).sum()
-        log_params = {"power_reduction": power_reduction, "lambda": lmbd}
+        log_params = {
+            "power_reduction": power_reduction,
+            "lambda": lmbd,
+            "n_multipliers": n_multipliers,
+        }
 
         with tempfile.TemporaryDirectory() as tmpdirname:
             df_path = os.path.join(tmpdirname, "matching_result.csv")
