@@ -19,18 +19,20 @@ class ResNet(ApproxNet):
     approximate ResNet
     """
 
-    def __init__(self, resnet_size: Optional[str] = "ResNet8", **kwargs):
+    def __init__(
+        self, resnet_size: Optional[str] = "ResNet8", num_classes: int = 10, **kwargs
+    ):
         super().__init__(**kwargs)
 
         self.name = resnet_size
         if self.name == "ResNet8":
-            self.model = resnet.resnet8()
+            self.model = resnet.resnet8(num_classes)
         elif self.name == "ResNet14":
-            self.model = resnet.resnet14()
+            self.model = resnet.resnet14(num_classes)
         elif self.name == "ResNet20":
-            self.model = resnet.resnet20()
+            self.model = resnet.resnet20(num_classes)
         elif self.name == "ResNet32":
-            self.model = resnet.resnet32()
+            self.model = resnet.resnet32(num_classes)
         else:
             raise ValueError(f"Unknown ResNet size: {resnet_size}")
 
@@ -39,7 +41,7 @@ class ResNet(ApproxNet):
             "baseline": 180,
             "noise": 10,
             "qat": 30,
-            "approx": 30,
+            "approx": 10,
         }
         self.num_gpus: int = 1
 
@@ -59,7 +61,7 @@ class ResNet(ApproxNet):
 
     def _approx_optimizers(self):
         optimizer = optim.SGD(self.parameters(), lr=1e-2, momentum=0.9)
-        scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=[16, 22])
+        scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=[5, 8])
         return [optimizer], [scheduler]
 
     def _noise_optimizers(self):
