@@ -5,10 +5,11 @@ import torch
 import tempfile
 import os
 
-from agnapprox.datamodules import ApproxDataModule, MNIST, CIFAR10
+from agnapprox.datamodules import ApproxDataModule, MNIST, CIFAR10, CIFAR100
 import torch.ao.quantization as quant
 
 import torchapprox.utils.evoapprox as evo
+import torchapprox.layers as tal
 from agnapprox.nets import ResNet, LeNet5, ApproxNet
 from agnapprox.utils.select_multipliers import ApproximateMultiplier, select_multipliers
 import pandas as pd
@@ -210,19 +211,51 @@ def lenet_mnist():
 
 
 def resnet_cifar10():
-    size = "ResNet32"
-    net = ResNet(resnet_size=size)
-    net.name = f"QoS_{size}"
+    parameters = [
+        # ("ResNet8", 4, GradientSearchParams([0.3], 0.3, 0.1)),
+        # ("ResNet14", 4, GradientSearchParams([0.3], 0.15, 0.05)),
+        ("ResNet20", 3, GradientSearchParams([0.2], 0.075, 0.01)),
+        ("ResNet32", 3, GradientSearchParams([0.15], 0.075, 0.01)),
+    ]
+    for size, n_multipliers, mul_search_params in parameters:
+        net = ResNet(resnet_size=size)
+        net.name = f"QoS_{size}"
 
-    dm = CIFAR10(batch_size=128, num_workers=4)
-    experiment = QoSExperiment(net, dm, "mul8u", qconfig=qconfig_8ux8u, test=True)
+        dm = CIFAR10(batch_size=128, num_workers=4)
+        experiment = QoSExperiment(net, dm, "mul8u", qconfig=qconfig_8ux8u, test=True)
 
-    mul_search_params = GradientSearchParams([0.001], 0.01, 1e-3)
-    n_multipliers = 3
+        # fixed_mul = "mul8u_197B"
+        # pwr_factor = experiment.search_space()[fixed_mul].performance_metric / max(
+        #     [m.performance_metric for m in experiment.search_space().values()]
+        # )
+        # experiment.test_mul_config(
+        #     [fixed_mul]
+        #     * len(experiment.quantized_model(qconfig_8ux8u, "8ux8u_t").approx_modules),
+        #     {"multiplier": fixed_mul, "power_reduction": pwr_factor},
+        #     [],
+        # )
 
-    n_multiplier_search(experiment, mul_search_params, n_multipliers)
+        n_multiplier_search(experiment, mul_search_params, n_multipliers)
+
+
+def resnet_cifar100():
+    parameters = [
+        # ("ResNet8", 4, GradientSearchParams([0.3], 0.3, 0.1)),
+        # ("ResNet14", 4, GradientSearchParams([0.3], 0.15, 0.05)),
+        # ("ResNet20", 3, GradientSearchParams([0.001], 0.005, 0.001)),
+        ("ResNet32", 3, GradientSearchParams([0.001], 0.005, 0.001)),
+    ]
+    for size, n_multipliers, mul_search_params in parameters:
+        net = ResNet(resnet_size=size, num_classes=100)
+        net.name = f"QoS_{size}_cifar100"
+        net.topk = (1, 5)
+
+        dm = CIFAR100(batch_size=128, num_workers=4)
+        experiment = QoSExperiment(net, dm, "mul8u", qconfig=qconfig_8ux8u, test=True)
+        n_multiplier_search(experiment, mul_search_params, n_multipliers)
 
 
 if __name__ == "__main__":
     # lenet_mnist()
-    resnet_cifar10()
+    # resnet_cifar10()
+    resnet_cifar100()
