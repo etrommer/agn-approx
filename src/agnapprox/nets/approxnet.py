@@ -5,6 +5,7 @@ Approximate Neural Network boilerplate implementation
 import logging
 from typing import List, Optional, Tuple
 
+import numpy as np
 import mlflow
 import pytorch_lightning as pl
 import torch
@@ -359,6 +360,11 @@ class ApproxNet(pl.LightningModule):
             for _, m in self.approx_modules:
                 m.inference_mode = tal.InferenceMode.APPROXIMATE
                 m.htp_model = None
+        if self.mode == "qat":
+            print("Setting accurate approx inference for testing")
+            for _, m in self.approx_modules:
+                m.inference_mode = tal.InferenceMode.APPROXIMATE
+                m.lut = np.load("/home/elias/evo_luts/mul8u_1JJQ.npy")
 
     def on_validation_start(self) -> None:
         pass
@@ -381,7 +387,7 @@ class ApproxNet(pl.LightningModule):
 
     def train_prune(self, datamodule: pl.LightningDataModule, **kwargs):
         self.mode = "prune"
-        self._train(datamodule, "Noise Search", **kwargs)
+        self._train(datamodule, "Pruning", **kwargs)
 
     def train_noise(self, datamodule: pl.LightningDataModule, **kwargs):
         self.convert()
