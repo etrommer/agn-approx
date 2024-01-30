@@ -10,7 +10,12 @@ import pytorch_lightning as pl
 import torch
 import torch.nn.functional as F
 import torchapprox.layers as tal
-from torchapprox.utils.conversion import get_approx_modules, wrap_quantizable
+from torchapprox.utils.conversion import (
+    get_approx_modules,
+    wrap_quantizable,
+    convert_batchnorms,
+)
+import numpy.typing as npt
 from torch.ao.quantization import prepare_qat, QConfig
 import torch.nn.utils.prune as prune
 
@@ -27,10 +32,7 @@ class ApproxNet(pl.LightningModule):
     Base Class that provideds common functionality for approximate neural network training
     """
 
-    def __init__(
-        self,
-        deterministic: bool = True,
-    ):
+    def __init__(self, deterministic: bool = True):
         super().__init__()
 
         self._mode: str = "baseline"
@@ -39,12 +41,32 @@ class ApproxNet(pl.LightningModule):
         self.approx_modules: List[Tuple[str, torch.nn.Module]] = []
         self.qconfig: Optional[QConfig] = None
         self.name: str = ""
+        self.multi_retraining_size: Optional[int] = None
+
+    def init_shadow_luts(self, luts: npt.NDArray):
+        assert luts.shape[0] == len(
+            self.approx_modules
+        ), "First array dimension must correspond to layers"
+        assert luts.shape[-1] == luts.shape[-2] == 256, "LUTs must be last dimension"
+        for (n, m), layer_luts in zip(self.approx_modules, luts):
+            if hasattr(m, "init_shadow_luts"):
+                logger.debug(
+                    f"Setting {n} to multi-training with {len(layer_luts)} LUTs"
+                )
+                m.init_shadow_luts(layer_luts)
+        convert_batchnorms(self, len(luts[0]))
+        self.automatic_optimization = False
+        self.multi_retraining_size = len(luts[0])
 
     def convert(self):
         """
         Replace regular Conv2d and Linear layer instances with derived approximate layer
         instances that provide additional functionality
         """
+        if self.qconfig is None:
+            raise ValueError(
+                "Converting to quantization without attaching a valid QConfig. Set model.qconfig = torch.ao.quantization.Qconfig(...) before conversion."
+            )
         self.model = wrap_quantizable(self.model, qconfig=self.qconfig)
         prepare_qat(
             self.model, mapping=tal.approx_wrapper.layer_mapping_dict(), inplace=True
@@ -70,6 +92,21 @@ class ApproxNet(pl.LightningModule):
         if self._total_ops is None:
             raise ValueError("Global Opcount is not populated. Run forward pass first.")
         return self._total_ops
+
+    @property
+    def mul_idx(self) -> Optional[int]:
+        for m in self.modules():
+            if hasattr(m, "mul_idx"):
+                return m.mul_idx
+        return None
+
+    @mul_idx.setter
+    def mul_idx(self, new_idx: int):
+        for m in self.modules():
+            if m == self:
+                continue
+            if hasattr(m, "mul_idx"):
+                m.mul_idx = new_idx
 
     @property
     def mode(self) -> str:
@@ -114,7 +151,29 @@ class ApproxNet(pl.LightningModule):
             self._total_ops = sum([m.opcount for _, m in self.approx_modules])
         return outputs
 
-    def training_step(self, train_batch, _batch_idx) -> torch.Tensor:
+    def _log_loss(self, loss, logger_item):
+        self.log(
+            logger_item,
+            loss,
+            on_step=False,
+            on_epoch=True,
+            prog_bar=False,
+            logger=True,
+        )
+
+    def _log_accuracies(self, outputs, labels, logger_item):
+        accuracies = agnapprox.utils.topk_accuracy(outputs, labels, self.topk)
+        for topk, accuracy in zip(self.topk, accuracies):
+            self.log(
+                f"{logger_item}_top{topk}",
+                accuracy,
+                on_step=False,
+                on_epoch=True,
+                prog_bar=False,
+                logger=True,
+            )
+
+    def _automatic_training_step(self, train_batch, _batch_idx) -> torch.Tensor:
         features, labels = train_batch
         outputs = self(features)
         loss = F.cross_entropy(outputs, labels)
@@ -137,33 +196,74 @@ class ApproxNet(pl.LightningModule):
             )
         return loss
 
+    def _multi_training_step(self, train_batch, _batch_idx) -> None:
+        from torchapprox.layers.multi_batchnorm import MultiBatchNorm
+
+        for i in range(self.multi_retraining_size):
+            self.mul_idx = i
+            opt = self.optimizers()
+            opt.zero_grad()
+            features, labels = train_batch
+            outputs = self(features)
+            loss = F.cross_entropy(outputs, labels)
+            self.manual_backward(loss)
+            for n, p in self.named_parameters():
+                if ("bias" in n) or ("fwd_norm" in n):
+                    continue
+                if p.grad is None:
+                    continue
+                p.grad /= self.multi_retraining_size
+            b = False
+            for n, m in self.named_modules():
+                if isinstance(m, MultiBatchNorm):
+                    print(m._mul_idx, m.fwd_norm.weight)
+                    b = True
+                if b:
+                    break
+                    # for sn in m._shadow_norms:
+                    #     print(n, i, sn.weight.grad.cpu().flatten()[:10])
+            opt.step()
+            self._log_loss(loss, f"train_loss{i}")
+            self._log_accuracies(outputs, labels, f"train_acc{i}")
+        return
+
+    def training_step(self, train_batch, _batch_idx):
+        if self.automatic_optimization:
+            return self._automatic_training_step(train_batch, _batch_idx)
+        else:
+            return self._multi_training_step(train_batch, _batch_idx)
+
     def validation_step(self, val_batch, _batch_idx) -> torch.Tensor:
         features, labels = val_batch
-        outputs = self(features)
-        loss = F.cross_entropy(outputs, labels)
-        self.log(
-            "val_loss", loss, on_step=False, on_epoch=True, prog_bar=False, logger=True
-        )
-        accuracies = agnapprox.utils.topk_accuracy(outputs, labels, self.topk)
-        for topk, accuracy in zip(self.topk, accuracies):
-            self.log(
-                "val_acc_top{}".format(topk),
-                accuracy,
-                on_step=False,
-                on_epoch=True,
-                prog_bar=True,
-                logger=True,
-            )
+        if not self.automatic_optimization:
+            for i in range(self.multi_retraining_size):
+                self.mul_idx = i
+                outputs = self(features)
+                loss = F.cross_entropy(outputs, labels)
+                self._log_loss(loss, f"val_loss{i}")
+                self._log_accuracies(outputs, labels, f"val_acc{i}")
+        else:
+            outputs = self(features)
+            loss = F.cross_entropy(outputs, labels)
+            self._log_loss(loss, "val_loss")
+            self._log_accuracies(outputs, labels, "val_acc")
         return loss
 
     def test_step(self, test_batch, _batch_idx) -> torch.Tensor:
-        features, labels = test_batch
-        outputs = self(features)
-        loss = F.cross_entropy(outputs, labels)
-        self.log("test_loss", loss, logger=True)
-        accuracies = agnapprox.utils.topk_accuracy(outputs, labels, self.topk)
-        for topk, accuracy in zip(self.topk, accuracies):
-            self.log("test_acc_top{}".format(topk), accuracy, logger=True)
+        if not self.automatic_optimization:
+            for i in range(self.multi_retraining_size):
+                self.mul_idx = i
+                features, labels = test_batch
+                outputs = self(features)
+                loss = F.cross_entropy(outputs, labels)
+                self._log_loss(loss, f"test_loss{i}")
+                self._log_accuracies(outputs, labels, f"test_acc{i}")
+        else:
+            features, labels = test_batch
+            outputs = self(features)
+            loss = F.cross_entropy(outputs, labels)
+            self._log_loss(loss, "test_loss")
+            self._log_accuracies(outputs, labels, "test_acc")
         return loss
 
     def configure_optimizers(self):
