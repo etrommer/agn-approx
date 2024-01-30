@@ -1,13 +1,16 @@
 #!/usr/bin/env python3
-from typing import Dict, List, Any, Optional
+from dataclasses import dataclass
+from typing import Dict, List, Any, Optional, Union
 import torch
+import tempfile
+import os
 
-from agnapprox.nets import ApproxNet
-from agnapprox.datamodules import ApproxDataModule, MNIST
+from agnapprox.datamodules import ApproxDataModule, MNIST, CIFAR10, CIFAR100
 import torch.ao.quantization as quant
 
 import torchapprox.utils.evoapprox as evo
-from agnapprox.nets.lenet5 import LeNet5
+import torchapprox.layers as tal
+from agnapprox.nets import ResNet, LeNet5, ApproxNet
 from agnapprox.utils.select_multipliers import ApproximateMultiplier, select_multipliers
 import pandas as pd
 from sklearn.cluster import KMeans
@@ -16,6 +19,13 @@ import pytorch_lightning as pl
 import numpy as np
 
 from experiment import ApproxExperiment
+
+
+@dataclass
+class GradientSearchParams:
+    lmbd: Union[float, List[float]]
+    sigma_max: float
+    sigma_initial: float
 
 
 class QoSExperiment(ApproxExperiment):
@@ -31,6 +41,8 @@ class QoSExperiment(ApproxExperiment):
         super().__init__(model, datamodule, model_dir, test)
         self.mul_filter_str = mul_filter_str
         self.qconfig = qconfig
+        # Train quantized model during initialization
+        # to provide
 
     def search_space(self) -> Dict[str, ApproximateMultiplier]:
         axmuls = {}
@@ -40,34 +52,41 @@ class QoSExperiment(ApproxExperiment):
             )
         return axmuls
 
-    def gradient_model(self, sigma_inital, sigma_max, lmbd) -> ApproxNet:
-        model = self.baseline_model
+    def gradient_model(self, sigma_initial, sigma_max, lmbd) -> ApproxNet:
+        model = self.quantized_model(self.qconfig, "8ux8u_t")
         model.sigma_max = sigma_max
         for _, m in model.approx_modules:
-            m.stdev = sigma_inital
+            m.stdev = sigma_initial
         model.lmbd = lmbd
         mlf_params = {
             "lambda": lmbd,
             "sigma_max": sigma_max,
-            "sigma_intial": sigma_inital,
+            "sigma_intial": sigma_initial,
         }
         model.train_noise(self.datamodule, mlf_params=mlf_params, test=self.test)
         return model
 
     def test_mul_config(
-        self, multipliers: List[str], mlf_extra_params: Optional[Dict[str, Any]]
+        self,
+        multipliers: List[str],
+        mlf_extra_params: Optional[Dict[str, Any]],
+        mlf_artifacts: Optional[List[str]],
     ):
         model = self.quantized_model(self.qconfig, "8ux8u_t")
+        print(f"Testing configuration: {multipliers}")
         for mul_name, (_, m) in zip(multipliers, model.approx_modules):
-            m.lut = evo.lut(mul_name)
-        model.train_approx(self.datamodule, mlf_params=mlf_extra_params, test=self.test)
+            m.lut = np.load(f"/home/elias/evo_luts/{mul_name}.npy")
+        model.train_approx(
+            self.datamodule,
+            mlf_params=mlf_extra_params,
+            mlf_artifacts=mlf_artifacts,
+            test=self.test,
+        )
 
 
 def n_multiplier_search(
     experiment: QoSExperiment,
-    lambda_vals: List[float],
-    sigma_max: float,
-    sigma_inital: float,
+    mul_search_params: GradientSearchParams,
     n_multipliers: int,
     prune: bool = False,
 ):
@@ -78,8 +97,10 @@ def n_multiplier_search(
     # Sweep of lambda values:
     # Higher values = lower resource consumption, worse performance
     # Lower values = higher resource conumption, better performance
-    for lmbd in lambda_vals:
-        model = experiment.gradient_model(sigma_inital, sigma_max, lmbd)
+    for lmbd in mul_search_params.lmbd:
+        model = experiment.gradient_model(
+            mul_search_params.sigma_initial, mul_search_params.sigma_max, lmbd
+        )
         matching_result = select_multipliers(
             model, experiment.datamodule, experiment.search_space(), pl.Trainer()
         )
@@ -100,11 +121,16 @@ def n_multiplier_search(
     # k-Means Search Space:
     # Standard Deviation results across all multipliers for each layer for each lambda value
     # normalized to the respective layer's standard deviation
-    std_results = (
-        matching_results.loc[:, matching_results.columns.str.contains("mul8")].values
-        / matching_results.std_max.values[:, np.newaxis]
+    EPS = 1e-6
+    std_results = matching_results.loc[
+        :, matching_results.columns.str.contains("mul8")
+    ].values / (matching_results.std_max.values[:, np.newaxis] + EPS)
+    # Transform points with stdev >= 1.0 using log-transform
+    # This avoids a disproportionally strong drag of points that are not relevant to the final choice anyway
+    std_results = np.where(
+        std_results >= 1.0, 1 + np.log(std_results + EPS), std_results
     )
-    kmeans = KMeans(n_clusters=n_multipliers).fit(std_results)
+    kmeans = KMeans(n_clusters=n_multipliers, n_init=1).fit(std_results)
 
     # Assign appropriate multiplier based on k-Means centroids
     def stdresults_to_mul(std_estimate, mul_names, mul_performance):
@@ -139,20 +165,30 @@ def n_multiplier_search(
         power_reduction = (
             current_df.pwr_factor * (current_df.ops / current_df.ops.sum())
         ).sum()
-        log_params = {"power_reduction": power_reduction, "lambda": lmbd}
-        experiment.test_mul_config(current_df.assignment.values, log_params)
+        log_params = {
+            "power_reduction": power_reduction,
+            "lambda": lmbd,
+            "n_multipliers": n_multipliers,
+        }
+
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            df_path = os.path.join(tmpdirname, "matching_result.csv")
+            current_df.to_csv(df_path)
+            experiment.test_mul_config(
+                current_df.assignment.values, log_params, [df_path]
+            )
 
 
 qconfig_8ux8u = quant.QConfig(
     activation=quant.FakeQuantize.with_args(
-        observer=quant.HistogramObserver,
+        observer=quant.MovingAverageMinMaxObserver,
         dtype=torch.quint8,
         qscheme=torch.per_tensor_affine,
         quant_min=0,
         quant_max=255,
     ),
     weight=quant.FakeQuantize.with_args(
-        observer=quant.HistogramObserver,
+        observer=quant.MinMaxObserver,
         dtype=torch.quint8,
         qscheme=torch.per_tensor_affine,
         quant_min=0,
@@ -168,12 +204,58 @@ def lenet_mnist():
     dm = MNIST(batch_size=128, num_workers=4)
     experiment = QoSExperiment(net, dm, "mul8u", qconfig=qconfig_8ux8u)
 
-    lambda_vals = [0.5, 0.05, 0.005]
-    sigma_max = 0.5
-    sigma_inital = 0.1
+    mul_search_params = GradientSearchParams([0.5, 0.05, 0.005], 1.0, 0.5)
     n_multipliers = 3
-    n_multiplier_search(experiment, lambda_vals, sigma_max, sigma_inital, n_multipliers)
+
+    n_multiplier_search(experiment, mul_search_params, n_multipliers)
+
+
+def resnet_cifar10():
+    parameters = [
+        # ("ResNet8", 4, GradientSearchParams([0.3], 0.3, 0.1)),
+        # ("ResNet14", 4, GradientSearchParams([0.3], 0.15, 0.05)),
+        ("ResNet20", 3, GradientSearchParams([0.2], 0.075, 0.01)),
+        ("ResNet32", 3, GradientSearchParams([0.15], 0.075, 0.01)),
+    ]
+    for size, n_multipliers, mul_search_params in parameters:
+        net = ResNet(resnet_size=size)
+        net.name = f"QoS_{size}"
+
+        dm = CIFAR10(batch_size=128, num_workers=4)
+        experiment = QoSExperiment(net, dm, "mul8u", qconfig=qconfig_8ux8u, test=True)
+
+        # fixed_mul = "mul8u_197B"
+        # pwr_factor = experiment.search_space()[fixed_mul].performance_metric / max(
+        #     [m.performance_metric for m in experiment.search_space().values()]
+        # )
+        # experiment.test_mul_config(
+        #     [fixed_mul]
+        #     * len(experiment.quantized_model(qconfig_8ux8u, "8ux8u_t").approx_modules),
+        #     {"multiplier": fixed_mul, "power_reduction": pwr_factor},
+        #     [],
+        # )
+
+        n_multiplier_search(experiment, mul_search_params, n_multipliers)
+
+
+def resnet_cifar100():
+    parameters = [
+        # ("ResNet8", 4, GradientSearchParams([0.3], 0.3, 0.1)),
+        # ("ResNet14", 4, GradientSearchParams([0.3], 0.15, 0.05)),
+        # ("ResNet20", 3, GradientSearchParams([0.001], 0.005, 0.001)),
+        ("ResNet32", 3, GradientSearchParams([0.001], 0.005, 0.001)),
+    ]
+    for size, n_multipliers, mul_search_params in parameters:
+        net = ResNet(resnet_size=size, num_classes=100)
+        net.name = f"QoS_{size}_cifar100"
+        net.topk = (1, 5)
+
+        dm = CIFAR100(batch_size=128, num_workers=4)
+        experiment = QoSExperiment(net, dm, "mul8u", qconfig=qconfig_8ux8u, test=True)
+        n_multiplier_search(experiment, mul_search_params, n_multipliers)
 
 
 if __name__ == "__main__":
-    lenet_mnist()
+    # lenet_mnist()
+    # resnet_cifar10()
+    resnet_cifar100()

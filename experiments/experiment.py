@@ -32,15 +32,15 @@ class ApproxExperiment:
         self.model_fp32: ApproxNet = model
         self.model_quant: Optional[ApproxNet] = None
         self.datamodule: ApproxDataModule = datamodule
-        self.model_dir = model_dir
-        self.test = test
+        self.model_dir: str = model_dir
+        self.test: bool = test
 
         self.datamodule.prepare_data()
         self.datamodule.setup()
 
     @property
     def baseline_model(self) -> ApproxNet:
-        baseline_path = os.path.join(
+        baseline_path: str = os.path.join(
             self.model_dir, f"{self.model_fp32.name.lower()}_baseline.pt"
         )
         if not os.path.exists(baseline_path):
@@ -48,7 +48,7 @@ class ApproxExperiment:
                 f"No baseline model found in {baseline_path}. Training a new one."
             )
             pl.seed_everything(42)
-            self.model_fp32.train_baseline_fp32(self.datamodule)
+            self.model_fp32.train_baseline_fp32(self.datamodule, test=self.test)
             if not os.path.exists(self.model_dir):
                 logger.debug(f"Model directory {self.model_dir} not found. Creating.")
                 pathlib.Path(self.model_dir).mkdir()
