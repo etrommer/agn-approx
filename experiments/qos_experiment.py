@@ -55,18 +55,34 @@ class QoSExperiment(ApproxExperiment):
         return axmuls
 
     def gradient_model(self, sigma_initial, sigma_max, lmbd) -> ApproxNet:
-        model = self.quantized_model(self.qconfig, "8ux8u_t")
-        model.sigma_max = sigma_max
-        for _, m in model.approx_modules:
-            m.stdev = sigma_initial
-        model.lmbd = lmbd
-        mlf_params = {
-            "lambda": lmbd,
-            "sigma_max": sigma_max,
-            "sigma_intial": sigma_initial,
-        }
-        model.train_noise(self.datamodule, mlf_params=mlf_params, test=self.test)
-        return model
+        grad_model = self.quantized_model(self.qconfig, "8ux8u_t")
+        grad_path = os.path.join(
+            self.model_dir,
+            f"{self.model_fp32.name.lower()}_grad_{str(sigma_max).replace('.', '-')}_{str(lmbd).replace('.', '-')}.pt",
+        )
+        if not os.path.exists(grad_path):
+            logger.debug(
+                f"No gradient model for sigma_max={sigma_max}, lambda={sigma_max} found in {grad_path}. Training a new one."
+            )
+            grad_model.sigma_max = sigma_max
+            for _, m in grad_model.approx_modules:
+                m.stdev = sigma_initial
+            grad_model.lmbd = lmbd
+            mlf_params = {
+                "lambda": lmbd,
+                "sigma_max": sigma_max,
+                "sigma_intial": sigma_initial,
+            }
+            pl.seed_everything(42)
+            grad_model.train_noise(
+                self.datamodule, mlf_params=mlf_params, test=self.test
+            )
+            torch.save(grad_model.state_dict(), grad_path)
+        grad_model.load_state_dict(torch.load(grad_path))
+        grad_model.mode = "noise"
+        if torch.cuda.is_available():
+            grad_model.to("cuda")
+        return grad_model
 
     def test_mul_config(
         self,
