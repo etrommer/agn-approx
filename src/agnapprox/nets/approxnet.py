@@ -126,7 +126,7 @@ class ApproxNet(pl.LightningModule):
     @mode.setter
     def mode(self, new_mode: str):
         if new_mode not in ["noise", "qat", "approx", "prune"]:
-            raise ValueError("Invalide mode")
+            raise ValueError(f"Invalid mode: {new_mode}")
 
         self._mode = new_mode
         if self._mode == "qat":
@@ -200,33 +200,26 @@ class ApproxNet(pl.LightningModule):
     def _multi_training_step(self, train_batch, _batch_idx) -> None:
         from torchapprox.layers.multi_batchnorm import MultiBatchNorm
 
+        opt = self.optimizers()
+        opt.zero_grad()
+        agg_loss = 0
         for i in range(self.multi_retraining_size):
             self.mul_idx = i
-            opt = self.optimizers()
-            opt.zero_grad()
             features, labels = train_batch
             outputs = self(features)
             loss = F.cross_entropy(outputs, labels)
+            agg_loss += loss
             self.manual_backward(loss)
-            for n, p in self.named_parameters():
-                if ("bias" in n) or ("fwd_norm" in n):
-                    continue
-                if p.grad is None:
-                    continue
-                p.grad /= self.multi_retraining_size
-            b = False
-            for n, m in self.named_modules():
-                if isinstance(m, MultiBatchNorm):
-                    print(m._mul_idx, m.fwd_norm.weight)
-                    b = True
-                if b:
-                    break
-                    # for sn in m._shadow_norms:
-                    #     print(n, i, sn.weight.grad.cpu().flatten()[:10])
-            opt.step()
             self._log_loss(loss, f"train_loss{i}")
             self._log_accuracies(outputs, labels, f"train_acc{i}")
-        return
+        for n, p in self.named_parameters():
+            # if ("bias" in n) or ("fwd_norm" in n):
+            #     continue
+            if p.grad is None:
+                continue
+            p.grad /= self.multi_retraining_size
+        opt.step()
+        return agg_loss / self.multi_retraining_size
 
     def training_step(self, train_batch, _batch_idx):
         if self.automatic_optimization:
