@@ -1,24 +1,26 @@
 #!/usr/bin/env python3
-from dataclasses import dataclass
-from typing import Dict, List, Any, Optional, Union
-import torch
-import tempfile
+import logging
 import os
+import tempfile
+from dataclasses import dataclass
+from typing import Any, Dict, List, Optional, Union
 
-from agnapprox.datamodules import ApproxDataModule, MNIST, CIFAR10, CIFAR100
-import torch.ao.quantization as quant
-
-import torchapprox.utils.evoapprox as evo
-import torchapprox.layers as tal
-from agnapprox.nets import ResNet, LeNet5, ApproxNet
-from agnapprox.utils.select_multipliers import ApproximateMultiplier, select_multipliers
+import numpy as np
+import numpy.typing as npt
 import pandas as pd
+import pytorch_lightning as pl
+import torch
+import torch.ao.quantization as quant
+import torchapprox.layers as tal
+import torchapprox.utils.evoapprox as evo
+from agnapprox.datamodules import CIFAR10, CIFAR100, MNIST, ApproxDataModule
+from agnapprox.nets import ApproxNet, LeNet5, ResNet
+from agnapprox.utils.select_multipliers import ApproximateMultiplier, select_multipliers
+from experiment import ApproxExperiment
 from sklearn.cluster import KMeans
 
-import pytorch_lightning as pl
-import numpy as np
-
-from experiment import ApproxExperiment
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 
 @dataclass
