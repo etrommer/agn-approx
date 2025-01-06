@@ -1,6 +1,7 @@
 """
 Class definition for VGG Approximate NN
 """
+
 import logging
 from typing import Optional
 
@@ -26,16 +27,18 @@ class VGG(ApproxNet):
         pretrained: bool = True,
     ):
         super().__init__()
+        if pretrained:
+            weights = torchvision.models.VGG16_BN_Weights.DEFAULT
 
         self.name = vgg_size
-        if self.name == "VGG11":
-            self.model = torchvision.models.vgg11_bn(pretrained=pretrained)
-        if self.name == "VGG13":
-            self.model = torchvision.models.vgg13_bn(pretrained=pretrained)
-        if self.name == "VGG16":
-            self.model = torchvision.models.vgg16_bn(pretrained=pretrained)
-        if self.name == "VGG19":
-            self.model = torchvision.models.vgg19_bn(pretrained=pretrained)
+        if self.name.lower() == "vgg11":
+            self.model = torchvision.models.vgg11_bn(weights=weights)
+        if self.name.lower() == "vgg13":
+            self.model = torchvision.models.vgg13_bn(weights=weights)
+        if self.name.lower() == "vgg16":
+            self.model = torchvision.models.vgg16_bn(weights=weights)
+        if self.name.lower() == "vgg19":
+            self.model = torchvision.models.vgg19_bn(weights=weights)
 
         # Replace last layer with randomly initialized layer of correct size
         if num_classes != 1000:
@@ -49,7 +52,6 @@ class VGG(ApproxNet):
             "approx": 2,
         }
         self.num_gpus = 1
-        self.gather_noisy_modules()
 
     def _baseline_optimizers(self):
         optimizer = torch.optim.SGD(
@@ -71,11 +73,31 @@ class VGG(ApproxNet):
         return [optimizer], [scheduler]
 
     def _approx_optimizers(self):
-        optimizer = torch.optim.SGD(self.parameters(), lr=1e-3, momentum=0.9)
+        if self.tune_bn:
+            params = []
+            for p in self.parameters():
+                p.requires_grad = False
+            for m in self.modules():
+                if isinstance(m, torch.nn.BatchNorm1d) or isinstance(
+                    m, torch.nn.BatchNorm2d
+                ):
+                    params.append(m.weight)
+                    params.append(m.bias)
+                    m.bias.requires_grad = True
+                    m.weight.requires_grad = True
+                    continue
+                if hasattr(m, "bias") and m.bias is not None:
+                    params.append(m.bias)
+                    m.bias.requires_grad = True
+        else:
+            params = [p for p in self.parameters()]
+        optimizer = torch.optim.SGD(params, lr=1e-3, momentum=0.9)
         scheduler = torch.optim.lr_scheduler.StepLR(optimizer, 1)
         return [optimizer], [scheduler]
 
-    def _gs_optimizers(self):
-        optimizer = torch.optim.SGD(self.parameters(), lr=5e-4, momentum=0.9)
+    def _noise_optimizers(self):
+        optimizer = torch.optim.SGD(
+            self.parameters(), lr=5e-4, momentum=0.9, weight_decay=1e-3
+        )
         scheduler = torch.optim.lr_scheduler.StepLR(optimizer, 2)
         return [optimizer], [scheduler]

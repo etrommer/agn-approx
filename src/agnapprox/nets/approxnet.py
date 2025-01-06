@@ -1,6 +1,7 @@
 """
 Approximate Neural Network boilerplate implementation
 """
+
 # pylint: disable=arguments-differ
 import logging
 from typing import List, Optional, Tuple
@@ -14,7 +15,6 @@ import torchapprox.layers as tal
 from torchapprox.utils.conversion import (
     get_approx_modules,
     wrap_quantizable,
-    convert_batchnorms,
 )
 import numpy.typing as npt
 from torch.ao.quantization import prepare_qat, QConfig
@@ -44,21 +44,6 @@ class ApproxNet(pl.LightningModule):
         self.name: str = ""
         self.multi_retraining_size: Optional[int] = None
 
-    def init_shadow_luts(self, luts: npt.NDArray):
-        assert luts.shape[0] == len(
-            self.approx_modules
-        ), "First array dimension must correspond to layers"
-        assert luts.shape[-1] == luts.shape[-2] == 256, "LUTs must be last dimension"
-        for (n, m), layer_luts in zip(self.approx_modules, luts):
-            if hasattr(m, "init_shadow_luts"):
-                logger.debug(
-                    f"Setting {n} to multi-training with {len(layer_luts)} LUTs"
-                )
-                m.init_shadow_luts(layer_luts)
-        convert_batchnorms(self, len(luts[0]))
-        self.automatic_optimization = False
-        self.multi_retraining_size = len(luts[0])
-
     def convert(self):
         """
         Replace regular Conv2d and Linear layer instances with derived approximate layer
@@ -68,7 +53,7 @@ class ApproxNet(pl.LightningModule):
             raise ValueError(
                 "Converting to quantization without attaching a valid QConfig. Set model.qconfig = torch.ao.quantization.Qconfig(...) before conversion."
             )
-        self.model = wrap_quantizable(self.model, qconfig=self.qconfig)
+        self.model = wrap_quantizable(self.model, qconfig=self.qconfig).cuda()
         prepare_qat(
             self.model, mapping=tal.approx_wrapper.layer_mapping_dict(), inplace=True
         )
@@ -304,6 +289,7 @@ class ApproxNet(pl.LightningModule):
 
         mlf_extra_params = kwargs.pop("mlf_params", {})
         mlf_artifacts = kwargs.pop("mlf_artifacts", [])
+        mlf_tags = kwargs.pop("mlf_tags", {})
 
         trainer = pl.Trainer(
             accelerator="auto", devices=device_count, max_epochs=epochs, **kwargs
@@ -313,6 +299,7 @@ class ApproxNet(pl.LightningModule):
         mlflow.set_experiment(experiment_name=self.name)
         with mlflow.start_run(run_name=run_name):
             mlflow.log_params(mlf_extra_params)
+            mlflow.set_tags(mlf_tags)
             for artifact in mlf_artifacts:
                 mlflow.log_artifact(artifact)
             trainer.fit(self, datamodule)

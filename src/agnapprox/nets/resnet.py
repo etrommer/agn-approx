@@ -1,6 +1,7 @@
 """
 Class definition for ResNet Approximate NN
 """
+
 import logging
 from typing import Optional
 
@@ -60,12 +61,23 @@ class ResNet(ApproxNet):
         return [optimizer], [scheduler]
 
     def _approx_optimizers(self):
-        optimizer = optim.SGD(self.parameters(), lr=1e-2, momentum=0.9)
+        if self.tune_bn:
+            params = [
+                p for n, p in self.named_parameters() if (".bn" in n) or ("bias" in n)
+            ]
+            for n, p in self.named_parameters():
+                if ".bn" not in n and "bias" not in n:
+                    p.requires_grad = False
+        else:
+            params = [p for p in self.parameters()]
+
+        optimizer = optim.SGD(params, lr=1e-3, momentum=0.9)
+        # optimizer = optim.SGD(self.parameters(), lr=1e-2, momentum=0.9)
         scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=[5, 8])
         return [optimizer], [scheduler]
 
     def _noise_optimizers(self):
         params = [m.stdev for _, m in self.approx_modules]
-        optimizer = optim.SGD(params, lr=1e-3, momentum=0.9)
+        optimizer = optim.SGD(params, lr=5e-4, momentum=0.9)
         scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=[6, 10])
         return [optimizer], [scheduler]

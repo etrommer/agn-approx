@@ -1,6 +1,7 @@
 """
 Class definition for MobileNetV2 Approximate NN
 """
+
 import logging
 
 import torch
@@ -30,18 +31,18 @@ class MobileNetV2(ApproxNet):
         self.topk = (1, 5)
         self.epochs: dict = {
             "baseline": 30,
-            "qat": 8,
+            "qat": 9,
             "noise": 5,
             "approx": 2,
         }
+        self.model.features[0][0].stride = (1, 1)
         self.num_gpus = 1
-        self.gather_noisy_modules()
 
     def _baseline_optimizers(self):
         optimizer = torch.optim.SGD(
             self.parameters(), lr=1e-1, momentum=0.9, weight_decay=1e-4
         )
-        scheduler = torch.optim.lr_scheduler.StepLR(optimizer, 10)
+        scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=[18, 26])
         return [optimizer], [scheduler]
 
     def _qat_optimizers(self):
@@ -50,11 +51,30 @@ class MobileNetV2(ApproxNet):
         return [optimizer], [scheduler]
 
     def _approx_optimizers(self):
-        optimizer = torch.optim.SGD(self.parameters(), lr=3e-3, momentum=0.9)
+        if self.tune_bn:
+            params = []
+            for p in self.parameters():
+                p.requires_grad = False
+            for m in self.modules():
+                if isinstance(m, torch.nn.BatchNorm1d) or isinstance(
+                    m, torch.nn.BatchNorm2d
+                ):
+                    params.append(m.weight)
+                    params.append(m.bias)
+                    m.bias.requires_grad = True
+                    m.weight.requires_grad = True
+                    continue
+                if hasattr(m, "bias") and m.bias is not None:
+                    params.append(m.bias)
+                    m.bias.requires_grad = True
+        else:
+            params = [p for p in self.parameters()]
+        optimizer = torch.optim.SGD(params=params, lr=2e-3, momentum=0.9)
         scheduler = torch.optim.lr_scheduler.StepLR(optimizer, 1)
         return [optimizer], [scheduler]
 
-    def _gs_optimizers(self):
-        optimizer = torch.optim.SGD(self.parameters(), lr=5e-3, momentum=0.9)
+    def _noise_optimizers(self):
+        params = [m.stdev for _, m in self.approx_modules]
+        optimizer = torch.optim.SGD(params, lr=5e-3, momentum=0.9, weight_decay=1e-3)
         scheduler = torch.optim.lr_scheduler.StepLR(optimizer, 2)
         return [optimizer], [scheduler]

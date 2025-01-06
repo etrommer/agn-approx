@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import logging
 import os
+import copy
 import tempfile
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Union
@@ -13,8 +14,14 @@ import torch
 import torch.ao.quantization as quant
 import torchapprox.layers as tal
 import torchapprox.utils.evoapprox as evo
-from agnapprox.datamodules import CIFAR10, CIFAR100, MNIST, ApproxDataModule
-from agnapprox.nets import ApproxNet, LeNet5, ResNet
+from agnapprox.datamodules import (
+    CIFAR10,
+    CIFAR100,
+    MNIST,
+    ApproxDataModule,
+    TinyImageNet,
+)
+from agnapprox.nets import ApproxNet, LeNet5, ResNet, MobileNetV2, MobileViT
 from agnapprox.utils.select_multipliers import ApproximateMultiplier, select_multipliers
 from experiment import ApproxExperiment
 from sklearn.cluster import KMeans
@@ -96,11 +103,31 @@ class QoSExperiment(ApproxExperiment):
             for lut, (_, m) in zip(luts, model.approx_modules):
                 m.lut = lut[0]
         else:
-            model.init_shadow_luts(luts)
+            assert False
+        model.tune_bn = False
+        model.train_approx(
+            self.datamodule,
+            epochs=0,
+            mlf_params=mlf_extra_params,
+            mlf_artifacts=mlf_artifacts,
+            mlf_tags={"method": "qos_pre"},
+            test=self.test,
+        )
+        model1 = copy.deepcopy(model)
+        model1.tune_bn = True
+        model1.train_approx(
+            self.datamodule,
+            mlf_params=mlf_extra_params,
+            mlf_artifacts=mlf_artifacts,
+            mlf_tags={"method": "qos_bn"},
+            test=self.test,
+        )
         model.train_approx(
             self.datamodule,
             mlf_params=mlf_extra_params,
             mlf_artifacts=mlf_artifacts,
+            # mlf_tags={"method": "qos_full"},
+            mlf_tags={"method": "qos_full"},
             test=self.test,
         )
 
@@ -114,7 +141,8 @@ def n_multiplier_search(
     if prune:
         raise NotImplementedError("Pruning not implemented yet")
 
-    SCALE_FACTORS = [0.3, 1.0, 2.0]
+    # SCALE_FACTORS = [0.1, 1.0, 1.5]
+    SCALE_FACTORS = [0.01, 0.03, 0.1]
 
     # Sweep of lambda values:
     # Higher values = lower resource consumption, worse performance
@@ -159,7 +187,7 @@ def n_multiplier_search(
     # k-Means Search Space:
     # Standard Deviation results across all multipliers for each layer for each lambda value
     # normalized to the respective layer's standard deviation
-    kmeans = KMeans(n_clusters=n_multipliers, n_init=1).fit(sub_df.values)
+    kmeans = KMeans(n_clusters=n_multipliers, n_init=1).fit(sub_df.values + EPS)
 
     # Assign appropriate multiplier based on k-Means centroids
     def stdresults_to_mul(std_estimate, mul_names, mul_performance):
@@ -182,6 +210,15 @@ def n_multiplier_search(
     )
     matching_results["assignment"] = mul_choice[kmeans.labels_]
 
+    # # TODO: Baseline only
+    # mul_choice = np.array(
+    #     [
+    #         stdresults_to_mul(r.values, mul_names, mul_performance)[0]
+    #         for _, r in sub_df.iterrows()
+    #     ]
+    # )
+    # matching_results["assignment"] = mul_choice
+
     # Calculate power savings
     matching_results["pwr_factor"] = [
         evo.attribute(n, "PDK45_PWR") / max(mul_performance)
@@ -191,7 +228,7 @@ def n_multiplier_search(
     # Test each configuration
     luts = []
     log_params = {"n_multipliers": n_multipliers}
-    for i, s in enumerate(np.unique(matching_results["scale"])):
+    for i, s in enumerate(reversed(np.unique(matching_results["scale"]))):
         current_df = matching_results[matching_results["scale"] == s]
         power_reduction = (
             current_df.pwr_factor * (current_df.ops / current_df.ops.sum())
@@ -238,9 +275,9 @@ def lenet_mnist():
     net.name = "QoS_LeNet5"
 
     dm = MNIST(batch_size=128, num_workers=4)
-    experiment = QoSExperiment(net, dm, "mul8u", qconfig=qconfig_8ux8u)
+    experiment = QoSExperiment(net, dm, "mul8u", qconfig=qconfig_8ux8u, test=True)
 
-    mul_search_params = GradientSearchParams([0.5, 0.05, 0.005], 1.0, 0.5)
+    mul_search_params = GradientSearchParams([0.25, 0.01, 0.005], 0.5, 0.1)
     n_multipliers = 3
 
     n_multiplier_search(experiment, mul_search_params, n_multipliers)
@@ -248,14 +285,16 @@ def lenet_mnist():
 
 def resnet_cifar10():
     parameters = [
+        # ("ResNet8", 4, GradientSearchParams([0.1], 0.3, 0.01)),
+        ("ResNet8", 4, GradientSearchParams(0.1, 0.05, 0.01)),
         # ("ResNet8", 4, GradientSearchParams([0.3], 0.3, 0.1)),
         # ("ResNet14", 4, GradientSearchParams([0.3], 0.15, 0.05)),
-        ("ResNet20", 3, GradientSearchParams([0.2], 0.075, 0.01)),
-        ("ResNet32", 3, GradientSearchParams([0.15], 0.075, 0.01)),
+        # ("ResNet20", 3, GradientSearchParams([0.2], 0.075, 0.01)),
+        # ("ResNet32", 3, GradientSearchParams([0.15], 0.075, 0.01)),
     ]
     for size, n_multipliers, mul_search_params in parameters:
         net = ResNet(resnet_size=size)
-        net.name = f"QoS_{size}"
+        net.name = f"QoS_{size}_multi"
 
         dm = CIFAR10(batch_size=128, num_workers=4)
         experiment = QoSExperiment(net, dm, "mul8u", qconfig=qconfig_8ux8u, test=True)
@@ -276,14 +315,15 @@ def resnet_cifar10():
 
 def resnet_cifar100():
     parameters = [
-        # ("ResNet8", 4, GradientSearchParams([0.3], 0.3, 0.1)),
+        ("ResNet8", 4, GradientSearchParams([0.3, 0.1, 0.0], 0.3, 0.01)),
         # ("ResNet14", 4, GradientSearchParams([0.3], 0.15, 0.05)),
         # ("ResNet20", 3, GradientSearchParams([0.001], 0.005, 0.001)),
-        ("ResNet32", 3, GradientSearchParams([0.001], 0.005, 0.001)),
+        # ("ResNet32", 3, GradientSearchParams([0.05, 0.01, 0.0], 0.005, 0.001)),
+        # ("ResNet32", 3, GradientSearchParams([0.05, 0.01, 0.0], 0.005, 0.001)),
     ]
     for size, n_multipliers, mul_search_params in parameters:
         net = ResNet(resnet_size=size, num_classes=100)
-        net.name = f"QoS_{size}_cifar100"
+        net.name = f"QoS_{size}_multi_cifar100"
         net.topk = (1, 5)
 
         dm = CIFAR100(batch_size=128, num_workers=4)
@@ -291,7 +331,31 @@ def resnet_cifar100():
         n_multiplier_search(experiment, mul_search_params, n_multipliers)
 
 
+def mnetv2_imagenet200():
+    mul_search_params = GradientSearchParams(0.1, 0.05, 0.001)
+    net = MobileNetV2(200)
+    net.name = "QoS_mnetv2_multi_imagenet200"
+    net.topk = (1, 5)
+
+    dm = TinyImageNet(batch_size=128, num_workers=16)
+    experiment = QoSExperiment(net, dm, "mul8u", qconfig=qconfig_8ux8u, test=True)
+    n_multiplier_search(experiment, mul_search_params, 4)
+
+
+def mobilevit_imagenet200():
+    mul_search_params = GradientSearchParams(0.1, 0.05, 0.001)
+    net = MobileViT(num_classes=200, deterministic=True)
+    net.name = "QoS_mvit_multi_imagenet200"
+    net.topk = (1, 5)
+
+    dm = TinyImageNet(batch_size=128, num_workers=16)
+    experiment = QoSExperiment(net, dm, "mul8u", qconfig=qconfig_8ux8u, test=True)
+    n_multiplier_search(experiment, mul_search_params, 4)
+
+
 if __name__ == "__main__":
     # lenet_mnist()
     # resnet_cifar10()
-    resnet_cifar100()
+    # resnet_cifar100()
+    # mnetv2_imagenet200()
+    mobilevit_imagenet200()
