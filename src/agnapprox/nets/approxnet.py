@@ -4,6 +4,8 @@ Approximate Neural Network boilerplate implementation
 
 # pylint: disable=arguments-differ
 import logging
+import os
+import tempfile
 from typing import List, Optional, Tuple
 
 import numpy as np
@@ -19,6 +21,7 @@ from torchapprox.utils.conversion import (
 import numpy.typing as npt
 from torch.ao.quantization import prepare_qat, QConfig
 import torch.nn.utils.prune as prune
+from dbsparse.compress import DCSRHybridMatrix
 
 import agnapprox.utils
 
@@ -110,7 +113,7 @@ class ApproxNet(pl.LightningModule):
 
     @mode.setter
     def mode(self, new_mode: str):
-        if new_mode not in ["noise", "qat", "approx", "prune"]:
+        if new_mode not in ["noise", "qat", "approx", "prune", "noise_prune"]:
             raise ValueError(f"Invalid mode: {new_mode}")
 
         self._mode = new_mode
@@ -125,7 +128,7 @@ class ApproxNet(pl.LightningModule):
             self.model.apply(torch.ao.quantization.enable_fake_quant)
             for _, m in self.approx_modules:
                 m.inference_mode = tal.InferenceMode.APPROXIMATE
-        if self.mode == "noise":
+        if self.mode == "noise" or self.mode == "noise_prune":
             self.model.apply(torch.ao.quantization.enable_observer)
             self.model.apply(torch.ao.quantization.enable_fake_quant)
             for _, m in self.approx_modules:
@@ -163,6 +166,16 @@ class ApproxNet(pl.LightningModule):
         features, labels = train_batch
         outputs = self(features)
         loss = F.cross_entropy(outputs, labels)
+
+        if self.mode == "noise_prune":
+            for _, mod in self.approx_modules:
+                noise_loss = (
+                    mod.weight.numel()
+                    / torch.sum(
+                        torch.tensor([m.weight.numel() for _, m in self.approx_modules])
+                    )
+                ) * torch.minimum(torch.abs(mod.stdev), torch.tensor(self.sigma_max))
+                loss -= torch.tensor(self.lmbd) * noise_loss
         if self.mode == "noise":
             for _, mod in self.approx_modules:
                 noise_loss = (mod.opcount / self.total_ops) * torch.minimum(
@@ -248,8 +261,8 @@ class ApproxNet(pl.LightningModule):
     def configure_optimizers(self):
         if self._mode == "baseline":
             return self._baseline_optimizers()
-        if self._mode == "noise":
-            return self._qat_optimizers()
+        if self._mode == "noise" or self._mode == "noise_prune":
+            return self._noise_optimizers()
         if self._mode == "qat":
             return self._qat_optimizers()
         if self._mode == "approx":
@@ -280,7 +293,7 @@ class ApproxNet(pl.LightningModule):
             test: Run on test set after training. Defaults to False.
         """
         if epochs is None:
-            epochs = self.epochs[self.mode]
+            epochs = self.epochs["noise" if self.mode == "noise_prune" else self.mode]
 
         num_gpus = min(self.num_gpus, torch.cuda.device_count())
         device_count = "auto" if num_gpus == 0 else num_gpus
@@ -290,6 +303,7 @@ class ApproxNet(pl.LightningModule):
         mlf_extra_params = kwargs.pop("mlf_params", {})
         mlf_artifacts = kwargs.pop("mlf_artifacts", [])
         mlf_tags = kwargs.pop("mlf_tags", {})
+        log_sparse_qos = kwargs.pop("log_sparse_qos", False)
 
         trainer = pl.Trainer(
             accelerator="auto", devices=device_count, max_epochs=epochs, **kwargs
@@ -306,17 +320,39 @@ class ApproxNet(pl.LightningModule):
             if test:
                 trainer.test(self, datamodule)
 
+            # TODO: Temporary Fix
+            if log_sparse_qos:
+                dense_size = hybrid_size = 0
+                for _, m in self.approx_modules:
+                    mask = m.weight_mask.cpu().detach().numpy().astype(np.int8)
+                    if (1.0 - (np.count_nonzero(mask) / mask.size)) < 0.1:
+                        continue
+                    hybrid_size += DCSRHybridMatrix(mask).size
+                    dense_size += mask.size
+                    prune.remove(m, "weight")
+
+                mlflow.log_metrics(
+                    {"dense_size": dense_size, "hybrid_size": hybrid_size}
+                )
+                with tempfile.TemporaryDirectory() as tmpdir:
+                    PRUNE_PATH = os.path.join(tmpdir, f"{self.name.lower()}_pruned.pt")
+                    torch.save(self.state_dict(), PRUNE_PATH)
+                    mlflow.log_artifact(PRUNE_PATH)
+
     def on_train_epoch_start(self) -> None:
         if self.mode == "qat" and self.current_epoch == 2:
-            self.model.apply(torch.ao.quantization.enable_observer)
             self.model.apply(torch.ao.quantization.enable_fake_quant)
-        if self.mode == "approx" and self.current_epoch == 2:
-            pass
+        if self.mode == "approx":
+            # pass
             # self.model.apply(torch.ao.quantization.disable_observer)
+            # if self.current_epoch < int(self.epochs["approx"] - 1):
+            #     self.model.apply(torch.ao.quantization.disable_observer)
+            # else:
+            self.model.apply(torch.ao.quantization.enable_fake_quant)
+            self.model.apply(torch.ao.quantization.enable_observer)
         if self.mode == "prune":
             for n, m in self.approx_modules:
-                target_sparsity = getattr(m, "target_sparsity", None)
-                if target_sparsity and self.current_epoch <= self.pruning_epochs:
+                if self.current_epoch <= self.pruning_epochs - 1:
                     prev_sparsity = 1 - torch.count_nonzero(m.weight) / m.weight.numel()
                     prune_amount = 1 - (
                         (1 - m.target_sparsity) ** (1 / self.pruning_epochs)
@@ -332,6 +368,11 @@ class ApproxNet(pl.LightningModule):
             for n, m in self.approx_modules:
                 logger.error(
                     f"{n} : sigma = {abs(m.stdev.item()):5.4f} @ {m.opcount:9} ops"
+                )
+        if self.mode == "noise_prune":
+            for n, m in self.approx_modules:
+                logger.error(
+                    f"{n} : sigma = {abs(m.stdev.item()):5.4f} @ {m.weight.numel():9} params"
                 )
 
     def on_test_start(self) -> None:
@@ -368,6 +409,11 @@ class ApproxNet(pl.LightningModule):
     def train_prune(self, datamodule: pl.LightningDataModule, **kwargs):
         self.mode = "prune"
         self._train(datamodule, "Pruning", **kwargs)
+
+    def train_noise_pruning(self, datamodule: pl.LightningDataModule, **kwargs):
+        self.convert()
+        self.mode = "noise_prune"
+        self._train(datamodule, "Noise Sparsitye Search", **kwargs)
 
     def train_noise(self, datamodule: pl.LightningDataModule, **kwargs):
         self.convert()

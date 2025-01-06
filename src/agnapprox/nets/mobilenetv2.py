@@ -31,10 +31,12 @@ class MobileNetV2(ApproxNet):
         self.topk = (1, 5)
         self.epochs: dict = {
             "baseline": 30,
-            "qat": 9,
+            "qat": 20,
             "noise": 5,
+            "prune": 20,
             "approx": 2,
         }
+        self.pruning_epochs = int(self.epochs["prune"] * 0.8)
         self.model.features[0][0].stride = (1, 1)
         self.num_gpus = 1
 
@@ -46,8 +48,8 @@ class MobileNetV2(ApproxNet):
         return [optimizer], [scheduler]
 
     def _qat_optimizers(self):
-        optimizer = torch.optim.SGD(self.parameters(), lr=5e-3, momentum=0.9)
-        scheduler = torch.optim.lr_scheduler.StepLR(optimizer, 4)
+        optimizer = torch.optim.SGD(self.parameters(), lr=5e-2, momentum=0.9)
+        scheduler = torch.optim.lr_scheduler.StepLR(optimizer, 8)
         return [optimizer], [scheduler]
 
     def _approx_optimizers(self):
@@ -78,3 +80,6 @@ class MobileNetV2(ApproxNet):
         optimizer = torch.optim.SGD(params, lr=5e-3, momentum=0.9, weight_decay=1e-3)
         scheduler = torch.optim.lr_scheduler.StepLR(optimizer, 2)
         return [optimizer], [scheduler]
+
+    def _prune_optimizers(self):
+        return self._qat_optimizers()

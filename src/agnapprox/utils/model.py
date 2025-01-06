@@ -1,6 +1,7 @@
 """
 Model-level utility functions
 """
+
 import dataclasses
 import json
 import os
@@ -86,10 +87,15 @@ class IntermediateLayerResults:
     weights: Optional[np.ndarray] = None
 
     def finalize(self):
+        if len(self.weights.shape) > 2:
+            self.weights = self.weights.reshape(-1, np.prod(self.weights.shape[1:]))
+
         if self.features.shape[1] != 1:
             self.features = self.features.transpose((0, 2, 1))
             self.weights = self.weights.T
-        self.fan_in = self.weights.shape[0]
+
+        if self.fan_in == 0:
+            self.fan_in = self.weights.shape[0]
 
         return self
 
@@ -128,7 +134,7 @@ def get_feature_maps(
 
     for n, m in target_modules:
         results[n] = IntermediateLayerResults(
-            0,
+            getattr(m.traced_inputs, "fan_in", 0),
             m.traced_inputs.features.numpy(),
             None,
             m.traced_inputs.weights.numpy(),

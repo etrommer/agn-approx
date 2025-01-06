@@ -40,10 +40,12 @@ class ResNet(ApproxNet):
         self.topk: tuple = (1,)
         self.epochs = {
             "baseline": 180,
-            "noise": 10,
+            "noise": 12,
             "qat": 30,
-            "approx": 10,
+            "prune": 20,
+            "approx": 8,
         }
+        self.pruning_epochs = int(self.epochs["prune"] * 0.8)
         self.num_gpus: int = 1
 
     def _baseline_optimizers(self):
@@ -71,13 +73,18 @@ class ResNet(ApproxNet):
         else:
             params = [p for p in self.parameters()]
 
-        optimizer = optim.SGD(params, lr=1e-3, momentum=0.9)
-        # optimizer = optim.SGD(self.parameters(), lr=1e-2, momentum=0.9)
-        scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=[5, 8])
+        # optimizer = optim.SGD(params, lr=1e-3, momentum=0.9)
+        optimizer = optim.SGD(self.parameters(), lr=1e-2, momentum=0.9)
+        scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=[6, 7])
         return [optimizer], [scheduler]
 
     def _noise_optimizers(self):
         params = [m.stdev for _, m in self.approx_modules]
-        optimizer = optim.SGD(params, lr=5e-4, momentum=0.9)
+        optimizer = optim.SGD(params, lr=1e-3, momentum=0.9)
         scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=[6, 10])
+        return [optimizer], [scheduler]
+
+    def _prune_optimizers(self):
+        optimizer = optim.SGD(self.parameters(), lr=1e-2, momentum=0.9)
+        scheduler = optim.lr_scheduler.StepLR(optimizer, 10)
         return [optimizer], [scheduler]

@@ -1,6 +1,7 @@
 """
 Utility functions to select approximate multipliers based on reference data
 """
+
 import logging
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple
@@ -71,8 +72,17 @@ def select_layer_multiplier(
     _, w_dist = stats.to_distribution(intermediate_results.weights, -128, 127)
 
     # Maximum tolerable standard deviation
+    intermediate_results.weights = intermediate_results.weights.reshape(
+        np.prod(intermediate_results.weights.shape[:-1]), -1
+    )
     max_std = (
         np.std(intermediate_results.features @ intermediate_results.weights) * max_noise
+    )
+    print(
+        info.name,
+        max_noise,
+        fan_in,
+        np.std(intermediate_results.features @ intermediate_results.weights),
     )
     # logger.warning(
     #     "Layer Standard Deviation: %f Maximum Standard Deviation: %f",

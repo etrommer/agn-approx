@@ -21,7 +21,7 @@ class QuantAccuracyExperiment(experiment.ApproxExperiment):
         model_dir: str = "./models",
         test: bool = False,
     ) -> None:
-        super().__init__(model, datamodule, name, model_dir, test)
+        super().__init__(model, datamodule, model_dir, test)
 
     def test_qconfig(self, qconfig: quant.QConfig, qtype: str, lut_path: str):
         mul_name = lut_path.split("/")[-1].split(".")[0]
@@ -29,12 +29,13 @@ class QuantAccuracyExperiment(experiment.ApproxExperiment):
             "mul_name": mul_name,
             "qtype": qtype,
             "experiment": "quant_comparison",
-            "gradient_clip": 0.5,
+            # "gradient_clip": 0.5,
         }
         lut = np.load(lut_path)
         qmodel = self.quantized_model(qconfig, qtype)
         for n, m in qmodel.approx_modules:
-            m.approx_op.lut = lut
+            m.lut = lut
+        qmodel.tune_bn = False
         qmodel.train_approx(
             self.datamodule,
             test=self.test,
@@ -86,12 +87,9 @@ def lenet_mnist():
                 experiment.test_qconfig(qconfig, wqname, mul)
 
 
-hotfix = ["2GR", "2DB", "3BB", "42Z"]
-
-
 def resnet_cifar10():
     net = ResNet("ResNet8")
-    dm = CIFAR10(batch_size=128, num_workers=4)
+    dm = CIFAR10(batch_size=1024, num_workers=4)
     experiment = QuantAccuracyExperiment(net, dm, "ResNet8", test=True)
     default_qconfig = tal.ApproxLayer.default_qconfig()
 
@@ -100,13 +98,15 @@ def resnet_cifar10():
     for bw in BITWIDTHS:
         multipliers = glob(f"/home/elias/evo_luts/mul8x{bw}u_*.npy")
         for mul in multipliers:
-            if any([h in mul for h in hotfix]):
+            try:
+                for wq, wqname in annotated_weight_qconfigs(bw):
+                    qconfig = quant.QConfig(
+                        activation=default_qconfig.activation, weight=wq
+                    )
+                    experiment.test_qconfig(qconfig, wqname, mul)
+            except torch.cuda.OutOfMemoryError:
+                print(f"Skipped: {mul}")
                 continue
-            for wq, wqname in annotated_weight_qconfigs(bw):
-                qconfig = quant.QConfig(
-                    activation=default_qconfig.activation, weight=wq
-                )
-                experiment.test_qconfig(qconfig, wqname, mul)
 
 
 if __name__ == "__main__":

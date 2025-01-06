@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import logging
+import math
 import os
 import copy
 import tempfile
@@ -10,6 +11,8 @@ import numpy as np
 import numpy.typing as npt
 import pandas as pd
 import pytorch_lightning as pl
+import scipy
+import scipy.stats
 import torch
 import torch.ao.quantization as quant
 import torchapprox.layers as tal
@@ -25,6 +28,7 @@ from agnapprox.nets import ApproxNet, LeNet5, ResNet, MobileNetV2, MobileViT
 from agnapprox.utils.select_multipliers import ApproximateMultiplier, select_multipliers
 from experiment import ApproxExperiment
 from sklearn.cluster import KMeans
+from torch.nn.utils.prune import l1_unstructured
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -45,7 +49,7 @@ class QoSExperiment(ApproxExperiment):
         mul_filter_str,
         qconfig: quant.QConfig,
         model_dir: str = "./models",
-        test: bool = False,
+        test: bool = True,
     ) -> None:
         super().__init__(model, datamodule, model_dir, test)
         self.mul_filter_str = mul_filter_str
@@ -60,6 +64,30 @@ class QoSExperiment(ApproxExperiment):
                 evo.error_map(m), float(evo.attribute(m, "PDK45_PWR"))
             )
         return axmuls
+
+    def sparse_model(self, qtype: str, sparsity: float) -> ApproxNet:
+        sparse_model = self.quantized_model(self.qconfig, qtype)
+        sparse_model_path = os.path.join(
+            self.model_dir,
+            f"{self.model_fp32.name.lower()}_{qtype.lower()}_sparse-{int(sparsity * 100)}.pt",
+        )
+
+        # Set pruning hooks on target modules
+        for n, m in sparse_model.approx_modules:
+            l1_unstructured(m, "weight", 0)
+
+        sparse_model.mode = "prune"
+        sparse_model.load_state_dict(torch.load(sparse_model_path))
+        if torch.cuda.is_available():
+            sparse_model.to("cuda")
+        return sparse_model
+
+    def store_sparse_model(self, model, qtype: str, sparsity: float) -> None:
+        sparse_model_path = os.path.join(
+            self.model_dir,
+            f"{self.model_fp32.name.lower()}_{qtype.lower()}_sparse-{int(sparsity * 100)}.pt",
+        )
+        torch.save(model.state_dict(), sparse_model_path)
 
     def gradient_model(self, sigma_initial, sigma_max, lmbd) -> ApproxNet:
         grad_model = self.quantized_model(self.qconfig, "8ux8u_t")
@@ -91,13 +119,32 @@ class QoSExperiment(ApproxExperiment):
             grad_model.to("cuda")
         return grad_model
 
+    def test_fixed_lut(self, mul_name: str):
+        pwr_factor = self.search_space()[mul_name].performance_metric / max(
+            [m.performance_metric for m in self.search_space().values()]
+        )
+        lut = (
+            np.load(f"/home/elias/evo_luts/{mul_name}.npy")
+            .astype(np.uint16)
+            .astype(np.int32)
+        )
+        luts = np.array(
+            [lut] * len(self.quantized_model(qconfig_8ux8u, "8ux8u_t").approx_modules)
+        )[np.newaxis]
+        self.test_mul_config(
+            np.transpose(luts, (1, 0, 2, 3)),
+            {"multiplier": mul_name, "power_reductions": pwr_factor},
+            [],
+        )
+
     def test_mul_config(
         self,
         luts: npt.NDArray,
         mlf_extra_params: Optional[Dict[str, Any]],
         mlf_artifacts: Optional[List[str]],
+        sparsity: float,
     ):
-        model = self.quantized_model(self.qconfig, "8ux8u_t")
+        model = self.sparse_model("8ux8u_t", sparsity)
         print(f"Testing configuration: {luts}")
         if luts.shape[1] == 1:
             for lut, (_, m) in zip(luts, model.approx_modules):
@@ -112,49 +159,80 @@ class QoSExperiment(ApproxExperiment):
             mlf_artifacts=mlf_artifacts,
             mlf_tags={"method": "qos_pre"},
             test=self.test,
+            log_sparse_qos=False,
         )
-        model1 = copy.deepcopy(model)
-        model1.tune_bn = True
-        model1.train_approx(
+        model = self.sparse_model("8ux8u_t", sparsity)
+        model.tune_bn = True
+        model.train_approx(
             self.datamodule,
             mlf_params=mlf_extra_params,
             mlf_artifacts=mlf_artifacts,
             mlf_tags={"method": "qos_bn"},
             test=self.test,
+            log_sparse_qos=True,
         )
+        model = self.sparse_model("8ux8u_t", sparsity)
+        model.tune_bn = False
         model.train_approx(
             self.datamodule,
             mlf_params=mlf_extra_params,
             mlf_artifacts=mlf_artifacts,
-            # mlf_tags={"method": "qos_full"},
             mlf_tags={"method": "qos_full"},
             test=self.test,
+            log_sparse_qos=True,
         )
+        # model.train_approx(
+        #     self.datamodule,
+        #     mlf_params=mlf_extra_params,
+        #     mlf_artifacts=mlf_artifacts,
+        #     # mlf_tags={"method": "qos_full"},
+        #     mlf_tags={"method": "grad_full"},
+        #     # mlf_tags={"method": "fixed"},
+        #     test=self.test,
+        # )
 
 
 def n_multiplier_search(
     experiment: QoSExperiment,
     mul_search_params: GradientSearchParams,
     n_multipliers: int,
-    prune: bool = False,
+    cutoff: int,
+    sparsity: float = 0.0,
 ):
-    if prune:
-        raise NotImplementedError("Pruning not implemented yet")
-
     # SCALE_FACTORS = [0.1, 1.0, 1.5]
-    SCALE_FACTORS = [0.01, 0.03, 0.1]
+    SCALE_FACTORS = [0.1, 0.3, 1.0]
 
     # Sweep of lambda values:
     # Higher values = lower resource consumption, worse performance
     # Lower values = higher resource conumption, better performance
+    if not math.isclose(sparsity, 0.0):
+        try:
+            model = experiment.sparse_model("8ux8u_t", sparsity)
+        except FileNotFoundError:
+            sparsity_model = experiment.quantized_model(experiment.qconfig, "8ux8u_t")
+            for _, m in sparsity_model.approx_modules:
+                if m.weight.numel() > cutoff:
+                    m.target_sparsity = sparsity
+                else:
+                    m.target_sparsity = 0.0
+
+            logger.debug(f"No sparse model. Training a new one.")
+            sparsity_model.train_prune(experiment.datamodule)
+            experiment.store_sparse_model(sparsity_model, "8ux8u_t", sparsity)
+
     model = experiment.gradient_model(
         mul_search_params.sigma_initial,
         mul_search_params.sigma_max,
         mul_search_params.lmbd,
     )
+    model.train_baseline_quant(experiment.datamodule, epochs=0)
+    print(model.name, model.total_ops)
+    return
+
     layer_matching = select_multipliers(
         model, experiment.datamodule, experiment.search_space(), pl.Trainer()
     )
+
     # Extract result for current lambda value
     matching_results = pd.DataFrame(
         columns=[n for n in experiment.search_space().keys()],
@@ -227,7 +305,7 @@ def n_multiplier_search(
 
     # Test each configuration
     luts = []
-    log_params = {"n_multipliers": n_multipliers}
+    log_params = {"n_multipliers": n_multipliers, "sparsity": sparsity}
     for i, s in enumerate(reversed(np.unique(matching_results["scale"]))):
         current_df = matching_results[matching_results["scale"] == s]
         power_reduction = (
@@ -239,6 +317,8 @@ def n_multiplier_search(
             np.array(
                 [
                     np.load(f"/home/elias/evo_luts/{m}.npy")
+                    .astype(np.uint16)
+                    .astype(np.int32)
                     for m in current_df.assignment
                 ]
             )
@@ -249,7 +329,7 @@ def n_multiplier_search(
         with tempfile.TemporaryDirectory() as tmpdirname:
             df_path = os.path.join(tmpdirname, "matching_result.csv")
             matching_results.to_csv(df_path)
-            experiment.test_mul_config(lut, log_params, [df_path])
+            experiment.test_mul_config(lut, log_params, [df_path], sparsity)
 
 
 qconfig_8ux8u = quant.QConfig(
@@ -286,12 +366,13 @@ def lenet_mnist():
 def resnet_cifar10():
     parameters = [
         # ("ResNet8", 4, GradientSearchParams([0.1], 0.3, 0.01)),
-        ("ResNet8", 4, GradientSearchParams(0.1, 0.05, 0.01)),
+        ("ResNet8", 4, GradientSearchParams(0.1, 0.3, 0.01)),
         # ("ResNet8", 4, GradientSearchParams([0.3], 0.3, 0.1)),
-        # ("ResNet14", 4, GradientSearchParams([0.3], 0.15, 0.05)),
-        # ("ResNet20", 3, GradientSearchParams([0.2], 0.075, 0.01)),
-        # ("ResNet32", 3, GradientSearchParams([0.15], 0.075, 0.01)),
+        ("ResNet14", 4, GradientSearchParams(0.3, 0.15, 0.05)),
+        ("ResNet20", 3, GradientSearchParams(0.2, 0.075, 0.01)),
+        ("ResNet32", 3, GradientSearchParams(0.10, 0.05, 0.01)),
     ]
+    sparsity = 0.5
     for size, n_multipliers, mul_search_params in parameters:
         net = ResNet(resnet_size=size)
         net.name = f"QoS_{size}_multi"
@@ -310,7 +391,9 @@ def resnet_cifar10():
         #     [],
         # )
 
-        n_multiplier_search(experiment, mul_search_params, n_multipliers)
+        n_multiplier_search(
+            experiment, mul_search_params, n_multipliers, 2048, sparsity
+        )
 
 
 def resnet_cifar100():
@@ -334,12 +417,15 @@ def resnet_cifar100():
 def mnetv2_imagenet200():
     mul_search_params = GradientSearchParams(0.1, 0.05, 0.001)
     net = MobileNetV2(200)
-    net.name = "QoS_mnetv2_multi_imagenet200"
+    net.name = "QoS_mnetv2_multi_imagenet200_sparse"
     net.topk = (1, 5)
 
     dm = TinyImageNet(batch_size=128, num_workers=16)
     experiment = QoSExperiment(net, dm, "mul8u", qconfig=qconfig_8ux8u, test=True)
-    n_multiplier_search(experiment, mul_search_params, 4)
+
+    # experiment.test_fixed_lut("mul8u_1DMU")
+    # experiment.test_fixed_lut("mul8u_8U3")
+    n_multiplier_search(experiment, mul_search_params, 4, 2084, 0.5)
 
 
 def mobilevit_imagenet200():
@@ -355,7 +441,7 @@ def mobilevit_imagenet200():
 
 if __name__ == "__main__":
     # lenet_mnist()
-    # resnet_cifar10()
+    resnet_cifar10()
     # resnet_cifar100()
     # mnetv2_imagenet200()
-    mobilevit_imagenet200()
+    # mobilevit_imagenet200()

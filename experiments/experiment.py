@@ -53,7 +53,7 @@ class ApproxExperiment:
                 logger.debug(f"Model directory {self.model_dir} not found. Creating.")
                 pathlib.Path(self.model_dir).mkdir()
             torch.save(self.model_fp32.state_dict(), baseline_path)
-        self.model_fp32.load_state_dict(torch.load(baseline_path))
+        self.model_fp32.load_state_dict(torch.load(baseline_path), strict=False)
         if torch.cuda.is_available():
             self.model_fp32.to("cuda")
         return copy.deepcopy(self.model_fp32)
@@ -77,7 +77,7 @@ class ApproxExperiment:
         else:
             quant_model.convert()
 
-        quant_model.load_state_dict(torch.load(quant_path))
+        quant_model.load_state_dict(torch.load(quant_path), strict=False)
         if torch.cuda.is_available():
             quant_model.to("cuda")
         return quant_model
